@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/registerFragment">
+
+    <!-- Login Fragment -->
+<!--    <fragment-->
+<!--        android:id="@+id/loginFragment"-->
+<!--        android:name="com.example.matbakhy.LoginFragment"-->
+<!--        android:label="Login"-->
+<!--        tools:layout="@layout/fragment_login">-->
+
+<!--        <action-->
+<!--            android:id="@+id/action_loginFragment_to_registerFragment"-->
+<!--            app:destination="@id/registerFragment" />-->
+
+<!--        <action-->
+<!--            android:id="@+id/action_loginFragment_to_forgotPasswordFragment"-->
+<!--            app:destination="@id/forgotPasswordFragment" />-->
+
+<!--&lt;!&ndash;        <action&ndash;&gt;-->
+<!--&lt;!&ndash;            android:id="@+id/action_loginFragment_to_homeFragment"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:destination="@id/homeFragment" />&ndash;&gt;-->
+<!--    </fragment>-->
+
+    <!-- Register Fragment -->
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.example.matbakhy.RegisterFragment"
+        android:label="Register"
+        tools:layout="@layout/fragment_register">
+
+<!--        <action-->
+<!--            android:id="@+id/action_registerFragment_to_loginFragment"-->
+<!--            app:destination="@id/loginFragment" />-->
+
+        <action
+            android:id="@+id/action_registerFragment_to_forgotPasswordFragment"
+            app:destination="@id/forgotPasswordFragment" />
+    </fragment>
+
+    <!-- Forgot Password Fragment -->
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="com.example.matbakhy.ForgetPasswordFragment"
+        android:label="Forgot Password"
+        tools:layout="@layout/fragment_forget_password">
+
+<!--        <action-->
+<!--            android:id="@+id/action_forgotPasswordFragment_to_loginFragment"-->
+<!--            app:destination="@id/loginFragment" />-->
+    </fragment>
+
+<!--    &lt;!&ndash; Home Fragment (after successful login/register) &ndash;&gt;-->
+<!--    <fragment-->
+<!--        android:id="@+id/homeFragment"-->
+<!--        android:name="com.example.matbakhy.HomeFragment"-->
+<!--        android:label="Home"-->
+<!--        tools:layout="@layout/fragment_home" />-->
+
+</navigation>
