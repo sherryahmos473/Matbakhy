@@ -45,7 +45,7 @@ public class ForgetPasswordFragment extends Fragment {
         progressDialog.setCancelable(false);
 
         btnSendReset.setOnClickListener(v -> sendResetEmail());
-        //txtRememberPassword.setOnClickListener(v -> navigateToLogin());
+        txtRememberPassword.setOnClickListener(v -> navigateToLogin());
         txtResendEmail.setOnClickListener(v -> resendResetEmail());
 
         view.findViewById(R.id.btnBack).setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
@@ -73,7 +73,7 @@ public class ForgetPasswordFragment extends Fragment {
         // Send reset email
         firebaseServices.sendPasswordResetEmail(userEmail, new FirebaseServices.PasswordResetCallback() {
             @Override
-            public void onSuccess() {
+            public void onSuccess(String email) {
                 progressDialog.dismiss();
                 showSuccessScreen();
             }
@@ -95,7 +95,7 @@ public class ForgetPasswordFragment extends Fragment {
         progressDialog.show();
         firebaseServices.sendPasswordResetEmail(userEmail, new FirebaseServices.PasswordResetCallback() {
             @Override
-            public void onSuccess() {
+            public void onSuccess(String email) {
                 progressDialog.dismiss();
                 new MyToast(getContext(), "Reset email resent successfully");
             }
@@ -119,8 +119,7 @@ public class ForgetPasswordFragment extends Fragment {
         layoutSuccess.setVisibility(View.VISIBLE);
         txtEmailSentTo.setText(userEmail);
     }
-
-//    private void navigateToLogin() {
-//        Navigation.findNavController(requireView()).navigate(R.id.action_forgotPasswordFragment_to_loginFragment);
-//    }
+    private void navigateToLogin() {
+        Navigation.findNavController(requireView()).navigate(R.id.action_forgotPasswordFragment_to_loginFragment);
+    }
 }

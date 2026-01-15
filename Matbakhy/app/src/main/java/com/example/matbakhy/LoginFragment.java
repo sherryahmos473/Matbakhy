@@ -2,6 +2,10 @@ package com.example.matbakhy;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,51 +14,42 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 
-public class RegisterFragment extends Fragment {
-    private EditText edtName, edtEmail, edtPassword, edtConfirmPassword;
-    private Button btnRegister;
-    private TextView txtLogin, txtForgotPassword;
+public class LoginFragment extends Fragment {
+    private EditText edtEmail, edtPassword;
+    private Button btnLogin;
+    private TextView txtRegister, txtForgotPassword;
     private ProgressDialog progressDialog;
     private FirebaseServices firebaseServices;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_register, container, false);
+        View view = inflater.inflate(R.layout.fragment_login, container, false);
 
         firebaseServices = new FirebaseServices(requireContext());
 
-        edtName = view.findViewById(R.id.nameEditText);
         edtEmail = view.findViewById(R.id.emailEditText);
         edtPassword = view.findViewById(R.id.passwordEditText);
-        edtConfirmPassword = view.findViewById(R.id.confirmPasswordEditText);
-        btnRegister = view.findViewById(R.id.signUpButton);
-        txtLogin = view.findViewById(R.id.signInTextView);
+        btnLogin = view.findViewById(R.id.signInButton);
+        txtRegister = view.findViewById(R.id.signUpTextView);
         txtForgotPassword = view.findViewById(R.id.forgotPasswordTextView);
 
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setMessage("Registering...");
         progressDialog.setCancelable(false);
 
-        btnRegister.setOnClickListener(v -> validateAndRegister());
-        txtLogin.setOnClickListener(v -> navigateToLogin());
+        btnLogin.setOnClickListener(v -> validateAndLogin());
+        txtRegister.setOnClickListener(v -> navigateToRegister());
+        txtForgotPassword.setOnClickListener(v -> navigateToForgotPassword());
 
         return view;
     }
 
-    private void validateAndRegister() {
-        String name = edtName.getText().toString().trim();
+    private void validateAndLogin() {
         String email = edtEmail.getText().toString().trim();
         String password = edtPassword.getText().toString();
-        String confirmPassword = edtConfirmPassword.getText().toString();
 
-        if (name.isEmpty()) {
-            showError(edtName, "Name is required");
-            return;
-        }
 
         if (email.isEmpty()) {
             showError(edtEmail, "Email is required");
@@ -76,29 +71,20 @@ public class RegisterFragment extends Fragment {
             return;
         }
 
-        if (confirmPassword.isEmpty()) {
-            showError(edtConfirmPassword, "Please confirm your password");
-            return;
-        }
-
-        if (!password.equals(confirmPassword)) {
-            showError(edtConfirmPassword, "Passwords do not match");
-            return;
-        }
         clearErrors();
         progressDialog.show();
-        firebaseServices.register(email, password, name, new FirebaseServices.RegistrationCallback() {
+        firebaseServices.login(email, password, new FirebaseServices.LoginCallback() {
             @Override
             public void onSuccess(User user) {
                 progressDialog.dismiss();
-                new MyToast(getContext(), "Registration successful!");
-               // navigateToHome(); // Navigate to home screen
+                new MyToast(getContext(), "Login successful!");
+                // navigateToHome(); // Navigate to home screen
             }
 
             @Override
             public void onFailure(String errorMessage) {
                 progressDialog.dismiss();
-                Log.d("Register", "onFailure: " + errorMessage);
+                Log.d("login", "onFailure: " + errorMessage);
                 new MyToast(getContext(), errorMessage);
             }
         });
@@ -110,13 +96,23 @@ public class RegisterFragment extends Fragment {
     }
 
     private void clearErrors() {
-        edtName.setError(null);
         edtEmail.setError(null);
         edtPassword.setError(null);
-        edtConfirmPassword.setError(null);
+    }
+    private void navigateToRegister() {
+        Navigation.findNavController(requireView()).navigate(R.id.action_loginFragment_to_registerFragment);
     }
 
-    private void navigateToLogin() {
-        Navigation.findNavController(requireView()).navigate(R.id.action_registerFragment_to_loginFragment);
+    private void navigateToForgotPassword() {
+        Navigation.findNavController(requireView()).navigate(R.id.action_loginFragment_to_forgotPasswordFragment);
+    }
+    private void setupEnterKeyListener() {
+        edtPassword.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
+                validateAndLogin();
+                return true;
+            }
+            return false;
+        });
     }
 }

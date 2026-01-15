@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "863663174125",
+    "project_id": "matbakhy-c9646",
+    "storage_bucket": "matbakhy-c9646.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:863663174125:android:e279e3dc811299697837e4",
+        "android_client_info": {
+          "package_name": "com.example.matbakhy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9BO7CN58cYWltoRWZWCIe4pUu1OI4fiE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
