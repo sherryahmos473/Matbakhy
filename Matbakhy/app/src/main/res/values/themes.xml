@@ -3,5 +3,6 @@
     <style name="Base.Theme.Matbakhy" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
     </style>
+
     <style name="Theme.Matbakhy" parent="Base.Theme.Matbakhy" />
 </resources>

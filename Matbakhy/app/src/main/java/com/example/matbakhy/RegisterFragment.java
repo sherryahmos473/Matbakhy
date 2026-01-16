@@ -1,7 +1,10 @@
 package com.example.matbakhy;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,11 +22,12 @@ public class RegisterFragment extends Fragment {
     private TextView txtLogin, txtForgotPassword;
     private ProgressDialog progressDialog;
     private FirebaseServices firebaseServices;
+    private  View view;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_register, container, false);
+        view = inflater.inflate(R.layout.fragment_register, container, false);
 
         firebaseServices = new FirebaseServices(requireContext());
 
@@ -92,7 +96,7 @@ public class RegisterFragment extends Fragment {
             public void onSuccess(User user) {
                 progressDialog.dismiss();
                 new MyToast(getContext(), "Registration successful!");
-               // navigateToHome(); // Navigate to home screen
+                navigateToHomeActivity(email);
             }
 
             @Override
@@ -114,6 +118,28 @@ public class RegisterFragment extends Fragment {
         edtEmail.setError(null);
         edtPassword.setError(null);
         edtConfirmPassword.setError(null);
+    }
+    private void navigateToHomeActivity(String email) {
+        try {
+
+            if (getActivity() == null || getActivity().isFinishing()) {
+                return;
+            }
+
+            Intent intent = new Intent(getActivity(), HomeActivity.class);
+            intent.putExtra("userEmail", email);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                startActivity(intent);
+                if (getActivity() != null) {
+                    getActivity().finish();
+                }
+            }, 300);
+
+        } catch (Exception e) {
+            new MyToast(getContext(),"Navigation error. Please restart app.");
+        }
     }
 
     private void navigateToLogin() {
