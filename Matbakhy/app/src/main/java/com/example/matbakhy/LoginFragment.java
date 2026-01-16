@@ -54,7 +54,6 @@ public class LoginFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        // Clear fields when fragment becomes visible
         if (edtEmail != null) edtEmail.setText("");
         if (edtPassword != null) edtPassword.setText("");
         clearErrors();
@@ -100,7 +99,6 @@ public class LoginFragment extends Fragment {
                 progressDialog.dismiss();
                 Log.d(TAG, "Login successful for: " + userEmail);
                 showToast("Login successful!");
-
                 navigateToHomeActivity(userEmail);
             }
 

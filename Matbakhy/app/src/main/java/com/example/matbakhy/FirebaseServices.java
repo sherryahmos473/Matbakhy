@@ -23,6 +23,7 @@ public class FirebaseServices {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private Context context;
+    private SharedPrefManager sharedPrefManager;
 
     private static final String TAG = "FirebaseServices";
 
@@ -50,6 +51,7 @@ public class FirebaseServices {
     // ==================== CONSTRUCTOR ====================
     public FirebaseServices(Context context) {
         this.context = context;
+        this.sharedPrefManager = SharedPrefManager.getInstance(context);
         initializeFirebase();
     }
 
@@ -61,7 +63,6 @@ public class FirebaseServices {
             // Ensure Firebase is initialized
             if (FirebaseApp.getApps(context).isEmpty()) {
                 Log.e(TAG, "FirebaseApp not initialized!");
-                // Initialize Firebase if not already initialized
                 FirebaseApp.initializeApp(context);
             }
 
@@ -74,9 +75,24 @@ public class FirebaseServices {
                 Log.d(TAG, "FirebaseAuth initialized successfully");
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 if (currentUser != null) {
-                    Log.d(TAG, "Current user: " + currentUser.getEmail());
+                    Log.d(TAG, "Current user from Firebase: " + currentUser.getEmail());
+                    if (!sharedPrefManager.isLoggedIn()) {
+                        Log.d(TAG, "Firebase has user but SharedPref doesn't, syncing...");
+                        fetchUserFromFirestore(currentUser.getUid(), new LoginCallback() {
+                            @Override
+                            public void onSuccess(User user) {
+                                saveUserToSharedPref(user);
+                                Log.d(TAG, "User synced to SharedPref: " + user.getEmail());
+                            }
+
+                            @Override
+                            public void onFailure(String errorMessage) {
+                                Log.e(TAG, "Failed to sync user to SharedPref: " + errorMessage);
+                            }
+                        });
+                    }
                 } else {
-                    Log.d(TAG, "No current user");
+                    Log.d(TAG, "No current user in Firebase");
                 }
             }
 
@@ -91,7 +107,6 @@ public class FirebaseServices {
         }
     }
 
-    // ==================== AUTHENTICATION METHODS ====================
     public void register(String email, String password, String name, RegistrationCallback callback) {
         Log.d(TAG, "Registering user: " + email);
 
@@ -112,7 +127,6 @@ public class FirebaseServices {
                 return;
             }
         }
-
         mAuth.createUserWithEmailAndPassword(email.trim(), password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -219,15 +233,31 @@ public class FirebaseServices {
                     }
                 });
     }
+
+    // ==================== USER MANAGEMENT METHODS ====================
     public void logout() {
+        Log.d(TAG, "Logging out user...");
+
+        // Clear Firebase authentication
         if (mAuth != null) {
             mAuth.signOut();
-            Log.d(TAG, "User logged out");
+            Log.d(TAG, "User logged out from Firebase");
         }
+
+        // Clear SharedPreferences
+        sharedPrefManager.clearUserData();
+        Log.d(TAG, "User data cleared from SharedPreferences");
     }
 
     public boolean isUserLoggedIn() {
-        return mAuth != null && mAuth.getCurrentUser() != null;
+        // Check both Firebase authentication and SharedPreferences
+        boolean firebaseLoggedIn = mAuth != null && mAuth.getCurrentUser() != null;
+        boolean sharedPrefLoggedIn = sharedPrefManager.isLoggedIn();
+
+        Log.d(TAG, "Login check - Firebase: " + firebaseLoggedIn + ", SharedPref: " + sharedPrefLoggedIn);
+
+        // Return true only if both agree user is logged in
+        return firebaseLoggedIn && sharedPrefLoggedIn;
     }
 
     public FirebaseUser getCurrentFirebaseUser() {
@@ -244,6 +274,26 @@ public class FirebaseServices {
         } else {
             runOnUiThread(() -> callback.onFailure("No user logged in"));
         }
+    }
+
+    public String getCurrentUserEmail() {
+        // Try to get email from SharedPreferences first (faster)
+        String email = sharedPrefManager.getUserEmail();
+        if (!email.isEmpty()) {
+            return email;
+        }
+
+        // Fall back to Firebase if SharedPreferences is empty
+        FirebaseUser user = getCurrentFirebaseUser();
+        return user != null ? user.getEmail() : "";
+    }
+
+    public String getCurrentUserName() {
+        return sharedPrefManager.getUserName();
+    }
+
+    public String getCurrentUserId() {
+        return sharedPrefManager.getUserId();
     }
 
     public void updateUserProfile(String userId, String name, String phone, String address, DataCallback callback) {
@@ -268,12 +318,33 @@ public class FirebaseServices {
                 .update(updates)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        // Update SharedPreferences if name changed
+                        if (name != null && !name.trim().isEmpty()) {
+                            sharedPrefManager.saveUserLogin(
+                                    sharedPrefManager.getUserEmail(),
+                                    name.trim(),
+                                    userId
+                            );
+                        }
                         runOnUiThread(() -> callback.onSuccess("Profile updated successfully"));
                     } else {
                         String error = getFirebaseErrorMessage(task.getException());
                         runOnUiThread(() -> callback.onFailure("Failed to update profile: " + error));
                     }
                 });
+    }
+
+    private void saveUserToSharedPref(User user) {
+        if (user != null && user.getUid() != null && user.getEmail() != null) {
+            sharedPrefManager.saveUserLogin(
+                    user.getEmail(),
+                    user.getName() != null ? user.getName() : "User",
+                    user.getUid()
+            );
+            Log.d(TAG, "User saved to SharedPreferences: " + user.getEmail());
+        } else {
+            Log.e(TAG, "Cannot save null user to SharedPreferences");
+        }
     }
 
     private boolean validateRegistrationInputs(String email, String password, String name, RegistrationCallback callback) {
@@ -344,6 +415,7 @@ public class FirebaseServices {
         if (db == null) {
             Log.w(TAG, "Firestore not available, creating user without Firestore data");
             User user = new User(userId, email, name);
+            saveUserToSharedPref(user);
             runOnUiThread(() -> callback.onSuccess(user));
             return;
         }
@@ -361,12 +433,13 @@ public class FirebaseServices {
                     if (task.isSuccessful()) {
                         Log.d(TAG, "User data stored in Firestore: " + userId);
                         User user = new User(userId, email, name);
+                        saveUserToSharedPref(user);
                         runOnUiThread(() -> callback.onSuccess(user));
                     } else {
                         String error = getFirebaseErrorMessage(task.getException());
                         Log.e(TAG, "Failed to store user data in Firestore: " + error);
-                        // Still return success since user was created in Auth
                         User user = new User(userId, email, name);
+                        saveUserToSharedPref(user);
                         runOnUiThread(() -> callback.onSuccess(user));
                     }
                 });
@@ -380,7 +453,6 @@ public class FirebaseServices {
             createUserFromFirebaseAuth(callback);
             return;
         }
-
         db.collection("users").document(userId)
                 .get()
                 .addOnCompleteListener(task -> {
@@ -388,13 +460,25 @@ public class FirebaseServices {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
                             Log.d(TAG, "User document found in Firestore");
-                            User user = document.toObject(User.class);
-                            if (user != null) {
-                                Log.d(TAG, "User object created from Firestore: " + user.getEmail());
-                                runOnUiThread(() -> callback.onSuccess(user));
-                            } else {
-                                Log.w(TAG, "User object is null from Firestore, using Auth data");
-                                createUserFromFirebaseAuth(callback);
+                            try {
+                                User user = document.toObject(User.class);
+                                if (user != null) {
+                                    Log.d(TAG, "User object created from Firestore: " + user.getEmail());
+                                    saveUserToSharedPref(user);
+                                    runOnUiThread(() -> callback.onSuccess(user));
+                                } else {
+                                    Log.w(TAG, "User object is null from Firestore, using Auth data");
+                                    createUserFromFirebaseAuth(callback);
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error deserializing user from Firestore: " + e.getMessage());
+                                User user = manualMapDocumentToUser(document);
+                                if (user != null) {
+                                    saveUserToSharedPref(user);
+                                    runOnUiThread(() -> callback.onSuccess(user));
+                                } else {
+                                    createUserFromFirebaseAuth(callback);
+                                }
                             }
                         } else {
                             Log.w(TAG, "User document not found in Firestore, creating from Auth");
@@ -407,6 +491,28 @@ public class FirebaseServices {
                 });
     }
 
+    private User manualMapDocumentToUser(DocumentSnapshot document) {
+        try {
+            String uid = document.getString("uid");
+            String email = document.getString("email");
+            String name = document.getString("name");
+
+            if (uid == null || email == null) {
+                Log.e(TAG, "Required fields missing in document");
+                return null;
+            }
+
+            User user = new User(uid, email, name != null ? name : "User");
+
+            Log.d(TAG, "Manual mapping successful for: " + email);
+            return user;
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error in manualMapDocumentToUser: " + e.getMessage());
+            return null;
+        }
+    }
+
     private void createUserFromFirebaseAuth(LoginCallback callback) {
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
         if (firebaseUser != null) {
@@ -416,6 +522,7 @@ public class FirebaseServices {
                     firebaseUser.getDisplayName() != null ? firebaseUser.getDisplayName() : "User"
             );
             Log.d(TAG, "Created user from FirebaseAuth: " + user.getEmail());
+            saveUserToSharedPref(user);
             runOnUiThread(() -> callback.onSuccess(user));
         } else {
             Log.e(TAG, "Cannot create user from FirebaseAuth - current user is null");
@@ -475,7 +582,6 @@ public class FirebaseServices {
 
     public boolean isNetworkAvailable() {
         if (context == null) return false;
-
         try {
             ConnectivityManager connectivityManager =
                     (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -501,5 +607,9 @@ public class FirebaseServices {
 
     public FirebaseFirestore getFirestore() {
         return db;
+    }
+
+    public SharedPrefManager getSharedPrefManager() {
+        return sharedPrefManager;
     }
 }
