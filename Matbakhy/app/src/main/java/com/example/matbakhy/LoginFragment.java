@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,13 +21,14 @@ import androidx.navigation.Navigation;
 
 public class LoginFragment extends Fragment {
     private EditText edtEmail, edtPassword;
-    private Button btnLogin;
+    private Button btnLogin, btnGoogle;
     private TextView txtRegister, txtForgotPassword;
     private ProgressDialog progressDialog;
     private FirebaseServices firebaseServices;
     private View rootView;
 
     private static final String TAG = "LoginFragment";
+    private static final int RC_SIGN_IN = 9001;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -34,7 +36,7 @@ public class LoginFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
         rootView = view;
 
-        firebaseServices = new FirebaseServices(requireContext());
+        firebaseServices = FirebaseServices.getInstance(requireContext());
 
         initializeViews(view);
         setupListeners();
@@ -47,7 +49,7 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (firebaseServices.isUserLoggedIn()) {
-            navigateToHomeActivity(firebaseServices.getCurrentFirebaseUser().getEmail());
+            navigateToHomeActivity(firebaseServices.getCurrentUserEmail());
         }
     }
 
@@ -65,6 +67,7 @@ public class LoginFragment extends Fragment {
         btnLogin = view.findViewById(R.id.signInButton);
         txtRegister = view.findViewById(R.id.signUpTextView);
         txtForgotPassword = view.findViewById(R.id.forgotPasswordTextView);
+        btnGoogle = view.findViewById(R.id.googleButton);
 
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setMessage("Logging in...");
@@ -76,6 +79,7 @@ public class LoginFragment extends Fragment {
         btnLogin.setOnClickListener(v -> validateAndLogin());
         txtRegister.setOnClickListener(v -> navigateToRegister());
         txtForgotPassword.setOnClickListener(v -> navigateToForgotPassword());
+        btnGoogle.setOnClickListener(v -> signInWithGoogle());
     }
 
     private void validateAndLogin() {
@@ -93,7 +97,7 @@ public class LoginFragment extends Fragment {
 
         final String userEmail = email;
 
-        firebaseServices.login(email, password, new FirebaseServices.LoginCallback() {
+        firebaseServices.login(email, password, new FirebaseServices.AuthCallback() {
             @Override
             public void onSuccess(User user) {
                 progressDialog.dismiss();
@@ -134,7 +138,7 @@ public class LoginFragment extends Fragment {
         if (password.isEmpty()) {
             showError(edtPassword, "Password is required");
             isValid = false;
-        } else if (!FirebaseServices.isValidPassword(password)) {
+        } else if (password.length() > 6) {
             showError(edtPassword, "Password must be at least 6 characters");
             isValid = false;
         }
@@ -165,6 +169,35 @@ public class LoginFragment extends Fragment {
         } catch (Exception e) {
             Log.e(TAG, "Navigation failed: " + e.getMessage(), e);
             showToast("Navigation error. Please restart app.");
+        }
+    }
+    private void signInWithGoogle() {
+        Intent signInIntent = firebaseServices.getGoogleSignInIntent();
+        if (signInIntent != null) {
+            startActivityForResult(signInIntent, RC_SIGN_IN);
+        } else {
+            new MyToast(getContext(),"Google Sign-In not available");
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_SIGN_IN) {
+            firebaseServices.handleGoogleSignInResult(data, new FirebaseServices.AuthCallback() {
+                @Override
+                public void onSuccess(User user) {
+                    new MyToast(getContext(),"Google Sign-In successful!");
+                    navigateToHomeActivity(user.getEmail());
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    new MyToast(getContext(),errorMessage);
+
+                }
+            });
         }
     }
 

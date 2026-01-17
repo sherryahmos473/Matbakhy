@@ -12,7 +12,20 @@
           "package_name": "com.example.matbakhy"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "863663174125-4gsv8tigetk3hl8nu2jqmpeqif2e7j05.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.matbakhy",
+            "certificate_hash": "ffde1fd61b67ff3b5dabcfb1161b9b2f9a2b4b2d"
+          }
+        },
+        {
+          "client_id": "863663174125-5nqhjlqkfk95ffd8jc2q1kiovv4i8sp2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyA9BO7CN58cYWltoRWZWCIe4pUu1OI4fiE"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "863663174125-5nqhjlqkfk95ffd8jc2q1kiovv4i8sp2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        firebaseServices = new FirebaseServices(this);
+        firebaseServices = FirebaseServices.getInstance(this);
         new Handler(Looper.getMainLooper()).postDelayed(this::NavigateBasedOnLoginStatus, 2000);
     }
 
@@ -28,8 +28,8 @@ public class MainActivity extends AppCompatActivity {
         if (firebaseServices.isUserLoggedIn()) {
             String userEmail = firebaseServices.getCurrentUserEmail();
             if (userEmail.isEmpty()) {
-                userEmail = firebaseServices.getCurrentFirebaseUser() != null ?
-                        firebaseServices.getCurrentFirebaseUser().getEmail() : "User";
+                userEmail = firebaseServices.getCurrentUserEmail() != null ?
+                        firebaseServices.getCurrentUserEmail(): "User";
             }
             intent = new Intent(MainActivity.this, HomeActivity.class);
             intent.putExtra("userEmail", userEmail);

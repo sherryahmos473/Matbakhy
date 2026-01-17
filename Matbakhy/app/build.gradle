@@ -12,7 +12,7 @@ android {
     defaultConfig {
         applicationId "com.example.matbakhy"
         minSdk 24
-        targetSdk 34  // Fixed: Changed from 36 to 34 (standard)
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -26,19 +26,18 @@ android {
         }
     }
 
-    // FIX 1: Moved kotlinOptions here
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17  // Changed from 11 to 17
         targetCompatibility JavaVersion.VERSION_17  // Changed from 11 to 17
     }
 
     kotlinOptions {
-        jvmTarget = '17'  // Must match JavaVersion above
+        jvmTarget = '17'
     }
 
     buildFeatures {
         compose true
-        viewBinding true  // Added since you're using XML layouts
+        viewBinding true
     }
 }
 
@@ -62,15 +61,15 @@ dependencies {
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 
-    // Fixed dependency versions
     implementation 'com.google.android.material:material:1.11.0'
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'  // Fixed: 2.9.0 not 3.0.0
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    implementation 'com.github.bumptech.glide:glide:4.16.0'  // Fixed version
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.6'  // Added -ktx
-    implementation 'androidx.navigation:navigation-ui-ktx:2.7.6'  // Added -ktx
-
-    // Firebase BOM for consistent versions
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.6'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.7.6'
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+    implementation 'com.google.firebase:firebase-auth:22.2.0'
+    implementation 'com.google.gms:google-services:4.3.15'
     implementation platform('com.google.firebase:firebase-bom:32.7.0')
 
     androidTestImplementation platform(libs.compose.bom)
@@ -79,7 +78,6 @@ dependencies {
     debugImplementation libs.ui.test.manifest
 }
 
-// FIX 2: Add this at the VERY END of the file (outside android block)
 kotlin {
     jvmToolchain(17)
 }

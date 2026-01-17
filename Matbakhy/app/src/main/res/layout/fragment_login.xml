@@ -20,7 +20,7 @@
             android:id="@+id/titleTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="8dp"
             android:text="Sign in"
             android:textColor="@color/black"
@@ -144,51 +144,24 @@
 
         </RelativeLayout>
 
-        <!-- Social Login Buttons -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/googleButton"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginEnd="8dp"
+            android:text="Continue with Google"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:cornerRadius="8dp"
+            app:icon="@drawable/ic_google"
+            app:strokeColor="@color/light_gray" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="40dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <!-- Google Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/googleButton"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_marginEnd="8dp"
-                android:layout_weight="1"
-                android:text="Continue with Google"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                app:cornerRadius="8dp"
-                app:icon="@drawable/ic_google"
-                app:strokeColor="@color/light_gray" />
-
-            <!-- Facebook Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/facebookButton"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:text="Continue with Facebook"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                app:cornerRadius="8dp"
-                app:icon="@drawable/ic_facebook"
-                app:strokeColor="@color/light_gray" />
-
-        </LinearLayout>
-
-        <!-- Sign Up Link -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="40dp"
+            android:layout_marginBottom="30dp"
+            android:layout_marginTop="30dp"
             android:gravity="center"
             android:orientation="horizontal">
 

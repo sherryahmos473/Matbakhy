@@ -30,7 +30,7 @@ public class ForgetPasswordFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_forget_password, container, false);
 
-        firebaseServices = new FirebaseServices(requireContext());
+        firebaseServices = FirebaseServices.getInstance(requireContext());
 
         edtEmail = view.findViewById(R.id.emailEditText);
         inputLayoutEmail = view.findViewById(R.id.emailInputLayout);
@@ -71,7 +71,7 @@ public class ForgetPasswordFragment extends Fragment {
         progressDialog.show();
 
         // Send reset email
-        firebaseServices.sendPasswordResetEmail(userEmail, new FirebaseServices.PasswordResetCallback() {
+        firebaseServices.sendPasswordResetEmail(userEmail, new FirebaseServices.SimpleCallback() {
             @Override
             public void onSuccess(String email) {
                 progressDialog.dismiss();
@@ -93,7 +93,7 @@ public class ForgetPasswordFragment extends Fragment {
         }
 
         progressDialog.show();
-        firebaseServices.sendPasswordResetEmail(userEmail, new FirebaseServices.PasswordResetCallback() {
+        firebaseServices.sendPasswordResetEmail(userEmail, new FirebaseServices.SimpleCallback() {
             @Override
             public void onSuccess(String email) {
                 progressDialog.dismiss();
