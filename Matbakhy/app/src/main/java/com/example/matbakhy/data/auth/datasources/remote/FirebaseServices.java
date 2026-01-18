@@ -1,4 +1,5 @@
-package com.example.matbakhy;
+// FirebaseAuthDataSourceImpl.java
+package com.example.matbakhy.data.auth.datasources.remote;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,6 +7,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
+import com.example.matbakhy.R;
+import com.example.matbakhy.data.auth.callbacks.AuthCallback;
+import com.example.matbakhy.data.auth.callbacks.SimpleCallback;
+import com.example.matbakhy.data.auth.datasources.local.SharedPref;
+import com.example.matbakhy.model.User;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -23,52 +29,28 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FirebaseServices {
-    private static FirebaseServices instance;
+public class FirebaseServices implements com.example.matbakhy.data.auth.datasources.remote.FirebaseAuth {
+    private static final String TAG = "FirebaseAuthDataSource";
+
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private Context context;
-    private SharedPrefManager sharedPrefManager;
     private GoogleSignInClient googleSignInClient;
+    private SharedPref sharedPrefDataSource;
 
-    private static final String TAG = "FirebaseServices";
-
-    // Callback Interfaces
-    public interface AuthCallback {
-        void onSuccess(User user);
-        void onFailure(String errorMessage);
+    public FirebaseServices(SharedPref sharedPrefDataSource) {
+        this.sharedPrefDataSource = sharedPrefDataSource;
     }
 
-    public interface SimpleCallback {
-        void onSuccess(String message);
-        void onFailure(String errorMessage);
-    }
-
-    // Private constructor - use getInstance()
-    private FirebaseServices(Context context) {
+    public void initialize(Context context) {
         this.context = context.getApplicationContext();
-        this.sharedPrefManager = SharedPrefManager.getInstance(this.context);
-        initializeServices();
-    }
 
-    // Singleton pattern
-    public static synchronized FirebaseServices getInstance(Context context) {
-        if (instance == null) {
-            instance = new FirebaseServices(context);
-        }
-        return instance;
-    }
-
-    // Initialize Firebase and Google Sign-In
-    private void initializeServices() {
         try {
             Log.d(TAG, "Initializing Firebase services...");
 
-            // Firebase Auth
             mAuth = FirebaseAuth.getInstance();
             db = FirebaseFirestore.getInstance();
 
-            // Check if Firebase is properly initialized
             if (mAuth == null) {
                 Log.e(TAG, "FirebaseAuth is null!");
                 return;
@@ -76,7 +58,6 @@ public class FirebaseServices {
 
             Log.d(TAG, "Firebase initialized successfully");
 
-            // Google Sign-In
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                     .requestIdToken(context.getString(R.string.default_web_client_id))
                     .requestEmail()
@@ -84,7 +65,6 @@ public class FirebaseServices {
             googleSignInClient = GoogleSignIn.getClient(context, gso);
             Log.d(TAG, "Google Sign-In initialized successfully");
 
-            // Log current user if any
             FirebaseUser currentUser = mAuth.getCurrentUser();
             if (currentUser != null) {
                 Log.d(TAG, "Current Firebase user: " + currentUser.getEmail());
@@ -98,7 +78,6 @@ public class FirebaseServices {
         }
     }
 
-    // ==================== FORGOT PASSWORD ====================
     public void sendPasswordResetEmail(String email, SimpleCallback callback) {
         if (email == null || email.trim().isEmpty()) {
             callback.onFailure("Email is required");
@@ -116,7 +95,7 @@ public class FirebaseServices {
         }
 
         if (mAuth == null) {
-            initializeServices();
+            initialize(context);
             if (mAuth == null) {
                 callback.onFailure("Authentication service not available");
                 return;
@@ -137,13 +116,14 @@ public class FirebaseServices {
                 });
     }
 
-    // ==================== GOOGLE SIGN-IN ====================
+
     public Intent getGoogleSignInIntent() {
-        if (googleSignInClient == null) {
-            initializeServices();
+        if (googleSignInClient == null && context != null) {
+            initialize(context);
         }
         return googleSignInClient != null ? googleSignInClient.getSignInIntent() : null;
     }
+
 
     public void handleGoogleSignInResult(Intent data, AuthCallback callback) {
         if (data == null) {
@@ -166,8 +146,8 @@ public class FirebaseServices {
     }
 
     private void firebaseAuthWithGoogle(String idToken, AuthCallback callback) {
-        if (mAuth == null) {
-            initializeServices();
+        if (mAuth == null && context != null) {
+            initialize(context);
             if (mAuth == null) {
                 callback.onFailure("Authentication service not available");
                 return;
@@ -197,7 +177,7 @@ public class FirebaseServices {
         }
     }
 
-    // ==================== EMAIL/PASSWORD AUTH ====================
+
     public void register(String email, String password, String name, AuthCallback callback) {
         if (!validateInput(email, password, name)) {
             callback.onFailure("Invalid input");
@@ -209,8 +189,8 @@ public class FirebaseServices {
             return;
         }
 
-        if (mAuth == null) {
-            initializeServices();
+        if (mAuth == null && context != null) {
+            initialize(context);
             if (mAuth == null) {
                 callback.onFailure("Auth service not available");
                 return;
@@ -243,8 +223,8 @@ public class FirebaseServices {
             return;
         }
 
-        if (mAuth == null) {
-            initializeServices();
+        if (mAuth == null && context != null) {
+            initialize(context);
             if (mAuth == null) {
                 callback.onFailure("Auth service not available");
                 return;
@@ -266,27 +246,38 @@ public class FirebaseServices {
                 });
     }
 
-    // ==================== USER MANAGEMENT ====================
     private void createOrFetchUser(FirebaseUser firebaseUser, String authProvider, AuthCallback callback) {
         String userId = firebaseUser.getUid();
 
         if (db == null) {
-            // Create simple user without Firestore
             User user = new User(userId, firebaseUser.getEmail(),
                     firebaseUser.getDisplayName() != null ? firebaseUser.getDisplayName() : "User");
-            saveUserToSharedPref(user);
-            callback.onSuccess(user);
+
+            sharedPrefDataSource.saveUserLogin(
+                    user.getEmail(),
+                    user.getName() != null ? user.getName() : "User",
+                    user.getUid(),
+                    new SimpleCallback() {
+                        @Override
+                        public void onSuccess(String message) {
+                            Log.d(TAG, message);
+                            callback.onSuccess(user);
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            callback.onFailure("Failed to save user: " + error);
+                        }
+                    }
+            );
             return;
         }
 
-        // Check if user exists in Firestore
         db.collection("users").document(userId).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
-                        // User exists, fetch it
                         fetchUserFromFirestore(userId, callback);
                     } else {
-                        // Create new user
                         createUserInFirestore(firebaseUser, authProvider, callback);
                     }
                 });
@@ -306,8 +297,24 @@ public class FirebaseServices {
                 .addOnCompleteListener(task -> {
                     User user = new User(firebaseUser.getUid(), firebaseUser.getEmail(),
                             firebaseUser.getDisplayName() != null ? firebaseUser.getDisplayName() : "User");
-                    saveUserToSharedPref(user);
-                    callback.onSuccess(user);
+
+                    sharedPrefDataSource.saveUserLogin(
+                            user.getEmail(),
+                            user.getName() != null ? user.getName() : "User",
+                            user.getUid(),
+                            new SimpleCallback() {
+                                @Override
+                                public void onSuccess(String message) {
+                                    Log.d(TAG, message);
+                                    callback.onSuccess(user);
+                                }
+
+                                @Override
+                                public void onFailure(String error) {
+                                    callback.onFailure("Failed to save user: " + error);
+                                }
+                            }
+                    );
                 });
     }
 
@@ -319,8 +326,23 @@ public class FirebaseServices {
                         if (document.exists()) {
                             User user = document.toObject(User.class);
                             if (user != null) {
-                                saveUserToSharedPref(user);
-                                callback.onSuccess(user);
+                                sharedPrefDataSource.saveUserLogin(
+                                        user.getEmail(),
+                                        user.getName() != null ? user.getName() : "User",
+                                        user.getUid(),
+                                        new SimpleCallback() {
+                                            @Override
+                                            public void onSuccess(String message) {
+                                                Log.d(TAG, message);
+                                                callback.onSuccess(user);
+                                            }
+
+                                            @Override
+                                            public void onFailure(String error) {
+                                                callback.onFailure("Failed to save user: " + error);
+                                            }
+                                        }
+                                );
                             } else {
                                 callback.onFailure("Failed to read user data");
                             }
@@ -333,32 +355,66 @@ public class FirebaseServices {
                 });
     }
 
-    // ==================== SHARED PREFERENCES ====================
-    private void saveUserToSharedPref(User user) {
-        if (user != null && user.getUid() != null && user.getEmail() != null) {
-            sharedPrefManager.saveUserLogin(
-                    user.getEmail(),
-                    user.getName() != null ? user.getName() : "User",
-                    user.getUid()
-            );
-            Log.d(TAG, "User saved to SharedPreferences: " + user.getEmail());
+    public void logout() {
+        if (googleSignInClient != null) {
+            googleSignInClient.signOut();
+        }
+        if (mAuth != null) {
+            mAuth.signOut();
+        }
+        sharedPrefDataSource.clearUserData(new SimpleCallback() {
+            @Override
+            public void onSuccess(String message) {
+                Log.d(TAG, message);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Log.e(TAG, "Failed to clear user data: " + error);
+            }
+        });
+        Log.d(TAG, "User logged out");
+    }
+
+    public boolean isUserLoggedIn() {
+        boolean firebaseLoggedIn = mAuth != null && mAuth.getCurrentUser() != null;
+        boolean sharedPrefLoggedIn = sharedPrefDataSource.isLoggedIn();
+        Log.d(TAG, "isUserLoggedIn - Firebase: " + firebaseLoggedIn + ", SharedPref: " + sharedPrefLoggedIn);
+        return firebaseLoggedIn && sharedPrefLoggedIn;
+    }
+
+    public String getCurrentUserEmail() {
+        return sharedPrefDataSource.getUserEmail();
+    }
+
+    public String getCurrentUserName() {
+        return sharedPrefDataSource.getUserName();
+    }
+
+    public boolean isNetworkAvailable() {
+        if (context == null) return false;
+        try {
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            return activeNetwork != null && activeNetwork.isConnected();
+        } catch (Exception e) {
+            return false;
         }
     }
 
-    // ==================== UTILITY METHODS ====================
+    public boolean isValidEmail(String email) {
+        return email != null && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    public boolean isValidPassword(String password) {
+        return password != null && password.length() >= 6;
+    }
+
     private boolean validateInput(String email, String password, String name) {
         if (email.isEmpty() || password.isEmpty() || name.isEmpty()) {
             return false;
         }
         return isValidEmail(email) && password.length() >= 6;
-    }
-
-    public static boolean isValidEmail(String email) {
-        return email != null && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
-    }
-
-    public static boolean isValidPassword(String password) {
-        return password != null && password.length() >= 6;
     }
 
     private String getErrorMessage(Exception exception) {
@@ -376,43 +432,5 @@ public class FirebaseServices {
         if (error.contains("invalid-credential")) return "Invalid email or password";
 
         return "Authentication failed: " + error;
-    }
-
-    public boolean isNetworkAvailable() {
-        if (context == null) return false;
-        try {
-            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-            return activeNetwork != null && activeNetwork.isConnected();
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    // ==================== PUBLIC METHODS ====================
-    public void logout() {
-        if (googleSignInClient != null) {
-            googleSignInClient.signOut();
-        }
-        if (mAuth != null) {
-            mAuth.signOut();
-        }
-        sharedPrefManager.clearUserData();
-        Log.d(TAG, "User logged out");
-    }
-
-    public boolean isUserLoggedIn() {
-        boolean firebaseLoggedIn = mAuth != null && mAuth.getCurrentUser() != null;
-        boolean sharedPrefLoggedIn = sharedPrefManager.isLoggedIn();
-        Log.d(TAG, "isUserLoggedIn - Firebase: " + firebaseLoggedIn + ", SharedPref: " + sharedPrefLoggedIn);
-        return firebaseLoggedIn && sharedPrefLoggedIn;
-    }
-
-    public String getCurrentUserEmail() {
-        return sharedPrefManager.getUserEmail();
-    }
-
-    public String getCurrentUserName() {
-        return sharedPrefManager.getUserName();
     }
 }

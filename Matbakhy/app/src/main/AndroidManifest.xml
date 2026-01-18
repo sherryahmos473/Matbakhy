@@ -14,12 +14,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Matbakhy">
         <activity
-            android:name=".HomeActivity"
+            android:name=".presentation.Meals.view.HomeActivity"
             android:exported="false"
             android:label="@string/title_activity_home"
             android:theme="@style/Theme.Matbakhy" />
         <activity
-            android:name=".AuthActivity"
+            android:name=".presentation.Auth.view.AuthActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

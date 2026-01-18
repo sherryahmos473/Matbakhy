@@ -8,7 +8,7 @@
     <!-- Authentication Flow -->
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.matbakhy.LoginFragment"
+        android:name="com.example.matbakhy.presentation.Auth.view.LoginFragment"
         android:label="Login"
         tools:layout="@layout/fragment_login">
 
@@ -27,7 +27,7 @@
 
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.example.matbakhy.RegisterFragment"
+        android:name="com.example.matbakhy.presentation.Auth.view.RegisterFragment"
         android:label="Register"
         tools:layout="@layout/fragment_register">
 
@@ -41,7 +41,7 @@
 
     <fragment
         android:id="@+id/forgotPasswordFragment"
-        android:name="com.example.matbakhy.ForgetPasswordFragment"
+        android:name="com.example.matbakhy.presentation.Auth.view.ForgetPasswordFragment"
         android:label="Forgot Password"
         tools:layout="@layout/fragment_forget_password">
 
@@ -52,7 +52,7 @@
 
     <activity
         android:id="@+id/homeActivity"
-        android:name="com.example.matbakhy.HomeActivity"
+        android:name="com.example.matbakhy.presentation.Meals.view.HomeActivity"
         android:label="Home"
         tools:layout="@layout/activity_home">
 
@@ -60,7 +60,7 @@
     </activity>
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.matbakhy.HomeFragment"
+        android:name="com.example.matbakhy.presentation.Meals.view.HomeFragment"
         android:label="Home Fragment"
         tools:layout="@layout/fragment_home">
 

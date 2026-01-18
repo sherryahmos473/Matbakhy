@@ -1,4 +1,4 @@
-package com.example.matbakhy;
+package com.example.matbakhy.model;
 
 import java.util.Date;
 
