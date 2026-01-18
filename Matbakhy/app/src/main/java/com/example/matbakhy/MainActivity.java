@@ -15,7 +15,7 @@ import com.example.matbakhy.presentation.Auth.presenter.MainPresenter;
 import com.example.matbakhy.presentation.Auth.presenter.MainPresenterImpl;
 import com.example.matbakhy.presentation.Auth.view.AuthActivity;
 import com.example.matbakhy.presentation.Auth.view.MainView;
-import com.example.matbakhy.presentation.HomeActivity;
+import com.example.matbakhy.presentation.Meals.view.HomeActivity;
 
 public class MainActivity extends AppCompatActivity implements MainView {
     private static final String TAG = "MainActivity";

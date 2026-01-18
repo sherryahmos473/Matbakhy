@@ -8,7 +8,7 @@ import android.os.Looper;
 import android.util.Patterns;
 
 import com.example.matbakhy.helper.MyToast;
-import com.example.matbakhy.presentation.HomeActivity;
+import com.example.matbakhy.presentation.Meals.view.HomeActivity;
 
 public class AuthUtils {
 

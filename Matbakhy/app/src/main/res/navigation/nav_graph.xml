@@ -52,7 +52,7 @@
 
     <activity
         android:id="@+id/homeActivity"
-        android:name="com.example.matbakhy.presentation.HomeActivity"
+        android:name="com.example.matbakhy.presentation.Meals.view.HomeActivity"
         android:label="Home"
         tools:layout="@layout/activity_home">
 
@@ -60,7 +60,7 @@
     </activity>
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.matbakhy.presentation.HomeFragment"
+        android:name="com.example.matbakhy.presentation.Meals.view.HomeFragment"
         android:label="Home Fragment"
         tools:layout="@layout/fragment_home">
 

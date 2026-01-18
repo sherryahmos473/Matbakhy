@@ -1,4 +1,4 @@
-package com.example.matbakhy.presentation;
+package com.example.matbakhy.presentation.Meals.view;
 
 import android.os.Bundle;
 
@@ -8,7 +8,6 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.auth.AuthRepository;
-import com.google.firebase.Firebase;
 
 public class HomeActivity extends AppCompatActivity {
 

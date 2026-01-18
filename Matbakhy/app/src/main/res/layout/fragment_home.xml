@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    tools:context=".presentation.HomeFragment">
+    tools:context=".presentation.Meals.view.HomeFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -102,6 +102,7 @@
                     android:layout_height="match_parent">
 
                     <ImageView
+                        android:id="@+id/mealOfTheDayImage"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
@@ -120,7 +121,7 @@
                         android:gravity="bottom">
 
                         <TextView
-
+                            android:id="@+id/mealOfTheDayCategory"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Chicken"
@@ -132,7 +133,7 @@
                             android:layout_marginBottom="8dp" />
 
                         <TextView
-
+                            android:id="@+id/mealofTheDayName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Chicken Tikka Masala"
@@ -141,13 +142,28 @@
                             android:textColor="@android:color/white"
                             android:layout_marginBottom="6dp" />
 
-                        <TextView
-
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="🌍 Indian   🧾 8 ingredients"
-                            android:textSize="12sp"
-                            android:textColor="@android:color/white" />
+                            android:orientation="horizontal">
+                            <TextView
+                                android:id="@+id/mealOfTheDayArea"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="India"
+                                android:textSize="14sp"
+                                android:paddingEnd="20dp"
+                                android:textColor="@android:color/white" />
+                            <TextView
+                                android:id="@+id/mealOfTheDayIngredients"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="ingredients"
+                                android:textSize="14sp"
+                                android:textColor="@android:color/white" />
+
+                        </LinearLayout>
+
                     </LinearLayout>
 
                 </FrameLayout>
@@ -167,13 +183,13 @@
 
 
             <!-- Categories Grid -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/categoriesRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+<!--            <androidx.recyclerview.widget.RecyclerView-->
+<!--                android:id="@+id/categoriesRecyclerView"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
 
-                android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_category"/>
+<!--                android:nestedScrollingEnabled="false"-->
+<!--                tools:listitem="@layout/item_category"/>-->
         </LinearLayout>
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigation"
