@@ -1,0 +1,184 @@
+package com.example.matbakhy.presentation.Auth.view;
+
+import android.app.ProgressDialog;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+
+import com.example.matbakhy.R;
+import com.example.matbakhy.di.AuthModule;
+import com.example.matbakhy.helper.MyToast;
+import com.example.matbakhy.presentation.Auth.presenter.ForgotPasswordPresenter;
+import com.example.matbakhy.presentation.Auth.presenter.ForgotPasswordPresenterImpl;
+import com.google.android.material.textfield.TextInputLayout;
+
+public class ForgetPasswordFragment extends Fragment implements ForgotPasswordView {
+    private EditText edtEmail;
+    private TextInputLayout inputLayoutEmail;
+    private Button btnSendReset;
+    private TextView txtRememberPassword, txtResendEmail, txtEmailSentTo;
+    private LinearLayout layoutSuccess;
+    private ProgressDialog progressDialog;
+    private ForgotPasswordPresenter presenter;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_forget_password, container, false);
+
+        presenter = new ForgotPasswordPresenterImpl(AuthModule.provideAuthRepository(requireContext()));
+        presenter.attachView(this);
+
+        initializeViews(view);
+        setupListeners();
+
+        return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        presenter.onDestroyView();
+        presenter.detachView();
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
+
+    // ==================== ForgotPasswordView Interface Implementation ====================
+
+    @Override
+    public void showLoading() {
+        if (progressDialog != null && !progressDialog.isShowing()) {
+            progressDialog.show();
+        }
+    }
+
+    @Override
+    public void hideLoading() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
+
+    @Override
+    public void showEmailError(String message) {
+        if (inputLayoutEmail != null) {
+            inputLayoutEmail.setError(message);
+        }
+    }
+
+    @Override
+    public void clearEmailError() {
+        if (inputLayoutEmail != null) {
+            inputLayoutEmail.setError(null);
+        }
+    }
+
+    @Override
+    public void showToast(String message) {
+        if (getContext() != null) {
+            new MyToast(getContext(), message);
+        }
+    }
+
+    @Override
+    public void showSuccessScreen(String email) {
+        if (getView() == null) return;
+
+        // Hide input form
+        hideInputForm();
+
+        // Show success message
+        if (layoutSuccess != null) {
+            layoutSuccess.setVisibility(View.VISIBLE);
+        }
+
+        if (txtEmailSentTo != null) {
+            txtEmailSentTo.setText(email);
+        }
+    }
+
+    @Override
+    public void hideInputForm() {
+        if (edtEmail != null) edtEmail.setVisibility(View.GONE);
+        if (inputLayoutEmail != null) inputLayoutEmail.setVisibility(View.GONE);
+        if (btnSendReset != null) btnSendReset.setVisibility(View.GONE);
+        if (txtRememberPassword != null) txtRememberPassword.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showInputForm() {
+        if (edtEmail != null) edtEmail.setVisibility(View.VISIBLE);
+        if (inputLayoutEmail != null) inputLayoutEmail.setVisibility(View.VISIBLE);
+        if (btnSendReset != null) btnSendReset.setVisibility(View.VISIBLE);
+        if (txtRememberPassword != null) txtRememberPassword.setVisibility(View.VISIBLE);
+        if (layoutSuccess != null) layoutSuccess.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void navigateToLogin() {
+        Navigation.findNavController(requireView()).navigate(R.id.action_forgotPasswordFragment_to_loginFragment);
+    }
+
+    @Override
+    public void navigateBack() {
+        Navigation.findNavController(requireView()).popBackStack();
+    }
+
+    @Override
+    public String getEmail() {
+        return edtEmail != null ? edtEmail.getText().toString().trim() : "";
+    }
+
+    @Override
+    public void setEmail(String email) {
+        if (edtEmail != null) {
+            edtEmail.setText(email);
+        }
+    }
+
+    // ==================== Private Helper Methods ====================
+
+    private void initializeViews(View view) {
+        edtEmail = view.findViewById(R.id.emailEditText);
+        inputLayoutEmail = view.findViewById(R.id.emailInputLayout);
+        btnSendReset = view.findViewById(R.id.btnSendReset);
+        txtRememberPassword = view.findViewById(R.id.txtRememberPassword);
+        txtResendEmail = view.findViewById(R.id.txtResendEmail);
+        txtEmailSentTo = view.findViewById(R.id.txtEmailSentTo);
+        layoutSuccess = view.findViewById(R.id.layoutSuccess);
+
+        progressDialog = new ProgressDialog(requireContext());
+        progressDialog.setMessage("Sending reset email...");
+        progressDialog.setCancelable(false);
+        progressDialog.setIndeterminate(true);
+    }
+
+    private void setupListeners() {
+        if (btnSendReset != null) {
+            btnSendReset.setOnClickListener(v -> presenter.onSendResetClicked());
+        }
+
+        if (txtRememberPassword != null) {
+            txtRememberPassword.setOnClickListener(v -> presenter.onRememberPasswordClicked());
+        }
+
+        if (txtResendEmail != null) {
+            txtResendEmail.setOnClickListener(v -> presenter.onResendEmailClicked());
+        }
+
+        View btnBack = getView() != null ? getView().findViewById(R.id.btnBack) : null;
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> presenter.onBackClicked());
+        }
+    }
+}

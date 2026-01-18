@@ -1,29 +1,30 @@
-package com.example.matbakhy;
+package com.example.matbakhy.presentation;
 
 import android.os.Bundle;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.matbakhy.R;
+import com.example.matbakhy.data.auth.AuthRepository;
+import com.google.firebase.Firebase;
+
 public class HomeActivity extends AppCompatActivity {
 
-    private SharedPrefManager sharedPrefManager;
+    private AuthRepository sharedPrefManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
-        sharedPrefManager = SharedPrefManager.getInstance(this);
+        sharedPrefManager = new AuthRepository(this, com.example.matbakhy.di.AuthModule.provideFirebaseAuth(com.example.matbakhy.di.AuthModule.provideSharedPref(this)), com.example.matbakhy.di.AuthModule.provideSharedPref(this));
 
         String userEmail = "";
         if (getIntent() != null && getIntent().hasExtra("userEmail")) {
             userEmail = getIntent().getStringExtra("userEmail");
         } else {
-            userEmail = sharedPrefManager.getUserEmail();
+            userEmail = sharedPrefManager.getCurrentUserEmail();
         }
 
         loadHomeFragment(userEmail);

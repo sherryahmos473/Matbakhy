@@ -1,0 +1,222 @@
+package com.example.matbakhy.presentation.Auth.view;
+
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+
+import com.example.matbakhy.R;
+import com.example.matbakhy.di.AuthModule;
+import com.example.matbakhy.presentation.Auth.presenter.AuthUtils;
+import com.example.matbakhy.presentation.Auth.presenter.LoginPresenter;
+
+public class LoginFragment extends Fragment implements LoginView {
+    private static final String TAG = "LoginFragment";
+    private static final int RC_SIGN_IN = 9001;
+
+    private EditText edtEmail, edtPassword;
+    private Button btnLogin, btnGoogle;
+    private TextView txtRegister, txtForgotPassword;
+    private ProgressDialog progressDialog;
+    private LoginPresenter presenter;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_login, container, false);
+
+        presenter = AuthModule.provideLoginPresenter(requireContext());
+        presenter.attachView(this);
+
+        initializeViews(view);
+        setupListeners();
+        setupEnterKeyListener();
+
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        presenter.checkIfUserLoggedIn();
+        presenter.onViewCreated();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        presenter.onDestroyView();
+        presenter.detachView();
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        presenter.onGoogleSignInResult(requestCode, resultCode, data);
+    }
+    @Override
+    public void showLoading(String message) {
+        if (progressDialog != null && !progressDialog.isShowing()) {
+            progressDialog.show();
+        }
+    }
+
+    @Override
+    public void hideLoading() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
+
+    @Override
+    public void showEmailError(String message) {
+        if (edtEmail != null) {
+            edtEmail.setError(message);
+            edtEmail.requestFocus();
+        }
+    }
+
+    @Override
+    public void showPasswordError(String message) {
+        if (edtPassword != null) {
+            edtPassword.setError(message);
+            edtPassword.requestFocus();
+        }
+    }
+
+    @Override
+    public void clearErrors() {
+        if (edtEmail != null) edtEmail.setError(null);
+        if (edtPassword != null) edtPassword.setError(null);
+    }
+
+    @Override
+    public void showToast(String message) {
+        AuthUtils.showToast(requireContext(), message);
+    }
+
+    @Override
+    public void navigateToHome(String email) {
+        AuthUtils.navigateToHome(requireActivity(), email);
+    }
+
+    @Override
+    public void navigateToRegister() {
+        Navigation.findNavController(requireView()).navigate(R.id.action_loginFragment_to_registerFragment);
+    }
+
+    @Override
+    public void navigateToForgotPassword() {
+        Navigation.findNavController(requireView()).navigate(R.id.action_loginFragment_to_forgotPasswordFragment);
+    }
+
+    @Override
+    public void setEmail(String email) {
+        if (edtEmail != null) {
+            edtEmail.setText(email);
+        }
+    }
+
+    @Override
+    public String getEmail() {
+        return edtEmail != null ? edtEmail.getText().toString().trim() : "";
+    }
+
+    @Override
+    public String getPassword() {
+        return edtPassword != null ? edtPassword.getText().toString() : "";
+    }
+
+    @Override
+    public void clearPasswordField() {
+        if (edtPassword != null) {
+            edtPassword.setText("");
+        }
+    }
+
+    @Override
+    public void focusPasswordField() {
+        if (edtPassword != null) {
+            edtPassword.requestFocus();
+        }
+    }
+
+    @Override
+    public void startGoogleSignInIntent(Intent intent) {
+        startActivityForResult(intent, RC_SIGN_IN);
+    }
+
+    @Override
+    public void clearEmailField() {
+        if (edtEmail != null) {
+            edtEmail.setText("");
+        }
+    }
+
+
+    private void initializeViews(View view) {
+        edtEmail = view.findViewById(R.id.emailEditText);
+        edtPassword = view.findViewById(R.id.passwordEditText);
+        btnLogin = view.findViewById(R.id.signInButton);
+        txtRegister = view.findViewById(R.id.signUpTextView);
+        txtForgotPassword = view.findViewById(R.id.forgotPasswordTextView);
+        btnGoogle = view.findViewById(R.id.googleButton);
+
+        progressDialog = AuthUtils.createProgressDialog(requireContext(), "Logging in...");
+    }
+
+    private void setupListeners() {
+        if (btnLogin != null) {
+            btnLogin.setOnClickListener(v -> presenter.onLoginClicked());
+        }
+
+        if (txtRegister != null) {
+            txtRegister.setOnClickListener(v -> presenter.onRegisterClicked());
+        }
+
+        if (txtForgotPassword != null) {
+            txtForgotPassword.setOnClickListener(v -> presenter.onForgotPasswordClicked());
+        }
+
+        if (btnGoogle != null) {
+            btnGoogle.setOnClickListener(v -> presenter.onGoogleSignInClicked());
+        }
+    }
+
+    private void setupEnterKeyListener() {
+        if (edtPassword != null) {
+            edtPassword.setOnEditorActionListener((v, actionId, event) -> {
+                if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
+                    presenter.onLoginClicked();
+                    return true;
+                }
+                return false;
+            });
+        }
+
+        if (edtEmail != null) {
+            edtEmail.setOnEditorActionListener((v, actionId, event) -> {
+                if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_NEXT) {
+                    if (edtPassword != null) {
+                        edtPassword.requestFocus();
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+    }
+}
