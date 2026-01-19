@@ -1,4 +1,4 @@
-package com.example.matbakhy.model;
+package com.example.matbakhy.data.auth.model;
 
 import java.util.Date;
 

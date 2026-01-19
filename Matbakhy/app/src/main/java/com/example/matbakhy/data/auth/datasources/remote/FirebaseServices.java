@@ -11,7 +11,7 @@ import com.example.matbakhy.R;
 import com.example.matbakhy.data.auth.callbacks.AuthCallback;
 import com.example.matbakhy.data.auth.callbacks.SimpleCallback;
 import com.example.matbakhy.data.auth.datasources.local.SharedPref;
-import com.example.matbakhy.model.User;
+import com.example.matbakhy.data.auth.model.User;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;

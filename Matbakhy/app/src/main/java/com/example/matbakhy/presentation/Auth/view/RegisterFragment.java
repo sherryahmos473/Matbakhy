@@ -65,9 +65,6 @@ public class RegisterFragment extends Fragment implements RegisterView {
             progressDialog.dismiss();
         }
     }
-
-    // ==================== RegisterView Interface Implementation ====================
-
     @Override
     public void showLoading(String message) {
         if (progressDialog != null && !progressDialog.isShowing()) {
@@ -85,34 +82,22 @@ public class RegisterFragment extends Fragment implements RegisterView {
 
     @Override
     public void showNameError(String message) {
-        if (edtName != null) {
-            edtName.setError(message);
-            edtName.requestFocus();
-        }
+        edtName.setError(message);
     }
 
     @Override
     public void showEmailError(String message) {
-        if (edtEmail != null) {
-            edtEmail.setError(message);
-            edtEmail.requestFocus();
-        }
+        edtEmail.setError(message);
     }
 
     @Override
     public void showPasswordError(String message) {
-        if (edtPassword != null) {
-            edtPassword.setError(message);
-            edtPassword.requestFocus();
-        }
+        edtPassword.setError(message);
     }
 
     @Override
     public void showConfirmPasswordError(String message) {
-        if (edtConfirmPassword != null) {
-            edtConfirmPassword.setError(message);
-            edtConfirmPassword.requestFocus();
-        }
+        edtConfirmPassword.setError(message);
     }
 
     @Override

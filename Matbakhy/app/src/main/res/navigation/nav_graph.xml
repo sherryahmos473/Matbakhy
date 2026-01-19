@@ -5,7 +5,6 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/loginFragment">
 
-    <!-- Authentication Flow -->
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.matbakhy.presentation.Auth.view.LoginFragment"
@@ -55,15 +54,5 @@
         android:name="com.example.matbakhy.presentation.Meals.view.HomeActivity"
         android:label="Home"
         tools:layout="@layout/activity_home">
-
-
     </activity>
-    <fragment
-        android:id="@+id/homeFragment"
-        android:name="com.example.matbakhy.presentation.Meals.view.HomeFragment"
-        android:label="Home Fragment"
-        tools:layout="@layout/fragment_home">
-
-    </fragment>
-
 </navigation>

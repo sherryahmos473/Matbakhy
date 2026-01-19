@@ -13,11 +13,10 @@
         android:orientation="vertical"
         android:background="#FFFFFF">
 
-        <!-- HEADER -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="160dp"
-            app:cardCornerRadius="24dp"
+            app:cardCornerRadius="0dp"
             app:cardElevation="0dp">
 
             <FrameLayout
@@ -25,7 +24,6 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/header_gradient">
 
-                <!-- Top Row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -48,7 +46,6 @@
                         android:layout_marginStart="10dp" />
                 </LinearLayout>
 
-                <!-- Search Box -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -56,7 +53,7 @@
                     android:layout_margin="16dp"
                     app:boxBackgroundMode="filled"
                     app:boxCornerRadiusTopStart="30dp"
-                    app:boxCornerRadiusTopEnd="30dp"
+                    app:boxCornerRadiusTopEnd="20dp"
                     app:boxCornerRadiusBottomStart="30dp"
                     app:boxCornerRadiusBottomEnd="30dp"
                     app:boxBackgroundColor="@android:color/white"
@@ -73,16 +70,13 @@
             </FrameLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- CONTENT -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="24dp">
 
-            <!-- Meal of the Day -->
             <TextView
-
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="🌟 Meal of the Day"
@@ -92,14 +86,15 @@
                 android:layout_marginBottom="12dp" />
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/mealCard"
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="6dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                app:cardElevation="6dp"
+                app:cardPreventCornerOverlap="true">
 
                     <ImageView
                         android:id="@+id/mealOfTheDayImage"
@@ -127,11 +122,10 @@
                             android:text="Chicken"
                             android:textSize="12sp"
                             android:textColor="@android:color/white"
-                            android:background="@drawable/orange_chip"
+                            android:background="@drawable/category_chip"
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="4dp"
                             android:layout_marginBottom="8dp" />
-
                         <TextView
                             android:id="@+id/mealofTheDayName"
                             android:layout_width="wrap_content"
@@ -141,36 +135,16 @@
                             android:textStyle="bold"
                             android:textColor="@android:color/white"
                             android:layout_marginBottom="6dp" />
-
-                        <LinearLayout
+                        <TextView
+                            android:id="@+id/mealOfTheDayArea"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-                            <TextView
-                                android:id="@+id/mealOfTheDayArea"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="India"
-                                android:textSize="14sp"
-                                android:paddingEnd="20dp"
-                                android:textColor="@android:color/white" />
-                            <TextView
-                                android:id="@+id/mealOfTheDayIngredients"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="ingredients"
-                                android:textSize="14sp"
-                                android:textColor="@android:color/white" />
-
-                        </LinearLayout>
-
+                            android:text="India"
+                            android:textSize="14sp"
+                            android:paddingEnd="20dp"
+                            android:textColor="@android:color/white" />
                     </LinearLayout>
-
-                </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
-
-            <!-- Categories Header -->
-
 
                 <TextView
                     android:padding="15dp"
@@ -180,28 +154,19 @@
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="@android:color/black" />
-
-
-            <!-- Categories Grid -->
-<!--            <androidx.recyclerview.widget.RecyclerView-->
-<!--                android:id="@+id/categoriesRecyclerView"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-
-<!--                android:nestedScrollingEnabled="false"-->
-<!--                tools:listitem="@layout/item_category"/>-->
         </LinearLayout>
+
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigation"
             android:layout_width="match_parent"
             android:layout_height="70dp"
             android:layout_alignParentBottom="true"
             android:background="@android:color/white"
-            app:menu="@menu/bottom_nav_menu"
-            app:labelVisibilityMode="labeled"
+            app:elevation="8dp"
             app:itemIconTint="@color/gray"
             app:itemTextColor="@color/gray"
-            app:elevation="8dp"/>
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/bottom_nav_menu" />
     </LinearLayout>
 
 

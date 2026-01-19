@@ -5,13 +5,18 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.auth.AuthRepository;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class HomeActivity extends AppCompatActivity {
 
     private AuthRepository sharedPrefManager;
+    private NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,19 +31,22 @@ public class HomeActivity extends AppCompatActivity {
             userEmail = sharedPrefManager.getCurrentUserEmail();
         }
 
-        loadHomeFragment(userEmail);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
+
+        if (navHostFragment != null) {
+            navController = navHostFragment.getNavController();
+
+            // Setup BottomNavigationView if you have one
+            BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
+            if (bottomNav != null) {
+                NavigationUI.setupWithNavController(bottomNav, navController);
+            }
+        }
     }
 
-    private void loadHomeFragment(String userEmail) {
-        HomeFragment homeFragment = new HomeFragment();
-
-        Bundle bundle = new Bundle();
-        bundle.putString("userEmail", userEmail);
-        homeFragment.setArguments(bundle);
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.fragment_container, homeFragment);
-        transaction.commit();
+    public NavController getNavController() {
+        return navController;
     }
+
 }

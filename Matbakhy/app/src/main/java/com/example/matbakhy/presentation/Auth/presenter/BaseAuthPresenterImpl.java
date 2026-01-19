@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.example.matbakhy.data.auth.AuthRepository;
 import com.example.matbakhy.data.auth.callbacks.AuthCallback;
-import com.example.matbakhy.model.User;
+import com.example.matbakhy.data.auth.model.User;
 import com.example.matbakhy.presentation.Auth.view.BaseAuthView;
 
 public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
@@ -106,7 +106,7 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
         boolean isValid = true;
 
         if (view == null) return false;
-
+        view.clearErrors();
         if (email.isEmpty()) {
             view.showEmailError("Email is required");
             isValid = false;
@@ -123,9 +123,6 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
             isValid = false;
         }
 
-        if (!isValid) {
-            view.clearErrors();
-        }
 
         return isValid;
     }

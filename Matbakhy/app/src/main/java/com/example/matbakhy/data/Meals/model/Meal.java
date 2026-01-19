@@ -2,9 +2,10 @@ package com.example.matbakhy.data.Meals.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Meal {
+public class Meal implements Serializable {
     @SerializedName("idMeal")
     private String id;
 
@@ -86,7 +87,6 @@ public class Meal {
     @SerializedName("strMeasure19") private String measure19;
     @SerializedName("strMeasure20") private String measure20;
 
-    // Constructors
     public Meal() {
     }
 
@@ -98,7 +98,6 @@ public class Meal {
         this.area = area;
     }
 
-    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -229,7 +228,6 @@ public class Meal {
         return measures;
     }
 
-    // Helper method to get ingredients with measures as a list of pairs
     public List<String> getIngredientsWithMeasures() {
         List<String> ingredients = getIngredients();
         List<String> measures = getMeasures();

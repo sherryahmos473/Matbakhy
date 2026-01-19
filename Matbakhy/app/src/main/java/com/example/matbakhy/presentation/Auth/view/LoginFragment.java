@@ -83,18 +83,12 @@ public class LoginFragment extends Fragment implements LoginView {
 
     @Override
     public void showEmailError(String message) {
-        if (edtEmail != null) {
-            edtEmail.setError(message);
-            edtEmail.requestFocus();
-        }
+        edtEmail.setError(message);
     }
 
     @Override
     public void showPasswordError(String message) {
-        if (edtPassword != null) {
-            edtPassword.setError(message);
-            edtPassword.requestFocus();
-        }
+        edtPassword.setError(message);
     }
 
     @Override
