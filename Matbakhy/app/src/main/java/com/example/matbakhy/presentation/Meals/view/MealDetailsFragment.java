@@ -1,4 +1,4 @@
-package com.example.matbakhy;
+package com.example.matbakhy.presentation.Meals.view;
 
 import android.os.Bundle;
 import android.util.Log;

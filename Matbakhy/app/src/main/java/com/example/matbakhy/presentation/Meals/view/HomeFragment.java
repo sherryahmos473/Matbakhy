@@ -7,24 +7,34 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.matbakhy.R;
+import com.example.matbakhy.data.Meals.model.Category;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.helper.MyToast;
 import com.example.matbakhy.presentation.Meals.presenter.HomePresenter;
 import com.example.matbakhy.presentation.Meals.presenter.HomePresenterImpl;
 
-public class HomeFragment extends Fragment implements HomeView{
+import java.util.List;
+
+public class HomeFragment extends Fragment implements HomeView , CategoryListener{
 
     HomePresenter homePresenter;
+    CategoryListAdapter categoryListAdapter;
+    RecyclerView categoryList;
+    ProgressBar progressBar;
     TextView MealOfTheDayName, MealOfTheDayArea,MealOfTheDayCategory;
     ImageView MealOfTheDayImage;
     CardView imageCard;
@@ -40,6 +50,7 @@ public class HomeFragment extends Fragment implements HomeView{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
     }
 
     @Override
@@ -50,7 +61,16 @@ public class HomeFragment extends Fragment implements HomeView{
         MealOfTheDayCategory = view.findViewById(R.id.mealOfTheDayCategory);
         MealOfTheDayArea = view.findViewById(R.id.mealOfTheDayArea);
         MealOfTheDayImage = view.findViewById(R.id.mealOfTheDayImage);
+        progressBar = view.findViewById(R.id.progress_circular);
+        progressBar.setVisibility(view.VISIBLE);
         imageCard = view.findViewById(R.id.mealCard);
+        categoryListAdapter = new CategoryListAdapter(this);
+        categoryList = view.findViewById(R.id.categoryList);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(),
+                LinearLayoutManager.HORIZONTAL,true);
+        categoryList.setLayoutManager(layoutManager);
+        categoryList.setAdapter(categoryListAdapter);
+        categoryList.setLayoutManager(new GridLayoutManager(requireContext(), 2));
         homePresenter = new HomePresenterImpl();
         return view;
     }
@@ -60,10 +80,11 @@ public class HomeFragment extends Fragment implements HomeView{
         super.onViewCreated(view, savedInstanceState);
         homePresenter.attachView(this);
         homePresenter.getMealOfTheDay();
+        homePresenter.getAllCategories();;
     }
 
     @Override
-    public void onSuccess(Meal meal) {
+    public void getMealOfTheDay(Meal meal) {
         MealOfTheDayName.setText(meal.getName());
         MealOfTheDayArea.setText(meal.getArea() + " " +meal.getIngredients().size() + " ingredients");
         MealOfTheDayCategory.setText(meal.getCategory());
@@ -72,6 +93,8 @@ public class HomeFragment extends Fragment implements HomeView{
                 .into(MealOfTheDayImage);
         imageCard.setOnClickListener(v -> navigateToMealDetails(meal));
     }
+
+
     private void navigateToMealDetails(Meal meal) {
         Bundle bundle = new Bundle();
         bundle.putSerializable("meal_object", meal);
@@ -85,8 +108,24 @@ public class HomeFragment extends Fragment implements HomeView{
     }
 
     @Override
+    public void getAllCategories(List<Category> categories) {
+        Log.d("TAG", "getAllCategories: " + categories.size());
+        progressBar.setVisibility(view.GONE);
+        categoryListAdapter.setCategoryList(categories);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         homePresenter.detachView();
+    }
+
+    @Override
+    public void getMealOfCategory(String category) {
+        Bundle bundle = new Bundle();
+        bundle.putString("category", category);
+        Log.d("TAG", "getMealOfCategory: ");
+        Navigation.findNavController(requireView())
+                .navigate(R.id.action_homeFragment_to_mealListFragment, bundle);
     }
 }

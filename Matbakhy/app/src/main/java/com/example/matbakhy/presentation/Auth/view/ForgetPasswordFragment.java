@@ -23,7 +23,7 @@ import com.google.android.material.textfield.TextInputLayout;
 public class ForgetPasswordFragment extends Fragment implements ForgotPasswordView {
     private EditText edtEmail;
     private TextInputLayout inputLayoutEmail;
-    private Button btnSendReset;
+    private Button btnSendReset,btnBack;
     private TextView txtRememberPassword, txtResendEmail, txtEmailSentTo;
     private LinearLayout layoutSuccess;
     private ProgressDialog progressDialog;
@@ -52,9 +52,6 @@ public class ForgetPasswordFragment extends Fragment implements ForgotPasswordVi
             progressDialog.dismiss();
         }
     }
-
-    // ==================== ForgotPasswordView Interface Implementation ====================
-
     @Override
     public void showLoading() {
         if (progressDialog != null && !progressDialog.isShowing()) {
@@ -94,10 +91,8 @@ public class ForgetPasswordFragment extends Fragment implements ForgotPasswordVi
     public void showSuccessScreen(String email) {
         if (getView() == null) return;
 
-        // Hide input form
         hideInputForm();
 
-        // Show success message
         if (layoutSuccess != null) {
             layoutSuccess.setVisibility(View.VISIBLE);
         }
@@ -146,7 +141,6 @@ public class ForgetPasswordFragment extends Fragment implements ForgotPasswordVi
         }
     }
 
-    // ==================== Private Helper Methods ====================
 
     private void initializeViews(View view) {
         edtEmail = view.findViewById(R.id.emailEditText);
@@ -156,7 +150,7 @@ public class ForgetPasswordFragment extends Fragment implements ForgotPasswordVi
         txtResendEmail = view.findViewById(R.id.txtResendEmail);
         txtEmailSentTo = view.findViewById(R.id.txtEmailSentTo);
         layoutSuccess = view.findViewById(R.id.layoutSuccess);
-
+        btnBack = view.findViewById(R.id.btnBack);
         progressDialog = new ProgressDialog(requireContext());
         progressDialog.setMessage("Sending reset email...");
         progressDialog.setCancelable(false);
@@ -176,9 +170,6 @@ public class ForgetPasswordFragment extends Fragment implements ForgotPasswordVi
             txtResendEmail.setOnClickListener(v -> presenter.onResendEmailClicked());
         }
 
-        View btnBack = getView() != null ? getView().findViewById(R.id.btnBack) : null;
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> presenter.onBackClicked());
-        }
+        btnBack.setOnClickListener(v -> presenter.onBackClicked());
     }
 }

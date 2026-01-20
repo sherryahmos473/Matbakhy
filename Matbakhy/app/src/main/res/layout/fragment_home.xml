@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -11,8 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#FFFFFF">
-
+        android:background="@color/white">
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="160dp"
@@ -69,13 +68,11 @@
 
             </FrameLayout>
         </com.google.android.material.card.MaterialCardView>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="24dp">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -96,78 +93,99 @@
                 app:cardElevation="6dp"
                 app:cardPreventCornerOverlap="true">
 
-                    <ImageView
-                        android:id="@+id/mealOfTheDayImage"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/meal" />
+                <ImageView
+                    android:id="@+id/mealOfTheDayImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/meal" />
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/black_gradient" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/black_gradient" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:padding="16dp"
-                        android:gravity="bottom">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:gravity="bottom">
 
-                        <TextView
-                            android:id="@+id/mealOfTheDayCategory"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Chicken"
-                            android:textSize="12sp"
-                            android:textColor="@android:color/white"
-                            android:background="@drawable/category_chip"
-                            android:paddingHorizontal="12dp"
-                            android:paddingVertical="4dp"
-                            android:layout_marginBottom="8dp" />
-                        <TextView
-                            android:id="@+id/mealofTheDayName"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Chicken Tikka Masala"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:textColor="@android:color/white"
-                            android:layout_marginBottom="6dp" />
-                        <TextView
-                            android:id="@+id/mealOfTheDayArea"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="India"
-                            android:textSize="14sp"
-                            android:paddingEnd="20dp"
-                            android:textColor="@android:color/white" />
-                    </LinearLayout>
+                    <TextView
+                        android:id="@+id/mealOfTheDayCategory"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Chicken"
+                        android:textSize="12sp"
+                        android:textColor="@android:color/white"
+                        android:background="@drawable/category_chip"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="4dp"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/mealofTheDayName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Chicken Tikka Masala"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:layout_marginBottom="6dp" />
+
+                    <TextView
+                        android:id="@+id/mealOfTheDayArea"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="India"
+                        android:textSize="14sp"
+                        android:paddingEnd="20dp"
+                        android:textColor="@android:color/white" />
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-                <TextView
-                    android:padding="15dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Explore Categories"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/black" />
-        </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Explore Categories"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="24dp" />
 
+        </LinearLayout>
+        <ProgressBar
+            android:id="@+id/progress_circular"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"
+            />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/categoryList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            app:fastScrollEnabled="false"
+            android:layout_marginEnd="16dp"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="2" />
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigation"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            android:layout_alignParentBottom="true"
             android:background="@android:color/white"
             app:elevation="8dp"
             app:itemIconTint="@color/gray"
             app:itemTextColor="@color/gray"
             app:labelVisibilityMode="labeled"
             app:menu="@menu/bottom_nav_menu" />
+
     </LinearLayout>
 
-
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

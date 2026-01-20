@@ -30,11 +30,9 @@ public class MainActivity extends AppCompatActivity implements MainView {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // Initialize presenter
         presenter = new MainPresenterImpl(AuthModule.provideAuthRepository(this));
         presenter.attachView(this);
 
-        // Start splash delay
         handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(() -> presenter.checkLoginStatus(), SPLASH_DELAY);
     }
@@ -49,7 +47,6 @@ public class MainActivity extends AppCompatActivity implements MainView {
         presenter.detachView();
     }
 
-    // ==================== MainView Interface Implementation ====================
 
     @Override
     public void navigateToHome(String email) {
