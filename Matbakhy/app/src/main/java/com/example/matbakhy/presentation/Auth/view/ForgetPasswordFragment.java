@@ -34,7 +34,7 @@ public class ForgetPasswordFragment extends Fragment implements ForgotPasswordVi
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_forget_password, container, false);
 
-        presenter = new ForgotPasswordPresenterImpl(com.example.matbakhy.di.AuthModule.provideAuthRepository(requireContext()));
+        presenter = new ForgotPasswordPresenterImpl(getContext());
         presenter.attachView(this);
 
         initializeViews(view);

@@ -1,6 +1,7 @@
 package com.example.matbakhy.presentation.Auth.presenter;
 
 
+import android.content.Context;
 import android.util.Log;
 
 import com.example.matbakhy.data.auth.AuthRepository;
@@ -12,8 +13,8 @@ public class MainPresenterImpl implements MainPresenter {
     private MainView view;
     private final AuthRepository authRepository;
 
-    public MainPresenterImpl(AuthRepository authRepository) {
-        this.authRepository = authRepository;
+    public MainPresenterImpl(Context context) {
+        this.authRepository = new AuthRepository(context);
     }
 
     public void attachView(MainView view) {
@@ -44,7 +45,6 @@ public class MainPresenterImpl implements MainPresenter {
         } catch (Exception e) {
             Log.e(TAG, "Error checking login status: " + e.getMessage());
             view.showError("Error checking login status. Please try again.");
-            // Default to auth screen on error
             view.navigateToAuth();
         }
     }

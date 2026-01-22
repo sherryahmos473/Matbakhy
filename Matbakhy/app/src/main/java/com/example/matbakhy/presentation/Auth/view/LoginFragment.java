@@ -35,7 +35,7 @@ public class LoginFragment extends Fragment implements LoginView {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        presenter = com.example.matbakhy.di.AuthModule.provideLoginPresenter(requireContext());
+        presenter = new LoginPresenterImpl(getContext());
         presenter.attachView(this);
 
         initializeViews(view);

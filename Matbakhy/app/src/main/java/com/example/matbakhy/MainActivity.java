@@ -9,7 +9,6 @@ import android.util.Log;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.matbakhy.di.AuthModule;
 import com.example.matbakhy.helper.MyToast;
 import com.example.matbakhy.presentation.Auth.presenter.MainPresenter;
 import com.example.matbakhy.presentation.Auth.presenter.MainPresenterImpl;
@@ -30,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        presenter = new MainPresenterImpl(AuthModule.provideAuthRepository(this));
+        presenter = new MainPresenterImpl(this);
         presenter.attachView(this);
 
         handler = new Handler(Looper.getMainLooper());

@@ -38,12 +38,10 @@ public class FirebaseServices implements com.example.matbakhy.data.auth.datasour
     private GoogleSignInClient googleSignInClient;
     private SharedPref sharedPrefDataSource;
 
-    public FirebaseServices(SharedPref sharedPrefDataSource) {
-        this.sharedPrefDataSource = sharedPrefDataSource;
-    }
 
     public void initialize(Context context) {
         this.context = context.getApplicationContext();
+        sharedPrefDataSource = AuthNetwork.getInstance(context).sharedPref;
 
         try {
             Log.d(TAG, "Initializing Firebase services...");

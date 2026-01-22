@@ -1,5 +1,7 @@
 package com.example.matbakhy.presentation.Auth.presenter;
 
+import android.content.Context;
+
 import com.example.matbakhy.data.auth.AuthRepository;
 import com.example.matbakhy.data.auth.callbacks.AuthCallback;
 import com.example.matbakhy.data.auth.model.User;
@@ -8,8 +10,8 @@ import com.example.matbakhy.presentation.Auth.view.RegisterView;
 public class RegisterPresenterImpl extends BaseAuthPresenterImpl implements RegisterPresenter {
     private RegisterView registerView;
 
-    public RegisterPresenterImpl(AuthRepository authRepository) {
-        super(authRepository);
+    public RegisterPresenterImpl(Context context) {
+        super(context);
     }
 
     @Override

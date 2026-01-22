@@ -1,5 +1,6 @@
 package com.example.matbakhy.presentation.Auth.presenter;
 
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
@@ -15,8 +16,8 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
     protected BaseAuthView view;
     protected final AuthRepository authRepository;
 
-    protected BaseAuthPresenterImpl(AuthRepository authRepository) {
-        this.authRepository = authRepository;
+    protected BaseAuthPresenterImpl(Context context) {
+        this.authRepository = new AuthRepository(context);
     }
 
     @Override

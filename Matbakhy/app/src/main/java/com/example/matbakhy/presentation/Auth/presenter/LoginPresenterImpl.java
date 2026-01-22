@@ -1,6 +1,8 @@
 package com.example.matbakhy.presentation.Auth.presenter;
 
 
+import android.content.Context;
+
 import com.example.matbakhy.data.auth.AuthRepository;
 import com.example.matbakhy.data.auth.callbacks.AuthCallback;
 import com.example.matbakhy.data.auth.model.User;
@@ -9,8 +11,8 @@ import com.example.matbakhy.presentation.Auth.view.LoginView;
 public class LoginPresenterImpl extends BaseAuthPresenterImpl implements LoginPresenter {
     private LoginView loginView;
 
-    public LoginPresenterImpl(AuthRepository authRepository) {
-        super(authRepository);
+    public LoginPresenterImpl(Context context) {
+        super(context);
     }
 
     @Override

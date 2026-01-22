@@ -1,6 +1,7 @@
 package com.example.matbakhy.presentation.Auth.presenter;
 
 
+import android.content.Context;
 import android.util.Log;
 
 import com.example.matbakhy.data.auth.AuthRepository;
@@ -14,8 +15,8 @@ public class ForgotPasswordPresenterImpl implements ForgotPasswordPresenter {
     private final AuthRepository authRepository;
     private String userEmail = "";
 
-    public ForgotPasswordPresenterImpl(AuthRepository authRepository) {
-        this.authRepository = authRepository;
+    public ForgotPasswordPresenterImpl(Context context) {
+        this.authRepository = new AuthRepository(context);
     }
 
     public void attachView(ForgotPasswordView view) {

@@ -3,8 +3,6 @@ package com.example.matbakhy.presentation.Meals.view;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
@@ -22,7 +20,7 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        sharedPrefManager = new AuthRepository(this, com.example.matbakhy.di.AuthModule.provideFirebaseAuth(com.example.matbakhy.di.AuthModule.provideSharedPref(this)), com.example.matbakhy.di.AuthModule.provideSharedPref(this));
+        sharedPrefManager = new AuthRepository(this);
 
         String userEmail = "";
         if (getIntent() != null && getIntent().hasExtra("userEmail")) {

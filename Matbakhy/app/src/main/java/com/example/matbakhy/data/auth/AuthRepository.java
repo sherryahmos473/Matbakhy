@@ -6,6 +6,7 @@ import android.content.Intent;
 import com.example.matbakhy.data.auth.callbacks.AuthCallback;
 import com.example.matbakhy.data.auth.callbacks.SimpleCallback;
 import com.example.matbakhy.data.auth.datasources.local.SharedPref;
+import com.example.matbakhy.data.auth.datasources.remote.AuthNetwork;
 import com.example.matbakhy.data.auth.datasources.remote.FirebaseServices;
 import com.example.matbakhy.data.auth.datasources.remote.FirebaseServices;
 
@@ -14,12 +15,11 @@ public class AuthRepository {
     private final SharedPref sharedPrefDataSource;
     private final Context context;
 
-    public AuthRepository(Context context,
-                          FirebaseServices firebaseServices,
-                          SharedPref sharedPrefDataSource) {
+    public AuthRepository(Context context) {
         this.context = context;
-        this.firebaseServices = firebaseServices;
-        this.sharedPrefDataSource = sharedPrefDataSource;
+        this.sharedPrefDataSource = AuthNetwork.getInstance(context).sharedPref;
+        this.firebaseServices = AuthNetwork.getInstance(context).services;
+
         this.firebaseServices.initialize(context);
     }
 

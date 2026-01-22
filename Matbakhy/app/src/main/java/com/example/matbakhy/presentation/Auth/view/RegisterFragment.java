@@ -34,7 +34,7 @@ public class RegisterFragment extends Fragment implements RegisterView {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
-        presenter = new RegisterPresenterImpl(com.example.matbakhy.di.AuthModule.provideAuthRepository(requireContext()));
+        presenter = new RegisterPresenterImpl(getContext());
         presenter.attachView(this);
 
         initializeViews(view);
