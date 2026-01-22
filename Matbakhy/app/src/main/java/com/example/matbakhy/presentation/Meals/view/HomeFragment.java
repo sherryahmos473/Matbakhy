@@ -67,10 +67,9 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         categoryListAdapter = new CategoryListAdapter(this);
         categoryList = view.findViewById(R.id.categoryList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(),
-                LinearLayoutManager.HORIZONTAL,true);
+                LinearLayoutManager.HORIZONTAL,false);
         categoryList.setLayoutManager(layoutManager);
         categoryList.setAdapter(categoryListAdapter);
-        categoryList.setLayoutManager(new GridLayoutManager(requireContext(), 2));
         homePresenter = new HomePresenterImpl();
         return view;
     }

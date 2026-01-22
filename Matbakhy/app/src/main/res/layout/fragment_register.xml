@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="8dp"
-            android:text="Sign up"
+            android:text="@string/sign_up"
             android:textColor="@color/black"
             android:textSize="28sp"
             android:textStyle="bold" />
@@ -29,17 +29,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="40dp"
-            android:text="Sign Up to continue your culinary journey"
+            android:text="@string/sign_up"
             android:textColor="@color/gray"
             android:textSize="16sp" />
 
-        <!-- Email Input -->
         <TextView
             android:id="@+id/nameLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Name"
+            android:text="@string/name"
             android:textColor="@color/black"
             android:textSize="14sp" />
 
@@ -56,8 +55,8 @@
                 android:id="@+id/nameEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Your full name"
-                android:inputType="textEmailAddress"
+                android:hint="@string/your_full_name"
+                android:inputType="textPersonName"
                 android:padding="16dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -67,7 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Email Address"
+            android:text="@string/email_address"
             android:textColor="@color/black"
             android:textSize="14sp" />
 
@@ -84,19 +83,18 @@
                 android:id="@+id/emailEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="your.email@example.com"
+                android:hint="@string/email_placeholder"
                 android:inputType="textEmailAddress"
                 android:padding="16dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Password Input -->
         <TextView
             android:id="@+id/passwordLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Password"
+            android:text="@string/password"
             android:textColor="@color/black"
             android:textSize="14sp" />
 
@@ -114,18 +112,18 @@
                 android:id="@+id/passwordEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter your password"
+                android:hint="@string/password"
                 android:inputType="textPassword"
                 android:padding="16dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
-        <!-- Password Input -->
+
         <TextView
             android:id="@+id/confirmPasswordLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Confirm Password"
+            android:text="@string/confirm_password"
             android:textColor="@color/black"
             android:textSize="14sp" />
 
@@ -143,28 +141,23 @@
                 android:id="@+id/confirmPasswordEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Re-Enter your password"
+                android:hint="@string/confirm_password"
                 android:inputType="textPassword"
                 android:padding="16dp" />
-
-
         </com.google.android.material.textfield.TextInputLayout>
 
-
-        <!-- Sign In Button -->
         <Button
             android:id="@+id/signUpButton"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_marginBottom="24dp"
-            android:backgroundTint="@color/green"
+            android:backgroundTint="@color/light_orange"
             android:elevation="0dp"
-            android:text="Create Acount"
+            android:text="@string/sign_up"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <!-- Or continue with divider -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -181,7 +174,7 @@
                 android:id="@+id/orContinueTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Or continue with"
+                android:text="@string/continue_with"
                 android:textSize="14sp"
                 android:textColor="@color/gray"
                 android:paddingHorizontal="16dp"
@@ -217,7 +210,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="5dp"
-                android:text="Already have an account?"
+                android:text="@string/already_have_account"
                 android:textColor="@color/gray"
                 android:textSize="14sp"/>
 
@@ -225,8 +218,8 @@
                 android:id="@+id/signInTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sign In"
-                android:textColor="@color/green"
+                android:text="@string/sign_in"
+                android:textColor="@color/light_orange"
                 android:textSize="18sp" />
         </LinearLayout>
 
@@ -235,11 +228,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="40dp"
-            android:text="Continue as Guest"
-            android:textColor="@color/green"
+            android:text="@string/continue_guest"
+            android:textColor="@color/light_orange"
             android:textSize="18sp" />
-
-
     </LinearLayout>
-
 </ScrollView>

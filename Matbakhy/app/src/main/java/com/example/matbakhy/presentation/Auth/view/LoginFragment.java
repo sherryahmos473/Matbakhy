@@ -16,9 +16,9 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.matbakhy.R;
-import com.example.matbakhy.di.AuthModule;
 import com.example.matbakhy.presentation.Auth.presenter.AuthUtils;
 import com.example.matbakhy.presentation.Auth.presenter.LoginPresenter;
+import com.example.matbakhy.presentation.Auth.presenter.LoginPresenterImpl;
 
 public class LoginFragment extends Fragment implements LoginView {
     private static final String TAG = "LoginFragment";
@@ -35,7 +35,7 @@ public class LoginFragment extends Fragment implements LoginView {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        presenter = AuthModule.provideLoginPresenter(requireContext());
+        presenter = com.example.matbakhy.di.AuthModule.provideLoginPresenter(requireContext());
         presenter.attachView(this);
 
         initializeViews(view);

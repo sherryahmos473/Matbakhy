@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="@color/white">
+
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="160dp"
@@ -38,7 +39,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="MealMaster"
+                        android:text="@string/app_name"
                         android:textColor="@android:color/white"
                         android:textStyle="bold"
                         android:textSize="20sp"
@@ -62,21 +63,23 @@
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:paddingStart="50dp"
-                        android:hint="Search recipes, ingredients..."
+                        android:hint="@string/search_recipes"
                         android:textSize="14sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
             </FrameLayout>
         </com.google.android.material.card.MaterialCardView>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="24dp">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🌟 Meal of the Day"
+                android:text="@string/meal_of_the_day"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
@@ -148,43 +151,39 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Explore Categories"
+                android:text="@string/explore_categories"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
                 android:layout_marginTop="24dp" />
 
+            <ProgressBar
+                android:id="@+id/progress_circular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/categoryList"
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:elevation="24dp"
+                android:layout_marginTop="10dp"
+                android:nestedScrollingEnabled="false"/>
+
+            <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/bottomNavigation"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:background="@android:color/white"
+                app:elevation="8dp"
+                app:itemIconTint="@color/gray"
+                app:itemTextColor="@color/gray"
+                app:labelVisibilityMode="labeled"
+                app:menu="@menu/bottom_nav_menu" />
+
         </LinearLayout>
-        <ProgressBar
-            android:id="@+id/progress_circular"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:visibility="gone"
-            />
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/categoryList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            app:fastScrollEnabled="false"
-            android:layout_marginEnd="16dp"
-            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-            app:spanCount="2" />
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottomNavigation"
-            android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:background="@android:color/white"
-            app:elevation="8dp"
-            app:itemIconTint="@color/gray"
-            app:itemTextColor="@color/gray"
-            app:labelVisibilityMode="labeled"
-            app:menu="@menu/bottom_nav_menu" />
 
     </LinearLayout>
 

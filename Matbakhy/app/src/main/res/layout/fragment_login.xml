@@ -13,16 +13,13 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Welcome Back Title -->
-
-        <!-- Subtitle -->
         <TextView
             android:id="@+id/titleTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="8dp"
-            android:text="Sign in"
+            android:text="@string/sign_in"
             android:textColor="@color/black"
             android:textSize="28sp"
             android:textStyle="bold" />
@@ -32,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="40dp"
-            android:text="Sign in to continue your culinary journey"
+            android:text="@string/welcome_back"
             android:textColor="@color/gray"
             android:textSize="16sp" />
 
@@ -41,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Email Address"
+            android:text="@string/email_address"
             android:textColor="@color/black"
             android:textSize="14sp" />
 
@@ -58,19 +55,18 @@
                 android:id="@+id/emailEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="your.email@example.com"
+                android:hint="@string/email_placeholder"
                 android:inputType="textEmailAddress"
                 android:padding="16dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Password Input -->
         <TextView
             android:id="@+id/passwordLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Password"
+            android:text="@string/password"
             android:textColor="@color/black"
             android:textSize="14sp" />
 
@@ -88,7 +84,7 @@
                 android:id="@+id/passwordEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter your password"
+                android:hint="@string/enter_your_password"
                 android:inputType="textPassword"
                 android:padding="16dp" />
 
@@ -101,30 +97,25 @@
             android:layout_gravity="end"
             android:layout_marginTop="15dp"
             android:layout_marginBottom="24dp"
-            android:text="Forgot Password?"
-            android:textColor="@color/green"
+            android:text="@string/forgot_password"
+            android:textColor="@color/light_orange"
             android:textSize="14sp" />
-
 
         <ProgressBar
             android:id="@+id/progress_circular"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:visibility="gone"
-            />
+            android:layout_gravity="center"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/signInButton"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_marginBottom="24dp"
-            android:backgroundTint="@color/green"
+            android:backgroundTint="@color/light_orange"
             android:elevation="0dp"
-            android:text="Sign in"
+            android:text="@string/sign_in"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -145,7 +136,7 @@
                 android:id="@+id/orContinueTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Or continue with"
+                android:text="@string/continue_with"
                 android:textSize="14sp"
                 android:textColor="@color/gray"
                 android:paddingHorizontal="16dp"
@@ -170,7 +161,6 @@
             app:cornerRadius="8dp"
             app:strokeColor="@color/light_gray" />
 
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -183,7 +173,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="5dp"
-                android:text="Don't have an account?"
+                android:text="@string/don_have_account"
                 android:textColor="@color/gray"
                 android:textSize="14sp"/>
 
@@ -191,8 +181,8 @@
                 android:id="@+id/signUpTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sign Up"
-                android:textColor="@color/green"
+                android:text="@string/sign_up"
+                android:textColor="@color/light_orange"
                 android:textSize="18sp" />
         </LinearLayout>
 
@@ -201,10 +191,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="40dp"
-            android:text="Continue as Guest"
-            android:textColor="@color/green"
+            android:text="@string/continue_guest"
+            android:textColor="@color/light_orange"
             android:textSize="18sp" />
 
     </LinearLayout>
-
 </ScrollView>

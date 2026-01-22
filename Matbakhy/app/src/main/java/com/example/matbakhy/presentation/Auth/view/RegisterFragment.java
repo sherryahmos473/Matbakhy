@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.matbakhy.R;
-import com.example.matbakhy.di.AuthModule;
 import com.example.matbakhy.presentation.Auth.presenter.AuthUtils;
 import com.example.matbakhy.presentation.Auth.presenter.RegisterPresenter;
 import com.example.matbakhy.presentation.Auth.presenter.RegisterPresenterImpl;
@@ -35,7 +34,7 @@ public class RegisterFragment extends Fragment implements RegisterView {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
-        presenter = new RegisterPresenterImpl(AuthModule.provideAuthRepository(requireContext()));
+        presenter = new RegisterPresenterImpl(com.example.matbakhy.di.AuthModule.provideAuthRepository(requireContext()));
         presenter.attachView(this);
 
         initializeViews(view);

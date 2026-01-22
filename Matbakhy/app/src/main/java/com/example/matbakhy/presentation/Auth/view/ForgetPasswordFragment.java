@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.matbakhy.R;
-import com.example.matbakhy.di.AuthModule;
 import com.example.matbakhy.helper.MyToast;
 import com.example.matbakhy.presentation.Auth.presenter.ForgotPasswordPresenter;
 import com.example.matbakhy.presentation.Auth.presenter.ForgotPasswordPresenterImpl;
@@ -29,12 +28,13 @@ public class ForgetPasswordFragment extends Fragment implements ForgotPasswordVi
     private ProgressDialog progressDialog;
     private ForgotPasswordPresenter presenter;
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_forget_password, container, false);
 
-        presenter = new ForgotPasswordPresenterImpl(AuthModule.provideAuthRepository(requireContext()));
+        presenter = new ForgotPasswordPresenterImpl(com.example.matbakhy.di.AuthModule.provideAuthRepository(requireContext()));
         presenter.attachView(this);
 
         initializeViews(view);
@@ -146,11 +146,10 @@ public class ForgetPasswordFragment extends Fragment implements ForgotPasswordVi
         edtEmail = view.findViewById(R.id.emailEditText);
         inputLayoutEmail = view.findViewById(R.id.emailInputLayout);
         btnSendReset = view.findViewById(R.id.btnSendReset);
-        txtRememberPassword = view.findViewById(R.id.txtRememberPassword);
+        txtRememberPassword = view.findViewById(R.id.signInTextView);
         txtResendEmail = view.findViewById(R.id.txtResendEmail);
         txtEmailSentTo = view.findViewById(R.id.txtEmailSentTo);
         layoutSuccess = view.findViewById(R.id.layoutSuccess);
-        btnBack = view.findViewById(R.id.btnBack);
         progressDialog = new ProgressDialog(requireContext());
         progressDialog.setMessage("Sending reset email...");
         progressDialog.setCancelable(false);

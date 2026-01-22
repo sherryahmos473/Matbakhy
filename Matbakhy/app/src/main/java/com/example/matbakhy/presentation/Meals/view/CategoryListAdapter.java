@@ -67,7 +67,6 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
         public void bind(Category category) {
             Log.d("Adapter", "Binding category: " + category.getName());
 
-            // Check if category data is valid
             if (category.getName() != null && !category.getName().isEmpty()) {
                 categoryName.setText(category.getName());
             } else {
