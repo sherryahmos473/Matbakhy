@@ -70,7 +70,7 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
                 LinearLayoutManager.HORIZONTAL,false);
         categoryList.setLayoutManager(layoutManager);
         categoryList.setAdapter(categoryListAdapter);
-        homePresenter = new HomePresenterImpl();
+        homePresenter = new HomePresenterImpl(getContext());
         return view;
     }
 
@@ -96,7 +96,7 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
 
     private void navigateToMealDetails(Meal meal) {
         Bundle bundle = new Bundle();
-        bundle.putSerializable("meal_object", meal);
+        bundle.putParcelable("meal_object", meal);
         Navigation.findNavController(requireView())
                 .navigate(R.id.action_homeFragment_to_mealDetailsFragment, bundle);
     }

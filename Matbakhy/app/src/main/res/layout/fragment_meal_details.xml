@@ -54,9 +54,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
-                        android:src="@drawable/ic_favorite_border"
+                        android:src="@drawable/ic_heart"
                         app:backgroundTint="@android:color/white"
-                        app:tint="@color/light_orange"
+                        app:tint="@color/gray"
                         app:maxImageSize="24dp"
                         app:elevation="4dp"
                         app:fabSize="mini" />
@@ -202,15 +202,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ingredientsLabel" />
 
-        <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
-            android:id="@+id/youtubePlayerView"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/ingredients"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginBottom="16dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

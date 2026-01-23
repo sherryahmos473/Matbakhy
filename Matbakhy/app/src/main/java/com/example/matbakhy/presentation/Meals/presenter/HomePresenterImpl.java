@@ -1,5 +1,7 @@
 package com.example.matbakhy.presentation.Meals.presenter;
 
+import android.content.Context;
+
 import com.example.matbakhy.data.Meals.MealRepositry;
 import com.example.matbakhy.data.Meals.dataSource.CategoriesRemoteResponse;
 import com.example.matbakhy.data.Meals.dataSource.MealRemoteResponse;
@@ -12,8 +14,9 @@ import java.util.List;
 public class HomePresenterImpl implements HomePresenter{
     private MealRepositry mealRepositry;
     private HomeView homeView;
-    public HomePresenterImpl(){
-        mealRepositry = new MealRepositry();
+
+    public HomePresenterImpl(Context context){
+        mealRepositry = new MealRepositry(context);
     }
 
     @Override

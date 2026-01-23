@@ -56,8 +56,8 @@ public class MealListAdapter extends RecyclerView.Adapter<MealListAdapter.MealVi
 
         public MealViewHolder(@NonNull View itemView) {
             super(itemView);
-            mealImage = itemView.findViewById(R.id.iv_poster);
-            mealName = itemView.findViewById(R.id.tv_name);
+            mealImage = itemView.findViewById(R.id.image);
+            mealName = itemView.findViewById(R.id.name);
             mealCard = itemView.findViewById(R.id.mealCard);
         }
 

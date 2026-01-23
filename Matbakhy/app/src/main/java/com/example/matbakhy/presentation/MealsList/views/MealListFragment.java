@@ -15,6 +15,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.helper.MyToast;
@@ -26,10 +28,9 @@ public class MealListFragment extends Fragment implements MealListView{
     private String categoryName;
     private MealListPresenter mealListPresenter;
     ProgressBar progressBar;
-    List<Meal> meals;
     MealListAdapter mealListAdapter;
-    String ClickedMeal;
     RecyclerView recyclerView;
+    TextView title;
     View view;
 
     public MealListFragment() {
@@ -56,7 +57,8 @@ public class MealListFragment extends Fragment implements MealListView{
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_meal_list, container, false);
         progressBar = view.findViewById(R.id.progress_circular);
-        recyclerView = view.findViewById(R.id.recycleView);;
+        recyclerView = view.findViewById(R.id.recycleView);
+        title = view.findViewById(R.id.category_name);
         progressBar.setVisibility(VISIBLE);
         setupRecyclerView();
         return view;
@@ -66,10 +68,11 @@ public class MealListFragment extends Fragment implements MealListView{
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mealListPresenter = new MealListPresenterImpl();
+        mealListPresenter = new MealListPresenterImpl(getContext());
         mealListPresenter.attachView(this);
 
         if (categoryName != null) {
+            title.setText(categoryName + " Meals");
             progressBar.setVisibility(View.VISIBLE);
             mealListPresenter.getMealOfCategory(categoryName);
         } else {
@@ -81,6 +84,7 @@ public class MealListFragment extends Fragment implements MealListView{
     public void onSuccess(List<Meal> mealList) {
         progressBar.setVisibility(View.GONE);
         mealListAdapter.setMealList(mealList);
+
         Log.d("TAG", "Meals loaded: " + mealList.size());
     }
 
@@ -95,7 +99,7 @@ public class MealListFragment extends Fragment implements MealListView{
     @Override
     public void onClickMeal(Meal meal) {
         Bundle bundle = new Bundle();
-        bundle.putSerializable("meal_object", meal);
+        bundle.putParcelable("meal_object", meal);
         Navigation.findNavController(requireView())
                 .navigate(R.id.action_mealListFragment_to_mealDetailsFragment, bundle);
     }

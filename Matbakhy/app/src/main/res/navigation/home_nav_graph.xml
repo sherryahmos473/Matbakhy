@@ -16,25 +16,48 @@
             app:destination="@id/mealDetailsFragment" />
         <action
             android:id="@+id/action_homeFragment_to_mealListFragment"
-            app:destination="@+id/mealListFragment"
-            />
+            app:destination="@+id/mealListFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_favoriteFragment"
+            app:destination="@+id/favoriteFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/mealDetailsFragment"
         android:name="com.example.matbakhy.presentation.Meals.view.MealDetailsFragment"
         android:label="Meal Details"
-        tools:layout="@layout/fragment_meal_details" />
+        tools:layout="@layout/fragment_meal_details">
+
+        <action
+            android:id="@+id/action_mealDetailsFragment_to_favoriteFragment"
+            app:destination="@+id/favoriteFragment"
+            app:popUpTo="@+id/favoriteFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
     <fragment
         android:id="@+id/mealListFragment"
         android:name="com.example.matbakhy.presentation.MealsList.views.MealListFragment"
         android:label="Meal list"
-        tools:layout="@layout/fragment_meal_list" >
+        tools:layout="@layout/fragment_meal_list">
 
         <action
             android:id="@+id/action_mealListFragment_to_mealDetailsFragment"
-            app:destination="@+id/mealDetailsFragment"
-            />
+            app:destination="@+id/mealDetailsFragment" />
+        <action
+            android:id="@+id/action_mealListFragment_to_favoriteFragment"
+            app:destination="@+id/favoriteFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/favoriteFragment"
+        android:name="com.example.matbakhy.presentation.Favorite.view.FavoriteFragment"
+        android:label="Favorites"
+        tools:layout="@layout/fragment_favorite">
+
+        <action
+            android:id="@+id/action_favoriteFragment_to_mealDetailsFragment"
+            app:destination="@id/mealDetailsFragment" />
     </fragment>
 
 </navigation>

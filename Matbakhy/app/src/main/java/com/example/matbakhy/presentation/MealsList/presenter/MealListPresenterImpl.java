@@ -1,5 +1,7 @@
 package com.example.matbakhy.presentation.MealsList.presenter;
 
+import android.content.Context;
+
 import com.example.matbakhy.data.Meals.MealRepositry; // Make sure import is correct
 import com.example.matbakhy.data.Meals.dataSource.MealRemoteResponse;
 import com.example.matbakhy.data.Meals.model.Meal;
@@ -11,8 +13,8 @@ public class MealListPresenterImpl implements MealListPresenter {
     private MealListView view;
     private MealRepositry repository;
 
-    public MealListPresenterImpl() {
-        this.repository = new MealRepositry();
+    public MealListPresenterImpl(Context context) {
+        this.repository = new MealRepositry(context);
     }
 
     @Override
