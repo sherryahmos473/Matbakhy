@@ -50,15 +50,31 @@ public class MealListPresenterImpl implements MealListPresenter {
 
     @Override
     public void getMealByName(String name) {
+        if (repository == null) {
+            if (view != null) {
+                view.onFailure("Repository not initialized");
+            }
+            return;
+        }
+
         repository.getMealByName(new MealRemoteResponse() {
             @Override
             public void onSuccess(List<Meal> mealList) {
-                view.onClickMeal(mealList.get(0));
+                if (view != null) {
+                    // أصلح هذا السطر:
+                    if (mealList != null && !mealList.isEmpty()) {
+                        view.onClickMeal(mealList.get(0));
+                    } else {
+                        view.onFailure("No meals found with name: " + name);
+                    }
+                }
             }
 
             @Override
             public void onFailure(String errorMessage) {
-                view.onFailure(errorMessage);
+                if (view != null) {
+                    view.onFailure(errorMessage);
+                }
             }
         }, name);
     }

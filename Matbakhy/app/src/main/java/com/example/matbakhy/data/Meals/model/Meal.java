@@ -12,19 +12,19 @@ import androidx.room.PrimaryKey;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity(tableName = "meals")
 public class Meal implements Parcelable {
 
-    // Primary Key
     @PrimaryKey
     @NonNull
     @SerializedName("idMeal")
     @ColumnInfo(name = "id")
     private String id;
 
-    // Basic Information
     @SerializedName("strMeal")
     @ColumnInfo(name = "name")
     private String name;
@@ -61,7 +61,6 @@ public class Meal implements Parcelable {
     @ColumnInfo(name = "source_url")
     private String sourceUrl;
 
-    // Optional fields
     @SerializedName("strImageSource")
     @ColumnInfo(name = "image_source")
     private String imageSource;
@@ -74,7 +73,6 @@ public class Meal implements Parcelable {
     @ColumnInfo(name = "date_modified")
     private String dateModified;
 
-    // Additional fields for database functionality
     @ColumnInfo(name = "is_favorite", defaultValue = "0")
     private boolean isFavorite;
 
@@ -84,13 +82,6 @@ public class Meal implements Parcelable {
     @ColumnInfo(name = "plan_date")
     private String planDate;
 
-    @ColumnInfo(name = "created_at")
-    private long createdAt;
-
-    @ColumnInfo(name = "last_viewed")
-    private long lastViewed;
-
-    // Ingredients
     @SerializedName("strIngredient1")
     @ColumnInfo(name = "ingredient_1")
     private String ingredient1;
@@ -253,13 +244,10 @@ public class Meal implements Parcelable {
     private String measure20;
 
     public Meal() {
-        this.createdAt = System.currentTimeMillis();
-        this.lastViewed = System.currentTimeMillis();
     }
 
     @Ignore
     public Meal(@NonNull String id, String name, String thumbnail, String category, String area) {
-        this();
         this.id = id;
         this.name = name;
         this.thumbnail = thumbnail;
@@ -267,7 +255,6 @@ public class Meal implements Parcelable {
         this.area = area;
     }
 
-    // Parcelable constructor
     @Ignore
     protected Meal(Parcel in) {
         id = in.readString();
@@ -286,10 +273,7 @@ public class Meal implements Parcelable {
         isFavorite = in.readByte() != 0;
         isPlanned = in.readByte() != 0;
         planDate = in.readString();
-        createdAt = in.readLong();
-        lastViewed = in.readLong();
 
-        // Ingredients
         ingredient1 = in.readString();
         ingredient2 = in.readString();
         ingredient3 = in.readString();
@@ -370,10 +354,6 @@ public class Meal implements Parcelable {
         dest.writeByte((byte) (isFavorite ? 1 : 0));
         dest.writeByte((byte) (isPlanned ? 1 : 0));
         dest.writeString(planDate);
-        dest.writeLong(createdAt);
-        dest.writeLong(lastViewed);
-
-        // Write ingredients
         dest.writeString(ingredient1);
         dest.writeString(ingredient2);
         dest.writeString(ingredient3);
@@ -547,21 +527,6 @@ public class Meal implements Parcelable {
         this.planDate = planDate;
     }
 
-    public long getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(long createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public long getLastViewed() {
-        return lastViewed;
-    }
-
-    public void setLastViewed(long lastViewed) {
-        this.lastViewed = lastViewed;
-    }
 
     // Ingredients getters and setters
     public String getIngredient1() {
@@ -952,9 +917,6 @@ public class Meal implements Parcelable {
         return result;
     }
 
-    public void updateLastViewed() {
-        this.lastViewed = System.currentTimeMillis();
-    }
 
     @Override
     public String toString() {
@@ -965,5 +927,92 @@ public class Meal implements Parcelable {
                 ", area='" + area + '\'' +
                 ", thumbnail='" + thumbnail + '\'' +
                 '}';
+    }
+    public Map<String, Object> toFirebaseMap(String userId, String userEmail) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", id);
+        map.put("name", name);
+        map.put("alternate_name", alternateName);
+        map.put("category", category);
+        map.put("area", area);
+        map.put("instructions", instructions);
+        map.put("thumbnail", thumbnail);
+        map.put("tags", tags);
+        map.put("youtube_url", youtubeUrl);
+        map.put("source_url", sourceUrl);
+        map.put("image_source", imageSource);
+        map.put("creative_commons_confirmed", creativeCommonsConfirmed);
+        map.put("date_modified", dateModified);
+        map.put("is_favorite", isFavorite);
+        map.put("is_planned", isPlanned);
+        map.put("plan_date", planDate);
+        map.put("user_id", userId);
+        map.put("user_email", userEmail);
+        map.put("last_backup", System.currentTimeMillis());
+
+        for (int i = 1; i <= 20; i++) {
+            try {
+                String ingredientField = "ingredient_" + i;
+                String measureField = "measure_" + i;
+
+                java.lang.reflect.Field ingredientFieldRef = getClass().getDeclaredField("ingredient" + i);
+                java.lang.reflect.Field measureFieldRef = getClass().getDeclaredField("measure" + i);
+
+                ingredientFieldRef.setAccessible(true);
+                measureFieldRef.setAccessible(true);
+
+                String ingredient = (String) ingredientFieldRef.get(this);
+                String measure = (String) measureFieldRef.get(this);
+
+                if (ingredient != null && !ingredient.trim().isEmpty()) {
+                    map.put(ingredientField, ingredient.trim());
+                }
+                if (measure != null && !measure.trim().isEmpty()) {
+                    map.put(measureField, measure.trim());
+                }
+            } catch (Exception e) {
+            }
+        }
+
+        return map;
+    }
+
+    public FirebaseMeal toFirebaseMeal(String userId, String userEmail) {
+        return new FirebaseMeal(this, userId, userEmail);
+    }
+
+    public Map<String, Object> toCompactFirebaseMap(String userId, String userEmail) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", id);
+        map.put("name", name);
+        map.put("category", category);
+        map.put("area", area);
+        map.put("thumbnail", thumbnail);
+        map.put("is_favorite", isFavorite);
+        map.put("user_id", userId);
+        map.put("user_email", userEmail);
+        map.put("backup_timestamp", System.currentTimeMillis());
+
+        List<String> ingredientsList = getIngredients();
+        if (!ingredientsList.isEmpty()) {
+            map.put("ingredients", ingredientsList);
+        }
+
+        return map;
+    }
+    public Map<String, String> getIngredientsAsMap() {
+        Map<String, String> ingredientMap = new HashMap<>();
+        List<String> ingredients = getIngredients();
+        List<String> measures = getMeasures();
+
+        int size = Math.min(ingredients.size(), measures.size());
+        for (int i = 0; i < size; i++) {
+            String ingredient = ingredients.get(i);
+            String measure = measures.get(i);
+            if (!ingredient.isEmpty()) {
+                ingredientMap.put(ingredient, measure != null ? measure : "");
+            }
+        }
+        return ingredientMap;
     }
 }

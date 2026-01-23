@@ -69,7 +69,7 @@ public class LoginPresenterImpl extends BaseAuthPresenterImpl implements LoginPr
 
         loginView.showLoading("Logging in...");
 
-        authRepository.login(email, password, new AuthCallback() {
+        authRepository.loginWithRestore(email, password, new AuthCallback() {
             @Override
             public void onSuccess(User user) {
                 if (loginView != null) {

@@ -7,16 +7,20 @@ import com.example.matbakhy.data.Meals.dataSource.CategoriesRemoteResponse;
 import com.example.matbakhy.data.Meals.dataSource.MealRemoteResponse;
 import com.example.matbakhy.data.Meals.model.Category;
 import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.auth.AuthRepository;
 import com.example.matbakhy.presentation.Meals.view.HomeView;
 
 import java.util.List;
 
 public class HomePresenterImpl implements HomePresenter{
     private MealRepositry mealRepositry;
+    private final AuthRepository authRepository;
     private HomeView homeView;
 
     public HomePresenterImpl(Context context){
+
         mealRepositry = new MealRepositry(context);
+        this.authRepository = new AuthRepository(context);
     }
 
     @Override
@@ -54,6 +58,14 @@ public class HomePresenterImpl implements HomePresenter{
             @Override
             public void onFailure(String errorMessage) {
                 homeView.onFailure(errorMessage);
+            }
+        });
+    }
+    public void logout() {
+        authRepository.logoutWithBackup(new AuthRepository.LogoutCallback() {
+            @Override
+            public void onLogoutComplete(boolean backupSuccess, String message) {
+                homeView.navigateToLogin();
             }
         });
     }

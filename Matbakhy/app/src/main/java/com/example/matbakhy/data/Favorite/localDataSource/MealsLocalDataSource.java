@@ -38,7 +38,19 @@ public class MealsLocalDataSource {
     public LiveData<List<Meal>> getMeals(){
         return mealsDAO.getMeals();
     }
+    public List<Meal> getAllMealsSync(){
+        return  mealsDAO.getAllMealsSync();
+    }
     public LiveData<Boolean> isFavorite(String mealId) {
         return mealsDAO.isFavorite(mealId);
+    }
+    public void deleteAllMeals() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mealsDAO.deleteAllMeals();
+                Log.d("MealsLocalDataSource", "Deleted all meals from local database");
+            }
+        }).start();
     }
 }

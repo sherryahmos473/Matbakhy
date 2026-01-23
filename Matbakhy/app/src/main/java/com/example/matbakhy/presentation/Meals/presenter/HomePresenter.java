@@ -11,4 +11,5 @@ public interface HomePresenter {
     void detachView();
     void getMealOfTheDay();
     void getAllCategories();
+    void logout();
 }

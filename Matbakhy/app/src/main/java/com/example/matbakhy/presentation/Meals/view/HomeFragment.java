@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -39,6 +40,7 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
     ImageView MealOfTheDayImage;
     CardView imageCard;
     View view;
+    Button btn;
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
@@ -64,6 +66,7 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         progressBar = view.findViewById(R.id.progress_circular);
         progressBar.setVisibility(view.VISIBLE);
         imageCard = view.findViewById(R.id.mealCard);
+        btn = view.findViewById(R.id.button);
         categoryListAdapter = new CategoryListAdapter(this);
         categoryList = view.findViewById(R.id.categoryList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(),
@@ -71,6 +74,13 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         categoryList.setLayoutManager(layoutManager);
         categoryList.setAdapter(categoryListAdapter);
         homePresenter = new HomePresenterImpl(getContext());
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                homePresenter.logout();
+
+            }
+        });
         return view;
     }
 
@@ -111,6 +121,11 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         Log.d("TAG", "getAllCategories: " + categories.size());
         progressBar.setVisibility(view.GONE);
         categoryListAdapter.setCategoryList(categories);
+    }
+
+    @Override
+    public void navigateToLogin() {
+        Navigation.findNavController(requireView()).navigate(R.id.action_homeFragment_to_loginFragment2);
     }
 
     @Override

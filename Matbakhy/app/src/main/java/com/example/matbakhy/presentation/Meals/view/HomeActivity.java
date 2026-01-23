@@ -62,7 +62,7 @@ public class HomeActivity extends AppCompatActivity {
 
                         int destId = destination.getId();
 
-                        if ( destId == R.id.mealListFragment) {
+                        if (destId == R.id.mealListFragment || destId == R.id.loginFragment2 || destId == R.id.loginFragment | destId == R.id.registerFragment || destId == R.id.forgotPasswordFragment) {
 
                             hideBottomNavigation();
 

@@ -9,5 +9,5 @@ public interface HomeView {
     void getMealOfTheDay(Meal meal);
     void onFailure(String errorMeassge);
     void getAllCategories(List<Category> categories);
-
+    void navigateToLogin();
 }

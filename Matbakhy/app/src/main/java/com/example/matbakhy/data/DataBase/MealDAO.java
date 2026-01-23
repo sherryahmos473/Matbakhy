@@ -19,8 +19,12 @@ public interface MealDAO {
 
     @Query("SELECT * FROM meals")
     LiveData<List<Meal>> getMeals();
+    @Query("SELECT * FROM meals")
+    List<Meal> getAllMealsSync();
     @Delete
     void deleteMeal(Meal meal);
     @Query("SELECT is_favorite FROM meals WHERE id = :mealId")
     LiveData<Boolean> isFavorite(String mealId);
+    @Query("DELETE FROM meals")
+    void deleteAllMeals();
 }

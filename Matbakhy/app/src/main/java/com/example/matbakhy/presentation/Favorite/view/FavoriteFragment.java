@@ -32,9 +32,10 @@ import java.util.List;
 public class FavoriteFragment extends Fragment implements  FavoriteOnClickListner, FavoriteView, MealClickListener {
 
     View view;
-    //ProgressBar progressBar;
+    ProgressBar progressBar;
     FavoriteAdapter favoriteAdapter;
     FaroritePresenter faroritePresenter;
+    private View emptyStateView;
 
     RecyclerView recyclerView;
 
@@ -60,10 +61,11 @@ public class FavoriteFragment extends Fragment implements  FavoriteOnClickListne
 
         view = inflater.inflate(R.layout.fragment_favorite, container, false);
 
-        //progressBar = view.findViewById(R.id.progress_circular);
+        progressBar = view.findViewById(R.id.progress_circular);
+        progressBar.setVisibility(VISIBLE);
         recyclerView = view.findViewById(R.id.recycleView);
 
-
+        emptyStateView = view.findViewById(R.id.emptyView);
         favoriteAdapter = new FavoriteAdapter(this,this);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
@@ -77,37 +79,38 @@ public class FavoriteFragment extends Fragment implements  FavoriteOnClickListne
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Log.d("FavoriteFragment", "onViewCreated called");
         view.post(() -> {
-            Log.d("FavoriteFragment", "Forcing layout measurement");
             recyclerView.measure(
                     View.MeasureSpec.makeMeasureSpec(recyclerView.getWidth(), View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
             );
-
-            Log.d("FavoriteFragment", "After measure - Height: " + recyclerView.getMeasuredHeight());
-
             recyclerView.requestLayout();
         });
         faroritePresenter.getFavMeal()
                 .observe(getViewLifecycleOwner(), meals -> {
-                    Log.d("FavoriteFragment", "LiveData received: " +
-                            (meals != null ? meals.size() : "null") + " items");
-
                     if (meals != null && !meals.isEmpty()) {
+                        hideEmptyState();
+
                         for (Meal meal : meals) {
                             Log.d("FavoriteFragment", "Meal: " + meal.getName() + " ID: " + meal.getId());
                         }
+                    }else{
+                        showEmptyState();
                     }
-
+                    progressBar.setVisibility(View.GONE);
                     favoriteAdapter.setMealList(meals);
 
-                    Log.d("FavoriteFragment", "RecyclerView visibility: " + recyclerView.getVisibility());
-                    Log.d("FavoriteFragment", "RecyclerView height: " + recyclerView.getHeight());
-                    Log.d("FavoriteFragment", "RecyclerView isShown: " + recyclerView.isShown());
                 });
     }
+    private void showEmptyState() {
+        recyclerView.setVisibility(View.GONE);
+        emptyStateView.setVisibility(View.VISIBLE);
+    }
 
+    private void hideEmptyState() {
+        recyclerView.setVisibility(View.VISIBLE);
+        emptyStateView.setVisibility(View.GONE);
+    }
     @Override
     public void onMealDeleted() {
         new MyToast(getContext(),"Meal Deleted");
