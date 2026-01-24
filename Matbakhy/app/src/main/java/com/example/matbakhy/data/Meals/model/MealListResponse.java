@@ -3,6 +3,7 @@ package com.example.matbakhy.data.Meals.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MealListResponse {
@@ -27,4 +28,5 @@ public class MealListResponse {
     public boolean hasMeals() {
         return meals != null && !meals.isEmpty();
     }
+
 }

@@ -1,5 +1,6 @@
 package com.example.matbakhy.data.Meals.dataSource.Network;
 
+import com.example.matbakhy.data.Meals.model.AreaResponse;
 import com.example.matbakhy.data.Meals.model.CategoryListResponse;
 import com.example.matbakhy.data.Meals.model.MealListResponse;
 
@@ -17,6 +18,6 @@ public interface MealServices {
     Call<MealListResponse> getMealOfCategory(@Query("c") String category);
     @GET("search.php")
     Call<MealListResponse> getMealByName(@Query("s") String name);
-
-
+    @GET("list.php?a=list")
+    Call<AreaResponse> getAllCountries();
 }

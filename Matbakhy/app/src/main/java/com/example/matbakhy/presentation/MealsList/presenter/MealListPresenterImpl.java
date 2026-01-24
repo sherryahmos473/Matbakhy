@@ -22,26 +22,6 @@ public class MealListPresenterImpl implements MealListPresenter {
         this.view = view;
     }
 
-    @Override
-    public void getMealOfCategory(String categoryName) {
-        if (repository == null) return;
-
-        repository.getMealOfCategory(new MealRemoteResponse() {
-            @Override
-            public void onSuccess(List<Meal> meals) {
-                if (view != null) {
-                    view.onSuccess(meals);
-                }
-            }
-
-            @Override
-            public void onFailure(String error) {
-                if (view != null) {
-                    view.onFailure(error);
-                }
-            }
-        }, categoryName);
-    }
 
     @Override
     public void detachView() {
@@ -61,7 +41,6 @@ public class MealListPresenterImpl implements MealListPresenter {
             @Override
             public void onSuccess(List<Meal> mealList) {
                 if (view != null) {
-                    // أصلح هذا السطر:
                     if (mealList != null && !mealList.isEmpty()) {
                         view.onClickMeal(mealList.get(0));
                     } else {

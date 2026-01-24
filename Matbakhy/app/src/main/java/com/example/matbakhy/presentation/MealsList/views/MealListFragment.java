@@ -27,9 +27,8 @@ import com.example.matbakhy.presentation.MealsList.presenter.MealListPresenterIm
 import java.util.List;
 
 public class MealListFragment extends Fragment implements MealListView{
-    private String categoryName;
+    private List<Meal> meals;
     private MealListPresenter mealListPresenter;
-    ProgressBar progressBar;
     MealListAdapter mealListAdapter;
     RecyclerView recyclerView;
     TextView title;
@@ -37,31 +36,22 @@ public class MealListFragment extends Fragment implements MealListView{
 
     public MealListFragment() {
     }
-
-    public static MealListFragment newInstance(String categoryName) {
-        MealListFragment fragment = new MealListFragment();
-        Bundle args = new Bundle();
-        args.putString("category", categoryName);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
-            categoryName = getArguments().getString("category");
+            meals = getArguments().getParcelableArrayList("meals");
         }
+        Log.d("Meals", "onCreate: " + meals.size());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_meal_list, container, false);
-        progressBar = view.findViewById(R.id.progress_circular);
         recyclerView = view.findViewById(R.id.recycleView);
         title = view.findViewById(R.id.category_name);
-        progressBar.setVisibility(VISIBLE);
         setupRecyclerView();
         return view;
     }
@@ -73,26 +63,10 @@ public class MealListFragment extends Fragment implements MealListView{
         mealListPresenter = new MealListPresenterImpl(getContext());
         mealListPresenter.attachView(this);
 
-        if (categoryName != null) {
-            title.setText(categoryName + " Meals");
-            progressBar.setVisibility(View.VISIBLE);
-            mealListPresenter.getMealOfCategory(categoryName);
-        } else {
-            onFailure("No category specified");
-        }
-    }
-
-    @Override
-    public void onSuccess(List<Meal> mealList) {
-        progressBar.setVisibility(View.GONE);
-        mealListAdapter.setMealList(mealList);
-
-        Log.d("TAG", "Meals loaded: " + mealList.size());
     }
 
     @Override
     public void onFailure(String errMessge) {
-        progressBar.setVisibility(View.GONE);
         if (getContext() != null) {
             new MyToast(getContext(), errMessge);
         }
@@ -117,13 +91,8 @@ public class MealListFragment extends Fragment implements MealListView{
         });
         recyclerView.setAdapter(mealListAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        mealListAdapter.setMealList(meals);
     }
-    @Override
-    public void onStop() {
-        super.onStop();
-        progressBar.setVisibility(View.GONE);
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();

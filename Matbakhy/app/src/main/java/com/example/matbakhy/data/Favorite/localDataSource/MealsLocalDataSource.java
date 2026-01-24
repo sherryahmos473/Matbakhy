@@ -5,8 +5,8 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
-import com.example.matbakhy.data.DataBase.AppDataBase;
-import com.example.matbakhy.data.DataBase.MealDAO;
+import com.example.matbakhy.data.Favorite.DataBase.AppDataBase;
+import com.example.matbakhy.data.Favorite.DataBase.MealDAO;
 import com.example.matbakhy.data.Meals.model.Meal;
 
 import java.util.List;

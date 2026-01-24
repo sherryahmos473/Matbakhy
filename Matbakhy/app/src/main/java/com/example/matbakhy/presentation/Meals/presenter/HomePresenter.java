@@ -11,5 +11,7 @@ public interface HomePresenter {
     void detachView();
     void getMealOfTheDay();
     void getAllCategories();
+    void getAllCountries();
+    public void getMealOfCategory(String categoryName);
     void logout();
 }

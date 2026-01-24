@@ -1,5 +1,7 @@
 package com.example.matbakhy.data.Meals.dataSource;
 
+import com.example.matbakhy.data.Meals.model.Area;
+import com.example.matbakhy.data.Meals.model.AreaResponse;
 import com.example.matbakhy.data.Meals.model.Category;
 import com.example.matbakhy.data.Meals.model.CategoryListResponse;
 import com.example.matbakhy.data.Meals.model.Meal;
@@ -13,12 +15,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MealOfTheDayDataSource {
+public class MealDataSource {
     public MealServices mealServices;
-    public MealOfTheDayDataSource(){
+    public MealDataSource(){
         mealServices = Network.getInstance().services;
     }
-    public List<Meal> getMealOfTheDay(MealRemoteResponse callback){
+    public void getMealOfTheDay(MealRemoteResponse callback){
         mealServices.getMealOfTheDay().enqueue(new Callback<MealListResponse>() {
             @Override
             public void onResponse(Call<MealListResponse> call, Response<MealListResponse> response) {
@@ -32,9 +34,8 @@ public class MealOfTheDayDataSource {
                 callback.onFailure("Something Wrong Happend");
             }
         });
-        return null;
     }
-    public List<Meal> getMealOfCategory(MealRemoteResponse callback,String category){
+    public void getMealOfCategory(MealRemoteResponse callback, String category){
         mealServices.getMealOfCategory(category).enqueue(new Callback<MealListResponse>() {
             @Override
             public void onResponse(Call<MealListResponse> call, Response<MealListResponse> response) {
@@ -48,9 +49,8 @@ public class MealOfTheDayDataSource {
                 callback.onFailure("Something Wrong Happend");
             }
         });
-        return null;
     }
-    public List<Meal> getMealByName(MealRemoteResponse callback,String name){
+    public void getMealByName(MealRemoteResponse callback, String name){
         mealServices.getMealByName(name).enqueue(new Callback<MealListResponse>() {
             @Override
             public void onResponse(Call<MealListResponse> call, Response<MealListResponse> response) {
@@ -64,9 +64,8 @@ public class MealOfTheDayDataSource {
                 callback.onFailure("Something Wrong Happend");
             }
         });
-        return null;
     }
-    public List<Category> getAllCategories(CategoriesRemoteResponse callback){
+    public void getAllCategories(CategoriesRemoteResponse callback){
         mealServices.getAllCategories().enqueue(new Callback<CategoryListResponse>() {
             @Override
             public void onResponse(Call<CategoryListResponse> call, Response<CategoryListResponse> response) {
@@ -80,6 +79,21 @@ public class MealOfTheDayDataSource {
                 callback.onFailure("Something Wrong Happend");
             }
         });
-        return null;
+    }
+    public void getAllCountries(AreaRemoteResponse callback){
+        mealServices.getAllCountries().enqueue(new Callback<AreaResponse>() {
+            @Override
+            public void onResponse(Call<AreaResponse> call, Response<AreaResponse> response) {
+                if(response.isSuccessful() && response.body() != null){
+                    List<String> countries = response.body().getAreaNames();
+                    List<Area> areas = Area.convertToArea(countries);
+                    callback.onSuccess(areas);
+                }
+            }
+            @Override
+            public void onFailure(Call<AreaResponse> call, Throwable t) {
+                callback.onFailure("Something Wrong Happend");
+            }
+        });
     }
 }

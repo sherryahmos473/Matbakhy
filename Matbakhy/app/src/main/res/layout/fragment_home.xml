@@ -196,12 +196,33 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/categoryList"
                 android:layout_width="match_parent"
-                android:layout_height="350dp"
+                android:layout_height="wrap_content"
                 android:elevation="24dp"
                 android:layout_marginTop="10dp"
                 android:nestedScrollingEnabled="false"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/explore_countries"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="24dp" />
 
+            <ProgressBar
+                android:id="@+id/progress_circular2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/countryList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:elevation="24dp"
+                android:layout_marginTop="10dp"
+                android:nestedScrollingEnabled="false"/>
         </LinearLayout>
 
     </LinearLayout>

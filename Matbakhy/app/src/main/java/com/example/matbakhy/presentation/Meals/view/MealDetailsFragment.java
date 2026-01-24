@@ -54,16 +54,12 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
             mealInstructions = view.findViewById(R.id.instructions);
             mealIngredients = view.findViewById(R.id.ingredients);
             favbtn = view.findViewById(R.id.fabFavorite);
-
-            // التحقق من أن جميع الـ Views موجودة
             if (mealImage == null) Log.e(TAG, "mealImage is null");
             if (mealName == null) Log.e(TAG, "mealName is null");
             if (favbtn == null) Log.e(TAG, "favbtn is null");
 
-            // تهيئة Presenter
             mealDetailsPresenter = new MealDetailsPresenterImpl(getContext(), this);
 
-            // إعداد onClickListener للـ FAB
             favbtn.setOnClickListener(v -> {
                 if (meal != null && getContext() != null) {
                     if (!isFavorite) {
@@ -78,7 +74,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
 
         } catch (Exception e) {
             Log.e(TAG, "Error in onCreateView: " + e.getMessage(), e);
-            throw e; // Re-throw للاطلاع على الـ Stack Trace
+            throw e;
         }
     }
 
@@ -263,32 +259,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
 
     @Override
     public LifecycleOwner getLifecycleOwner() {
-        // استخدم getViewLifecycleOwner() بدلاً من this
         return getViewLifecycleOwner();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.d(TAG, "onStart");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.d(TAG, "onStop");
     }
 
     @Override
@@ -296,7 +267,6 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
         super.onDestroyView();
         Log.d(TAG, "onDestroyView");
 
-        // تنظيف الـ References
         mealImage = null;
         mealName = null;
         mealCategory = null;
@@ -304,10 +274,5 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
         mealInstructions = null;
         mealIngredients = null;
         favbtn = null;
-
-        if (mealDetailsPresenter != null) {
-            // إذا كان Presenter يحتاج إلى تنظيف
-            // mealDetailsPresenter.cleanup();
-        }
     }
 }

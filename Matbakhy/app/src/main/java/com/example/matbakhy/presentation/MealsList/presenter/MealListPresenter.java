@@ -7,7 +7,6 @@ import java.util.List;
 
 public interface MealListPresenter {
     public void attachView(MealListView view);
-    void getMealOfCategory(String category);
     public void detachView();
     void getMealByName(String name);
 }

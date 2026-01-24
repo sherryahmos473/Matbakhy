@@ -1,10 +1,13 @@
 package com.example.matbakhy.presentation.Meals.presenter;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.matbakhy.data.Meals.MealRepositry;
+import com.example.matbakhy.data.Meals.dataSource.AreaRemoteResponse;
 import com.example.matbakhy.data.Meals.dataSource.CategoriesRemoteResponse;
 import com.example.matbakhy.data.Meals.dataSource.MealRemoteResponse;
+import com.example.matbakhy.data.Meals.model.Area;
 import com.example.matbakhy.data.Meals.model.Category;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.data.auth.AuthRepository;
@@ -32,6 +35,26 @@ public class HomePresenterImpl implements HomePresenter{
     @Override
     public void detachView() {
         this.homeView = null;
+    }
+    @Override
+    public void getMealOfCategory(String categoryName) {
+        if (mealRepositry == null) return;
+
+        mealRepositry.getMealOfCategory(new MealRemoteResponse() {
+            @Override
+            public void onSuccess(List<Meal> meals) {
+                if (homeView != null) {
+                    Log.d("Meals", "onSuccess: "+ meals.size());
+                    homeView.onSuccess(meals);
+                }
+            }
+            @Override
+            public void onFailure(String error) {
+                if (homeView != null) {
+                    homeView.onFailure(error);
+                }
+            }
+        }, categoryName);
     }
 
     @Override
@@ -61,7 +84,20 @@ public class HomePresenterImpl implements HomePresenter{
                 homeView.onFailure(errorMessage);
             }
         });
+    }@Override
+    public void getAllCountries() {
+        mealRepositry.getAllCountries(new AreaRemoteResponse() {
+            @Override
+            public void onSuccess(List<Area> areas) {
+                homeView.getAllCountries(areas);
+            }
+            @Override
+            public void onFailure(String errorMessage) {
+                homeView.onFailure(errorMessage);
+            }
+        });
     }
+
     public void logout() {
         authRepository.logoutWithBackup(new LogoutCallback() {
             @Override

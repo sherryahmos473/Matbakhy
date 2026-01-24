@@ -1,4 +1,4 @@
-package com.example.matbakhy.data.DataBase;
+package com.example.matbakhy.data.Favorite.DataBase;
 
 import android.content.Context;
 
