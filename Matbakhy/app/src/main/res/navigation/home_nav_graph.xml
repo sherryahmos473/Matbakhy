@@ -20,6 +20,9 @@
         <action
             android:id="@+id/action_homeFragment_to_favoriteFragment"
             app:destination="@+id/favoriteFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
     </fragment>
 
     <fragment
@@ -58,6 +61,15 @@
         <action
             android:id="@+id/action_favoriteFragment_to_mealDetailsFragment"
             app:destination="@id/mealDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.example.matbakhy.presentation.Search.SearchFragment"
+        android:label="fragment_search"
+        tools:layout="@layout/fragment_search" >
+        <action
+            android:id="@+id/action_searchFragment_to_mealListFragment"
+            app:destination="@id/mealListFragment" />
     </fragment>
 
 </navigation>

@@ -22,9 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/header_gradient"
-                android:paddingTop="16dp"
-                tools:layout_editor_absoluteX="0dp"
-                tools:layout_editor_absoluteY="0dp">
+                android:paddingTop="16dp">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button"
@@ -69,32 +67,52 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="0.5" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/textInputLayout"
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/searchCard"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="56dp"
                     android:layout_margin="24dp"
-                    app:boxBackgroundColor="@android:color/white"
-                    app:boxBackgroundMode="filled"
-                    app:boxCornerRadiusBottomEnd="30dp"
-                    app:boxCornerRadiusBottomStart="30dp"
-                    app:boxCornerRadiusTopEnd="30dp"
-                    app:boxCornerRadiusTopStart="30dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardCornerRadius="30dp"
+                    app:cardElevation="4dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:startIconDrawable="@drawable/search">
+                    app:layout_constraintStart_toStartOf="parent">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/textInputEditText"
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:hint="@string/search_recipes"
-                        android:paddingStart="50dp"
-                        android:textSize="14sp" />
+                        android:layout_height="match_parent"
+                        android:background="@color/white"
+                        android:paddingHorizontal="20dp">
 
-                </com.google.android.material.textfield.TextInputLayout>
+                        <ImageView
+                            android:id="@+id/searchIcon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/search"
+                            android:tint="@color/gray"
+                            android:layout_margin="5dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
 
+                        <TextView
+                            android:id="@+id/searchText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/search_recipes"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp"
+                            android:layout_marginStart="10dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@id/searchIcon"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </com.google.android.material.card.MaterialCardView>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>

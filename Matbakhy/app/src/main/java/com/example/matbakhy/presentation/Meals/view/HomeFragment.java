@@ -26,6 +26,7 @@ import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.helper.MyToast;
 import com.example.matbakhy.presentation.Meals.presenter.HomePresenter;
 import com.example.matbakhy.presentation.Meals.presenter.HomePresenterImpl;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
     ProgressBar progressBar,progressBar2;
     TextView MealOfTheDayName, MealOfTheDayArea,MealOfTheDayCategory;
     ImageView MealOfTheDayImage;
-    CardView imageCard;
+    CardView imageCard, searchCard;
     View view;
     Button btn;
     public static HomeFragment newInstance() {
@@ -85,6 +86,7 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         btn = view.findViewById(R.id.button);
         categoryList = view.findViewById(R.id.categoryList);
         countryList = view.findViewById(R.id.countryList);
+        searchCard = view.findViewById(R.id.searchCard);
     }
 
     @Override public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -93,6 +95,12 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         homePresenter.getMealOfTheDay();
         homePresenter.getAllCategories();
         homePresenter.getAllCountries();
+        searchCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Navigation.findNavController(requireView()).navigate(R.id.action_homeFragment_to_searchFragment);
+            }
+        });
     }
     @Override public void getMealOfTheDay(Meal meal)
         {
@@ -108,7 +116,6 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         Navigation.findNavController(requireView()) .navigate(R.id.action_homeFragment_to_mealDetailsFragment, bundle);
     }
     @Override public void onFailure(String errorMeassge) {
-
         new MyToast(getContext(),"Can't Load");
     }
     @Override public void getAllCategories(List<Category> categories) {
@@ -117,7 +124,8 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         categoryListAdapter.setCategoryList(categories);
     }
     @Override public void getAllCountries(List<Area> countries)
-    { progressBar2.setVisibility(view.GONE);
+    {
+        progressBar2.setVisibility(view.GONE);
         countryListAdapter.setCountryList(countries);
     }
 
@@ -137,7 +145,8 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         startActivity(intent);
     }
     @Override public void onDestroy() {
-        super.onDestroy(); homePresenter.detachView();
+        super.onDestroy();
+        homePresenter.detachView();
     }
     @Override public void getMealOfCategory(String category)
     {

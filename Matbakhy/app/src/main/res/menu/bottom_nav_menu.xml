@@ -8,6 +8,10 @@
         android:id="@+id/favoriteFragment"
         android:icon="@drawable/ic_favorite_border"
         android:title="Favorites" />
-
+    <item
+        android:id="@+id/searchFragment"
+        android:icon="@drawable/search"
+        android:title="Search"
+        />
 
 </menu>
