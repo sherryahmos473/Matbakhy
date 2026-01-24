@@ -1,9 +1,13 @@
 package com.example.matbakhy.data.Meals.dataSource;
 
+import android.util.Log;
+
 import com.example.matbakhy.data.Meals.model.Area;
 import com.example.matbakhy.data.Meals.model.AreaResponse;
 import com.example.matbakhy.data.Meals.model.Category;
 import com.example.matbakhy.data.Meals.model.CategoryListResponse;
+import com.example.matbakhy.data.Meals.model.Ingredient;
+import com.example.matbakhy.data.Meals.model.IngredientsListResponse;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.data.Meals.model.MealListResponse;
 import com.example.matbakhy.data.Meals.dataSource.Network.MealServices;
@@ -65,6 +69,21 @@ public class MealDataSource {
             }
         });
     }
+    public void getMealOfIngredient(MealRemoteResponse callback, String ingredient){
+        mealServices.getMealOfIngredient(ingredient).enqueue(new Callback<MealListResponse>() {
+            @Override
+            public void onResponse(Call<MealListResponse> call, Response<MealListResponse> response) {
+                if(response.isSuccessful() && response.body() != null){
+                    List<Meal> products = response.body().getMeals();
+                    callback.onSuccess(products);
+                }
+            }
+            @Override
+            public void onFailure(Call<MealListResponse> call, Throwable t) {
+                callback.onFailure("Something Wrong Happend");
+            }
+        });
+    }
     public void getMealByName(MealRemoteResponse callback, String name){
         mealServices.getMealByName(name).enqueue(new Callback<MealListResponse>() {
             @Override
@@ -91,6 +110,22 @@ public class MealDataSource {
             }
             @Override
             public void onFailure(Call<CategoryListResponse> call, Throwable t) {
+                callback.onFailure("Something Wrong Happend");
+            }
+        });
+    }
+    public void getAllIngredients(IngredientRemoteResponse callback){
+        mealServices.getAllingredients().enqueue(new Callback<IngredientsListResponse>() {
+            @Override
+            public void onResponse(Call<IngredientsListResponse> call, Response<IngredientsListResponse> response) {
+                if(response.isSuccessful() && response.body() != null){
+                    List<Ingredient> ingredients = response.body().getIngredients();
+                    Log.d("SearchFragment", "onResponse: " + ingredients.size());
+                    callback.onSuccess(ingredients);
+                }
+            }
+            @Override
+            public void onFailure(Call<IngredientsListResponse> call, Throwable t) {
                 callback.onFailure("Something Wrong Happend");
             }
         });

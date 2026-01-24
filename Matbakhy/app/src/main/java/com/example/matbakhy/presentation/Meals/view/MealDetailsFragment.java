@@ -7,11 +7,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,7 +26,10 @@ import com.example.matbakhy.presentation.Meals.presenter.MealDetailsPresenter;
 import com.example.matbakhy.presentation.Meals.presenter.MealDetailsPresenterImpl;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-public class MealDetailsFragment extends Fragment implements MealDetailsView {
+import java.util.ArrayList;
+import java.util.List;
+
+public class MealDetailsFragment extends Fragment implements MealDetailsView ,IngredientListener{
     private static final String TAG = "MealDetailsFragment";
 
     private Meal meal;
@@ -57,7 +63,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
             mealArea = view.findViewById(R.id.mealOfTheDayArea);
             mealInstructions = view.findViewById(R.id.instructions);
             recyclerView = view.findViewById(R.id.ingrediantsList);
-            ingredientListAdapter = new IngredientListAdapter();
+            ingredientListAdapter = new IngredientListAdapter(this);
             LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
             recyclerView.setAdapter(ingredientListAdapter);
             recyclerView.setLayoutManager(layoutManager);
@@ -262,6 +268,20 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
     }
 
     @Override
+    public void onSuccess(List<Meal> meals) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("meals", new ArrayList<>(meals));
+        Log.d("SearchFragment", "onSuccess: " + meals.size());
+        Navigation.findNavController(requireView())
+                .navigate(R.id.action_mealDetailsFragment_to_mealListFragment, bundle);
+    }
+
+    @Override
+    public void onFailure(String errorMessage) {
+        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         Log.d(TAG, "onDestroyView");
@@ -272,5 +292,10 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
         mealArea = null;
         mealInstructions = null;
         favbtn = null;
+    }
+
+    @Override
+    public void getMealOfIngredient(String ingredient) {
+        mealDetailsPresenter.getMealOfIngredient(ingredient);
     }
 }

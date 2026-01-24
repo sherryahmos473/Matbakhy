@@ -5,6 +5,6 @@ import com.example.matbakhy.data.Meals.model.Meal;
 import java.util.List;
 
 public interface MealListView {
-    void onFailure(String errMessge);
+    void onFailure(String errorMessage);
     void onClickMeal(Meal meal);
 }

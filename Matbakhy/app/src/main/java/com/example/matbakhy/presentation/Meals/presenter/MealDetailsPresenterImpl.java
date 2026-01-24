@@ -1,12 +1,16 @@
 package com.example.matbakhy.presentation.Meals.presenter;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.lifecycle.Observer;
 
 import com.example.matbakhy.data.Meals.MealRepositry;
+import com.example.matbakhy.data.Meals.dataSource.MealRemoteResponse;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.presentation.Meals.view.MealDetailsView;
+
+import java.util.List;
 
 public class MealDetailsPresenterImpl implements MealDetailsPresenter{
     MealRepositry mealRepositry;
@@ -42,5 +46,20 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
                         }
                     }
                 });
+    }
+    @Override
+    public void getMealOfIngredient(String ingredient) {
+        mealRepositry.getMealOfIngredient(new MealRemoteResponse() {
+            @Override
+            public void onSuccess(List<Meal> mealList) {
+                Log.d("SearchFragment", "onSuccess: "+ mealList.size());
+                mealDetailsView.onSuccess(mealList);
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                mealDetailsView.onFailure(errorMessage);
+            }
+        }, ingredient);
     }
 }

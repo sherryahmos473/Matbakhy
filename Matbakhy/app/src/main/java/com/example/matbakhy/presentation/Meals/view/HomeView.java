@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface HomeView {
     void getMealOfTheDay(Meal meal);
-    void onFailure(String errorMeassge);
+    void onFailure(String errorMessage);
     void getAllCategories(List<Category> categories);
     void getAllCountries(List<Area> countries);
     void onSuccess(List<Meal> mealList);

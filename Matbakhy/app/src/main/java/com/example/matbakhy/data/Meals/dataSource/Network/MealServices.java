@@ -2,6 +2,7 @@ package com.example.matbakhy.data.Meals.dataSource.Network;
 
 import com.example.matbakhy.data.Meals.model.AreaResponse;
 import com.example.matbakhy.data.Meals.model.CategoryListResponse;
+import com.example.matbakhy.data.Meals.model.IngredientsListResponse;
 import com.example.matbakhy.data.Meals.model.MealListResponse;
 
 import retrofit2.Call;
@@ -18,8 +19,12 @@ public interface MealServices {
     Call<MealListResponse> getMealOfCategory(@Query("c") String category);
     @GET("filter.php")
     Call<MealListResponse> getMealOfCountry(@Query("a") String country);
+    @GET("filter.php")
+    Call<MealListResponse> getMealOfIngredient(@Query("i") String ingredient);
     @GET("search.php")
     Call<MealListResponse> getMealByName(@Query("s") String name);
     @GET("list.php?a=list")
     Call<AreaResponse> getAllCountries();
+    @GET("list.php?i=list")
+    Call<IngredientsListResponse> getAllingredients();
 }

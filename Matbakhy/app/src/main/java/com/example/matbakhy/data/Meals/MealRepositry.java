@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import com.example.matbakhy.data.Favorite.localDataSource.MealsLocalDataSource;
 import com.example.matbakhy.data.Meals.dataSource.AreaRemoteResponse;
 import com.example.matbakhy.data.Meals.dataSource.CategoriesRemoteResponse;
+import com.example.matbakhy.data.Meals.dataSource.IngredientRemoteResponse;
 import com.example.matbakhy.data.Meals.dataSource.MealDataSource;
 import com.example.matbakhy.data.Meals.dataSource.MealRemoteResponse;
 import com.example.matbakhy.data.Meals.model.AreaResponse;
@@ -39,10 +40,17 @@ public class MealRepositry {
     public void getMealOfCountry(MealRemoteResponse callback, String country){
         mealServices.getMealOfCountry(callback, country);
     }
+    public void getMealOfIngredient(MealRemoteResponse callback, String ingredient){
+        mealServices.getMealOfIngredient(callback, ingredient);
+    }
     public void getAllCategories(CategoriesRemoteResponse callback){
         mealServices.getAllCategories(callback);
-    }public void getAllCountries(AreaRemoteResponse callback){
+    }
+    public void getAllCountries(AreaRemoteResponse callback){
         mealServices.getAllCountries(callback);
+    }
+    public void getAllIngredients(IngredientRemoteResponse callback){
+        mealServices.getAllIngredients(callback);
     }
     public LiveData<List<Meal>> getAllLocalMeals() {
         return mealsLocalDataSource.getMeals();

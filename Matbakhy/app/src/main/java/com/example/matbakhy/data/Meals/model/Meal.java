@@ -849,7 +849,6 @@ public class Meal implements Parcelable {
         this.measure20 = measure20;
     }
 
-    // Helper methods
     public List<String> getIngredients() {
         List<String> ingredients = new ArrayList<>();
         if (ingredient1 != null && !ingredient1.trim().isEmpty()) ingredients.add(ingredient1.trim());
