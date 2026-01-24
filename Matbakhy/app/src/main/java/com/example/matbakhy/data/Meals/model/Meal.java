@@ -397,7 +397,6 @@ public class Meal implements Parcelable {
         dest.writeString(measure20);
     }
 
-    // Getters and Setters (same as before)
     @NonNull
     public String getId() {
         return id;
@@ -1015,4 +1014,5 @@ public class Meal implements Parcelable {
         }
         return ingredientMap;
     }
+
 }

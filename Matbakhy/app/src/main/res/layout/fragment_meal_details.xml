@@ -185,22 +185,33 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/materialDivider2" />
 
-        <TextView
-            android:id="@+id/ingredients"
-            android:layout_width="0dp"
+<!--        <TextView-->
+<!--            android:id="@+id/ingredients"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginStart="24dp"-->
+<!--            android:layout_marginTop="12dp"-->
+<!--            android:layout_marginEnd="24dp"-->
+<!--            android:layout_marginBottom="32dp"-->
+<!--            android:lineSpacingExtra="6dp"-->
+<!--            android:text="• 1/4 cup Butter\n• 2 Pounds Ground Beef\n• 2 teaspoons Salt\n• 1/2 teaspoon Allspice"-->
+<!--            android:textSize="16sp"-->
+<!--            android:textColor="@android:color/black"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/ingredientsLabel" />-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/ingrediantsList"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:elevation="24dp"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="12dp"
             android:layout_marginEnd="24dp"
-            android:layout_marginBottom="32dp"
-            android:lineSpacingExtra="6dp"
-            android:text="• 1/4 cup Butter\n• 2 Pounds Ground Beef\n• 2 teaspoons Salt\n• 1/2 teaspoon Allspice"
-            android:textSize="16sp"
-            android:textColor="@android:color/black"
+            android:layout_marginTop="12dp"
+            android:nestedScrollingEnabled="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ingredientsLabel" />
+            app:layout_constraintTop_toBottomOf="@+id/ingredientsLabel"/>
 
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>

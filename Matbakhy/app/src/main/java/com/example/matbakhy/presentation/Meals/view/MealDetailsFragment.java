@@ -12,6 +12,9 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.Meals.model.Meal;
@@ -25,9 +28,11 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
 
     private Meal meal;
     private ImageView mealImage;
-    private TextView mealName, mealCategory, mealArea, mealInstructions, mealIngredients;
+    private TextView mealName, mealCategory, mealArea, mealInstructions;
     private FloatingActionButton favbtn;
     private MealDetailsPresenter mealDetailsPresenter;
+    IngredientListAdapter ingredientListAdapter;
+    RecyclerView recyclerView;
     private boolean isFavorite = false;
 
     public static MealDetailsFragment newInstance(Meal meal) {
@@ -46,13 +51,16 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
         try {
             View view = inflater.inflate(R.layout.fragment_meal_details, container, false);
 
-            // تهيئة الـ Views
             mealImage = view.findViewById(R.id.mealOfTheDayImage);
             mealName = view.findViewById(R.id.mealofTheDayName);
             mealCategory = view.findViewById(R.id.mealCategory);
             mealArea = view.findViewById(R.id.mealOfTheDayArea);
             mealInstructions = view.findViewById(R.id.instructions);
-            mealIngredients = view.findViewById(R.id.ingredients);
+            recyclerView = view.findViewById(R.id.ingrediantsList);
+            ingredientListAdapter = new IngredientListAdapter();
+            LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
+            recyclerView.setAdapter(ingredientListAdapter);
+            recyclerView.setLayoutManager(layoutManager);
             favbtn = view.findViewById(R.id.fabFavorite);
             if (mealImage == null) Log.e(TAG, "mealImage is null");
             if (mealName == null) Log.e(TAG, "mealName is null");
@@ -161,22 +169,13 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
                 mealArea.setText(areaText + " • " + ingredientCount + " ingredients");
             }
 
-            StringBuilder ingredientsBuilder = new StringBuilder();
             if (meal.getIngredients() != null) {
-                for (String ingredient : meal.getIngredients()) {
-                    if (ingredient != null && !ingredient.trim().isEmpty()) {
-                        ingredientsBuilder.append("• ").append(ingredient.trim()).append("\n");
-                    }
-                }
+                ingredientListAdapter.setIngredients(meal.getIngredients());
             }
 
             if (mealInstructions != null) {
                 mealInstructions.setText(meal.getInstructions() != null ?
                         meal.getInstructions() : "No instructions available");
-            }
-
-            if (mealIngredients != null) {
-                mealIngredients.setText(ingredientsBuilder.toString());
             }
 
             if (mealImage != null && meal.getThumbnail() != null && !meal.getThumbnail().isEmpty()) {
@@ -272,7 +271,6 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
         mealCategory = null;
         mealArea = null;
         mealInstructions = null;
-        mealIngredients = null;
         favbtn = null;
     }
 }

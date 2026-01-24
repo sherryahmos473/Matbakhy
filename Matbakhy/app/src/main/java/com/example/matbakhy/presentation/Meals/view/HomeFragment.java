@@ -59,10 +59,12 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
     }
 
     private void recycleViewSetup() {
+        categoryListAdapter = new CategoryListAdapter(this);
         countryListAdapter = new CountryListAdapter(this);
-        countryList = view.findViewById(R.id.countryList);
+
         LinearLayoutManager categoryLayoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
         LinearLayoutManager countryLayoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
+
         categoryList.setLayoutManager(categoryLayoutManager);
         categoryList.setAdapter(categoryListAdapter);
         countryList.setLayoutManager(countryLayoutManager);
@@ -81,8 +83,8 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         progressBar2.setVisibility(View.VISIBLE);
         imageCard = view.findViewById(R.id.mealCard);
         btn = view.findViewById(R.id.button);
-        categoryListAdapter = new CategoryListAdapter(this);
         categoryList = view.findViewById(R.id.categoryList);
+        countryList = view.findViewById(R.id.countryList);
     }
 
     @Override public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
