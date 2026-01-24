@@ -13,5 +13,6 @@ public interface HomePresenter {
     void getAllCategories();
     void getAllCountries();
     public void getMealOfCategory(String categoryName);
+    public void getMealOfCountry(String countryName);
     void logout();
 }

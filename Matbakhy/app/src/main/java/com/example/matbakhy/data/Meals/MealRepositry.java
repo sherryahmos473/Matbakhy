@@ -36,6 +36,9 @@ public class MealRepositry {
     public void getMealOfCategory(MealRemoteResponse callback, String category){
         mealServices.getMealOfCategory(callback, category);
     }
+    public void getMealOfCountry(MealRemoteResponse callback, String country){
+        mealServices.getMealOfCountry(callback, country);
+    }
     public void getAllCategories(CategoriesRemoteResponse callback){
         mealServices.getAllCategories(callback);
     }public void getAllCountries(AreaRemoteResponse callback){

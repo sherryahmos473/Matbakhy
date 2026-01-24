@@ -58,6 +58,27 @@ public class HomePresenterImpl implements HomePresenter{
     }
 
     @Override
+    public void getMealOfCountry(String countryName) {
+        if (mealRepositry == null) return;
+
+        mealRepositry.getMealOfCountry(new MealRemoteResponse() {
+            @Override
+            public void onSuccess(List<Meal> meals) {
+                if (homeView != null) {
+                    Log.d("Meals", "onSuccess: "+ meals.size());
+                    homeView.onSuccess(meals);
+                }
+            }
+            @Override
+            public void onFailure(String error) {
+                if (homeView != null) {
+                    homeView.onFailure(error);
+                }
+            }
+        }, countryName);
+    }
+
+    @Override
     public void getMealOfTheDay() {
         mealRepositry.getMealOfTheDay(new MealRemoteResponse() {
             @Override
@@ -84,7 +105,8 @@ public class HomePresenterImpl implements HomePresenter{
                 homeView.onFailure(errorMessage);
             }
         });
-    }@Override
+    }
+    @Override
     public void getAllCountries() {
         mealRepositry.getAllCountries(new AreaRemoteResponse() {
             @Override

@@ -16,6 +16,8 @@ public interface MealServices {
     Call<CategoryListResponse> getAllCategories();
     @GET("filter.php")
     Call<MealListResponse> getMealOfCategory(@Query("c") String category);
+    @GET("filter.php")
+    Call<MealListResponse> getMealOfCountry(@Query("a") String country);
     @GET("search.php")
     Call<MealListResponse> getMealByName(@Query("s") String name);
     @GET("list.php?a=list")

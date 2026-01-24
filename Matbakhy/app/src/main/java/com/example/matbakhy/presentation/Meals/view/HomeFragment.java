@@ -29,7 +29,7 @@ import com.example.matbakhy.presentation.Meals.presenter.HomePresenterImpl;
 
 import java.util.ArrayList;
 import java.util.List;
-public class HomeFragment extends Fragment implements HomeView , CategoryListener {
+public class HomeFragment extends Fragment implements HomeView , CategoryListener, CountryListener {
     HomePresenter homePresenter;
     CategoryListAdapter categoryListAdapter;
     CountryListAdapter countryListAdapter;
@@ -59,7 +59,7 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
     }
 
     private void recycleViewSetup() {
-        countryListAdapter = new CountryListAdapter();
+        countryListAdapter = new CountryListAdapter(this);
         countryList = view.findViewById(R.id.countryList);
         LinearLayoutManager categoryLayoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
         LinearLayoutManager countryLayoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
@@ -140,5 +140,10 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
     @Override public void getMealOfCategory(String category)
     {
         homePresenter.getMealOfCategory(category);
+    }
+
+    @Override
+    public void getMealOfCountry(String country) {
+        homePresenter.getMealOfCountry(country);
     }
 }

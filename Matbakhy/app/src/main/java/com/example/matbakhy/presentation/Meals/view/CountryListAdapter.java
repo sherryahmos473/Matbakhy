@@ -20,10 +20,11 @@ import java.util.List;
 
 public class CountryListAdapter extends RecyclerView.Adapter<CountryListAdapter.CountryListHolder> {
     private List<Area> countryList;
-    //private CountryListener countryListener;
+    private CountryListener countryListener;
 
-    public CountryListAdapter(){
+    public CountryListAdapter(CountryListener countryListener){
         this.countryList = new ArrayList<>();
+        this.countryListener = countryListener;
     }
 
     public void setCountryList(List<Area> countryList){
@@ -77,14 +78,14 @@ public class CountryListAdapter extends RecyclerView.Adapter<CountryListAdapter.
                         .into(countryImage);
             }
 
-//            countryItem.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    if (categoryListener != null) {
-//                        categoryListener.getMealOfCategory(category.getName());
-//                    }
-//                }
-//            });
+            countryItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (countryListener != null) {
+                        countryListener.getMealOfCountry(country.getStrArea());
+                    }
+                }
+            });
         }
     }
 }
