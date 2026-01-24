@@ -11,7 +11,6 @@ import com.example.matbakhy.data.Meals.dataSource.CategoriesRemoteResponse;
 import com.example.matbakhy.data.Meals.dataSource.IngredientRemoteResponse;
 import com.example.matbakhy.data.Meals.dataSource.MealDataSource;
 import com.example.matbakhy.data.Meals.dataSource.MealRemoteResponse;
-import com.example.matbakhy.data.Meals.model.AreaResponse;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.data.auth.callbacks.BackupCallback;
 import com.example.matbakhy.data.auth.datasources.remote.MealBackupManager;
@@ -52,29 +51,43 @@ public class MealRepositry {
     public void getAllIngredients(IngredientRemoteResponse callback){
         mealServices.getAllIngredients(callback);
     }
-    public LiveData<List<Meal>> getAllLocalMeals() {
-        return mealsLocalDataSource.getMeals();
+    public LiveData<List<Meal>> getFavMeals() {
+        return mealsLocalDataSource.getFavMeals();
+    }
+    public LiveData<List<Meal>> getCalMeals() {
+        return mealsLocalDataSource.getCalMeals();
     }
     public void insertMealInFav(Meal meal){
         if (meal.getId() != null) {
             meal.setFavorite(true);
-            mealsLocalDataSource.insertMeal(meal);
+            mealsLocalDataSource.insertFavMeal(meal);
+        }
+    }
+    public void insertMeal(Meal meal){
+        if (meal.getId() != null) {
+            mealsLocalDataSource.insertFavMeal(meal);
+        }
+    }
+    public void insertMealInCal(Meal meal,String cal){
+        if (meal.getId() != null) {
+            meal.setPlanned(true);
+            meal.setPlanDate(cal);
+            mealsLocalDataSource.insertCalMeal(meal);
         }
     }
     public void deleteMealsFromFav(Meal meal){
-        mealsLocalDataSource.deleteMeal(meal);
+        mealsLocalDataSource.deleteFavMeal(meal);
     }
-    public LiveData<Boolean>  isFavorite(String mealId){
+    public void deleteMealsFromCal(Meal meal){
+        mealsLocalDataSource.deleteCalMeal(meal);
+    }
+    public LiveData<Boolean> isFavorite(String mealId){
         return mealsLocalDataSource.isFavorite(mealId);
     }
-    public void backupAllMealsToFirebase(BackupCallback callback) {
-        List<Meal> meals = getAllMealsFromLocal();
-        backupManager.backupMeals(meals, callback);
+    public LiveData<Boolean> isCal(String mealId){
+        return mealsLocalDataSource.isCal(mealId);
     }
-
-    private List<Meal> getAllMealsFromLocal() {
-        LiveData<List<Meal>> mealsLiveData = getAllLocalMeals();
-        Log.d("TAG", "getAllMealsFromLocal: " + mealsLiveData);
+    public LiveData<List<Meal>> getAllMealsFromLocal() {
         return mealsLocalDataSource.getAllMealsSync();
     }
     public void clearAllLocalMeals() {

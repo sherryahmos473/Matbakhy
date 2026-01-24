@@ -30,19 +30,38 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
         mealRepositry.deleteMealsFromFav(meal);
         mealDetailsView.removeMealFromFav();
     }
+@Override
+    public void removeMealFromCal(Meal meal) {
+        mealRepositry.deleteMealsFromCal(meal);
+        mealDetailsView.removeMealFromCal();
+    }
 
     @Override
     public void isFavorite(String mealId) {
         if (mealDetailsView == null || mealDetailsView.getLifecycleOwner() == null) {
             return;
         }
-
         mealRepositry.isFavorite(mealId)
                 .observe(mealDetailsView.getLifecycleOwner(), new Observer<Boolean>() {
                     @Override
                     public void onChanged(Boolean isFavorite) {
                         if (mealDetailsView != null) {
                             mealDetailsView.isFav(isFavorite != null && isFavorite);
+                        }
+                    }
+                });
+    }
+    @Override
+    public void isCal(String mealId) {
+        if (mealDetailsView == null || mealDetailsView.getLifecycleOwner() == null) {
+            return;
+        }
+        mealRepositry.isCal(mealId)
+                .observe(mealDetailsView.getLifecycleOwner(), new Observer<Boolean>() {
+                    @Override
+                    public void onChanged(Boolean isPlanned) {
+                        if (mealDetailsView != null) {
+                            mealDetailsView.isCal(isPlanned != null && isPlanned);
                         }
                     }
                 });
@@ -61,5 +80,11 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
                 mealDetailsView.onFailure(errorMessage);
             }
         }, ingredient);
+    }
+
+    @Override
+    public void addMealToCal(Meal meal, String date) {
+        mealRepositry.insertMealInCal(meal,date);
+        mealDetailsView.onAddToCal();
     }
 }

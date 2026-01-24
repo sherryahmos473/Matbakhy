@@ -23,7 +23,6 @@ public class MealBackupManager {
             callback.onSuccess(0, "No meals to backup");
             return;
         }
-
         Log.d(TAG, "Starting backup of " + meals.size() + " meals");
         backupService.backupAllMeals(meals, callback);
     }

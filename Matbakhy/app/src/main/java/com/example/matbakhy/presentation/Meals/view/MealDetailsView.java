@@ -8,8 +8,11 @@ import java.util.List;
 
 public interface MealDetailsView {
     void onAddToFav();
+    void onAddToCal();
     void isFav(boolean isFav);
+    void isCal(boolean isPlanned);
     void removeMealFromFav();
+    void removeMealFromCal();
     LifecycleOwner getLifecycleOwner();
     void onSuccess(List<Meal> meals);
     void onFailure(String errorMessage);

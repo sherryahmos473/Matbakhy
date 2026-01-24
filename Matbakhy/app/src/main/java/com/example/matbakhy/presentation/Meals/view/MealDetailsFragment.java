@@ -1,5 +1,6 @@
 package com.example.matbakhy.presentation.Meals.view;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,10 +25,14 @@ import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.helper.MyToast;
 import com.example.matbakhy.presentation.Meals.presenter.MealDetailsPresenter;
 import com.example.matbakhy.presentation.Meals.presenter.MealDetailsPresenterImpl;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class MealDetailsFragment extends Fragment implements MealDetailsView ,IngredientListener{
     private static final String TAG = "MealDetailsFragment";
@@ -35,11 +40,11 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView ,In
     private Meal meal;
     private ImageView mealImage;
     private TextView mealName, mealCategory, mealArea, mealInstructions;
-    private FloatingActionButton favbtn;
+    private FloatingActionButton favbtn, calBtn;
     private MealDetailsPresenter mealDetailsPresenter;
     IngredientListAdapter ingredientListAdapter;
     RecyclerView recyclerView;
-    private boolean isFavorite = false;
+    private boolean isFavorite = false, isPlanned = false;
 
     public static MealDetailsFragment newInstance(Meal meal) {
         MealDetailsFragment fragment = new MealDetailsFragment();
@@ -63,15 +68,12 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView ,In
             mealArea = view.findViewById(R.id.mealOfTheDayArea);
             mealInstructions = view.findViewById(R.id.instructions);
             recyclerView = view.findViewById(R.id.ingrediantsList);
+            calBtn = view.findViewById(R.id.fabCalendar);
             ingredientListAdapter = new IngredientListAdapter(this);
             LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
             recyclerView.setAdapter(ingredientListAdapter);
             recyclerView.setLayoutManager(layoutManager);
             favbtn = view.findViewById(R.id.fabFavorite);
-            if (mealImage == null) Log.e(TAG, "mealImage is null");
-            if (mealName == null) Log.e(TAG, "mealName is null");
-            if (favbtn == null) Log.e(TAG, "favbtn is null");
-
             mealDetailsPresenter = new MealDetailsPresenterImpl(getContext(), this);
 
             favbtn.setOnClickListener(v -> {
@@ -83,6 +85,13 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView ,In
                     }
                 }
             });
+            calBtn.setOnClickListener(v -> {
+                if(isPlanned){
+                    mealDetailsPresenter.removeMealFromCal(meal);
+                }else{
+                    showDatePicker();
+                }
+            });
 
             return view;
 
@@ -91,29 +100,63 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView ,In
             throw e;
         }
     }
+    private void showDatePicker() {
+        try {
+            MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
+                    .setTitleText("Select Date")
+                    .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                    .setTheme(R.style.MaterialDatePickerTheme)
+                    .build();
 
+            materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(selection);
+                onDateSelected(calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH));
+            });
+
+            materialDatePicker.show(getParentFragmentManager(), "DATE_PICKER");
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing MaterialDatePicker: " + e.getMessage());
+            Toast.makeText(requireContext(), "Error selecting date", Toast.LENGTH_SHORT).show();
+        }
+    }
+    private void onDateSelected(int year, int month, int dayOfMonth) {
+        try {
+            int actualMonth = month + 1;
+
+            Calendar selectedDate = Calendar.getInstance();
+            selectedDate.set(year, month, dayOfMonth);
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+            String formattedDate = dateFormat.format(selectedDate.getTime());
+
+            Log.d(TAG, "Date selected: " + formattedDate + " (" + formattedDate + ")");
+
+            mealDetailsPresenter.addMealToCal(meal, formattedDate);
+        } catch (Exception e) {
+            Log.e(TAG, "Error processing selected date: " + e.getMessage());
+            Toast.makeText(requireContext(), "Error processing date", Toast.LENGTH_SHORT).show();
+        }
+    }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.d(TAG, "onViewCreated - Starting...");
 
         try {
-
             Bundle args = getArguments();
             if (args == null) {
                 Log.e(TAG, "No arguments found");
                 showErrorAndNavigateBack("No meal data received");
                 return;
             }
-
             meal = args.getParcelable("meal_object");
-
             Log.d(TAG, "Meal loaded successfully: " + meal.getName());
-
             updateUI(meal);
-
-            checkIsFav();
-
+            checkLocalMeals();
         } catch (Exception e) {
             Log.e(TAG, "CRASH in onViewCreated: " + e.getMessage(), e);
             e.printStackTrace();
@@ -144,14 +187,9 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView ,In
         }
     }
 
-    private void checkIsFav() {
-        try {
-            if (meal != null && meal.getId() != null && mealDetailsPresenter != null) {
-                mealDetailsPresenter.isFavorite(meal.getId());
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error in checkIsFav: " + e.getMessage());
-        }
+    private void checkLocalMeals() {
+        mealDetailsPresenter.isFavorite(meal.getId());
+        mealDetailsPresenter.isCal(meal.getId());
     }
 
     private void updateUI(Meal meal) {
@@ -225,18 +263,44 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView ,In
             Log.e(TAG, "Error in updateFavButtonColor: " + e.getMessage());
         }
     }
+    private void updateCalButtonColor() {
+        try {
+            if (!isAdded() || getContext() == null || favbtn == null) {
+                return;
+            }
+
+            if (isPlanned) {
+                calBtn.setImageTintList(
+                        ContextCompat.getColorStateList(requireContext(), R.color.light_orange)
+                );
+                calBtn.setImageResource(R.drawable.ic_calender);
+            } else {
+                calBtn.setImageResource(R.drawable.ic_calender);
+                calBtn.setImageTintList(
+                        ContextCompat.getColorStateList(requireContext(), R.color.gray)
+                );
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error in updateFavButtonColor: " + e.getMessage());
+        }
+    }
 
     @Override
     public void onAddToFav() {
-        try {
-            if (isAdded() && getContext() != null) {
-                new MyToast(getContext(), "Added to Favorite");
-            }
-            isFavorite = true;
-            updateFavButtonColor();
-        } catch (Exception e) {
-            Log.e(TAG, "Error in onAddToFav: " + e.getMessage());
+        if (isAdded() && getContext() != null) {
+            new MyToast(getContext(), "Added to Favorite");
         }
+        isFavorite = true;
+        updateFavButtonColor();
+    }
+
+    @Override
+    public void onAddToCal() {
+        if (isAdded() && getContext() != null) {
+            new MyToast(getContext(), "Added to Plan");
+        }
+        isPlanned = true;
+        updateCalButtonColor();
     }
 
     @Override
@@ -247,6 +311,12 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView ,In
         } catch (Exception e) {
             Log.e(TAG, "Error in isFav: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void isCal(boolean isPlan) {
+        isPlanned = isPlan;
+        updateCalButtonColor();
     }
 
     @Override
@@ -263,6 +333,15 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView ,In
     }
 
     @Override
+    public void removeMealFromCal() {
+        if (isAdded() && getContext() != null) {
+            new MyToast(getContext(), "Removed from Planned Meal");
+        }
+        isPlanned = false;
+        updateFavButtonColor();
+    }
+
+    @Override
     public LifecycleOwner getLifecycleOwner() {
         return getViewLifecycleOwner();
     }
@@ -271,7 +350,6 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView ,In
     public void onSuccess(List<Meal> meals) {
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("meals", new ArrayList<>(meals));
-        Log.d("SearchFragment", "onSuccess: " + meals.size());
         Navigation.findNavController(requireView())
                 .navigate(R.id.action_mealDetailsFragment_to_mealListFragment, bundle);
     }
@@ -284,7 +362,6 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView ,In
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.d(TAG, "onDestroyView");
 
         mealImage = null;
         mealName = null;

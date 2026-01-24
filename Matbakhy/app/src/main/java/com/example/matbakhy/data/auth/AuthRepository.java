@@ -12,6 +12,7 @@ import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.data.auth.callbacks.AuthCallback;
 import com.example.matbakhy.data.auth.callbacks.BackupCallback;
 import com.example.matbakhy.data.auth.callbacks.LogoutCallback;
+import com.example.matbakhy.data.auth.callbacks.RestoreCallback;
 import com.example.matbakhy.data.auth.callbacks.SimpleCallback;
 import com.example.matbakhy.data.auth.datasources.local.SharedPref;
 import com.example.matbakhy.data.auth.datasources.remote.AuthNetwork;
@@ -95,7 +96,7 @@ public class AuthRepository {
     }
 
     private void backupUserData(BackupCallback callback) {
-        LiveData<List<Meal>> mealsLiveData = mealRepository.getAllLocalMeals();
+        LiveData<List<Meal>> mealsLiveData = mealRepository.getAllMealsFromLocal();
         mealsLiveData.observeForever(new Observer<List<Meal>>() {
             @Override
             public void onChanged(List<Meal> meals) {
@@ -163,7 +164,7 @@ public class AuthRepository {
     private void restoreUserData(RestoreCallback callback) {
         MealRestoreManager restoreManager = new MealRestoreManager(context);
 
-        restoreManager.restoreMealsFromFirebase(new MealRestoreManager.RestoreCallback() {
+        restoreManager.restoreMealsFromFirebase(new com.example.matbakhy.data.auth.callbacks.RestoreCallback() {
             @Override
             public void onSuccess(int restoredCount, List<Meal> meals, String message) {
                 if (meals != null && !meals.isEmpty()) {
@@ -181,8 +182,7 @@ public class AuthRepository {
 
     private void saveMealsLocally(List<Meal> meals) {
         for (Meal meal : meals) {
-            meal.setFavorite(true);
-            mealRepository.insertMealInFav(meal);
+            mealRepository.insertMeal(meal);
         }
     }
 

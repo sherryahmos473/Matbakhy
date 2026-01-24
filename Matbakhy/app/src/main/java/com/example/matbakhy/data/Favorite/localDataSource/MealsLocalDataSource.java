@@ -17,32 +17,67 @@ public class MealsLocalDataSource {
         AppDataBase dataBase = AppDataBase.getInstance(context);
         mealsDAO = dataBase.mealDAO();
     }
-    public void insertMeal(Meal meal){
+    public void insertFavMeal(Meal meal){
         new Thread(new Runnable() {
             @Override
             public void run() {
                 Log.d("insert", "run: "+ meal);
-                mealsDAO.insertMeal(meal);
+                mealsDAO.insertFavMeal(meal);
             }
         }).start();
 
     }
-    public void deleteMeal(Meal meal){
+    public void insertMeal(Meal meal){
         new Thread(new Runnable() {
             @Override
             public void run() {
-                mealsDAO.deleteMeal(meal);
+                mealsDAO.insertFavMeal(meal);
+            }
+        }).start();
+
+    }
+    public void insertCalMeal(Meal meal){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("insert", "run: "+ meal);
+                mealsDAO.insertCalMeal(meal);
+            }
+        }).start();
+
+    }
+    public void deleteFavMeal(Meal meal){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mealsDAO.deleteFavMeal(meal.getId());
+                mealsDAO.deleteIfNotFavoriteAndNotPlanned(meal.getId());
             }
         }).start();
     }
-    public LiveData<List<Meal>> getMeals(){
-        return mealsDAO.getMeals();
+    public void deleteCalMeal(Meal meal){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mealsDAO.deleteCalMeal(meal.getId());
+                mealsDAO.deleteIfNotFavoriteAndNotPlanned(meal.getId());
+            }
+        }).start();
     }
-    public List<Meal> getAllMealsSync(){
+    public LiveData<List<Meal>> getFavMeals(){
+        return mealsDAO.getFavMeals();
+    }
+    public LiveData<List<Meal>> getCalMeals(){
+        return mealsDAO.getCalMeals();
+    }
+    public LiveData<List<Meal>> getAllMealsSync(){
         return  mealsDAO.getAllMealsSync();
     }
     public LiveData<Boolean> isFavorite(String mealId) {
         return mealsDAO.isFavorite(mealId);
+    }
+    public LiveData<Boolean> isCal(String mealId) {
+        return mealsDAO.isCal(mealId);
     }
     public void deleteAllMeals() {
         new Thread(new Runnable() {

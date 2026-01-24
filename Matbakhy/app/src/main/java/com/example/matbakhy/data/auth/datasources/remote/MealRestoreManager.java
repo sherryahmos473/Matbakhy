@@ -3,6 +3,8 @@ package com.example.matbakhy.data.auth.datasources.remote;
 import android.content.Context;
 import android.util.Log;
 import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.auth.callbacks.RestoreCallback;
+
 import java.util.List;
 
 public class MealRestoreManager {
@@ -19,23 +21,15 @@ public class MealRestoreManager {
     public void restoreMealsFromFirebase(RestoreCallback callback) {
         Log.d(TAG, "Starting meal restoration from Firebase");
 
-        backupService.restoreMealsFromFirebase(new FirebaseBackupService.RestoreCallback() {
+        backupService.restoreMealsFromFirebase(new RestoreCallback() {
             @Override
             public void onSuccess(int restoredCount, List<Meal> meals, String message) {
-                Log.d(TAG, "Restored " + restoredCount + " meals from Firebase");
                 callback.onSuccess(restoredCount, meals, message);
             }
-
             @Override
             public void onError(String errorMessage) {
-                Log.e(TAG, "Restore failed: " + errorMessage);
                 callback.onError(errorMessage);
             }
         });
-    }
-
-    public interface RestoreCallback {
-        void onSuccess(int restoredCount, List<Meal> meals, String message);
-        void onError(String errorMessage);
     }
 }

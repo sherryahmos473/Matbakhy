@@ -1,4 +1,4 @@
-package com.example.matbakhy.presentation.Favorite.view;
+package com.example.matbakhy.presentation.Calender.views;
 
 import static android.view.View.VISIBLE;
 
@@ -11,7 +11,6 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,55 +19,36 @@ import android.widget.ProgressBar;
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.helper.MyToast;
-import com.example.matbakhy.presentation.Favorite.presenter.FavoritePresenter;
-import com.example.matbakhy.presentation.Favorite.presenter.FavoritePresenterImpl;
-import com.example.matbakhy.presentation.Favorite.presenter.FavoriteView;
+import com.example.matbakhy.presentation.Calender.presenter.CalenderPresenter;
+import com.example.matbakhy.presentation.Calender.presenter.CalenderPresenterImpl;
+import com.example.matbakhy.presentation.Favorite.view.FavoriteAdapter;
 import com.example.matbakhy.presentation.MealsList.views.MealClickListener;
 
 
-public class FavoriteFragment extends Fragment implements FavoriteOnClickListener, FavoriteView, MealClickListener {
-
+public class CalenderFragment extends Fragment  implements CalenderView , CalenderOnClickListener, MealClickListener {
     View view;
     ProgressBar progressBar;
-    FavoriteAdapter favoriteAdapter;
-    FavoritePresenter faroritePresenter;
+    CalenderAdapter calenderAdapter;
+    CalenderPresenter calenderPresenter;
     private View emptyStateView;
 
     RecyclerView recyclerView;
-
-    public FavoriteFragment() {
-    }
-
-    public static FavoriteFragment newInstance(String param1, String param2) {
-        FavoriteFragment fragment = new FavoriteFragment();
-        Bundle args = new Bundle();
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        view = inflater.inflate(R.layout.fragment_favorite, container, false);
-
+        view = inflater.inflate(R.layout.fragment_calender, container, false);
         progressBar = view.findViewById(R.id.progress_circular);
         progressBar.setVisibility(VISIBLE);
         recyclerView = view.findViewById(R.id.recycleView);
-
         emptyStateView = view.findViewById(R.id.emptyView);
-        favoriteAdapter = new FavoriteAdapter(this,this);
+        calenderAdapter = new CalenderAdapter(this,this);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(favoriteAdapter);
+        recyclerView.setAdapter(calenderAdapter);
 
-        faroritePresenter = new FavoritePresenterImpl(getContext(), this);
+        calenderPresenter = new CalenderPresenterImpl(getContext(), this);
 
         return view;
     }
@@ -83,20 +63,15 @@ public class FavoriteFragment extends Fragment implements FavoriteOnClickListene
             );
             recyclerView.requestLayout();
         });
-        faroritePresenter.getFavMeal()
+        calenderPresenter.getCalMeal()
                 .observe(getViewLifecycleOwner(), meals -> {
                     if (meals != null && !meals.isEmpty()) {
                         hideEmptyState();
-
-                        for (Meal meal : meals) {
-                            Log.d("FavoriteFragment", "Meal: " + meal.getName() + " ID: " + meal.getId());
-                        }
                     }else{
                         showEmptyState();
                     }
                     progressBar.setVisibility(View.GONE);
-                    favoriteAdapter.setMealList(meals);
-
+                    calenderAdapter.setMealList(meals);
                 });
     }
     private void showEmptyState() {
@@ -115,7 +90,7 @@ public class FavoriteFragment extends Fragment implements FavoriteOnClickListene
 
     @Override
     public void deleteFav(Meal meal) {
-        faroritePresenter.deleteMeal(meal);
+        calenderPresenter.deleteMeal(meal);
     }
 
     @Override
@@ -123,6 +98,6 @@ public class FavoriteFragment extends Fragment implements FavoriteOnClickListene
         Bundle bundle = new Bundle();
         bundle.putParcelable("meal_object", meal);
         Navigation.findNavController(requireView())
-                .navigate(R.id.action_favoriteFragment_to_mealDetailsFragment, bundle);
+                .navigate(R.id.action_calenderFragment_to_mealDetailsFragment, bundle);
     }
 }

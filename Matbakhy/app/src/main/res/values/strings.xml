@@ -41,5 +41,6 @@
     <string name="no_email">Did not receive the email? Check your spam folder or</string>
     <string name="we_sent_email">We have sent password reset instructions to your email address.</string>
     <string name="favorite_meals">Favorite Meals</string>
+    <string name="planned_meals">Planned Meals</string>
     <string name="default_web_client_id"><![CDATA[863663174125-5nqhjlqkfk95ffd8jc2q1kiovv4i8sp2.apps.googleusercontent.com]]></string>
 </resources>

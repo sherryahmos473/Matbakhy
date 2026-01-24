@@ -67,7 +67,7 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_calender"
                         app:backgroundTint="@android:color/white"
-                        app:tint="@color/light_orange"
+                        app:tint="@color/gray"
                         app:maxImageSize="24dp"
                         app:elevation="4dp"
                         app:fabSize="mini" />

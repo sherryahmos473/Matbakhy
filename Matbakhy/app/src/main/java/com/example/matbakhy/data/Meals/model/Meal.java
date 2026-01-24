@@ -527,7 +527,6 @@ public class Meal implements Parcelable {
     }
 
 
-    // Ingredients getters and setters
     public String getIngredient1() {
         return ingredient1;
     }
@@ -688,7 +687,6 @@ public class Meal implements Parcelable {
         this.ingredient20 = ingredient20;
     }
 
-    // Measures getters and setters
     public String getMeasure1() {
         return measure1;
     }

@@ -9,16 +9,16 @@ import com.example.matbakhy.data.Meals.model.Meal;
 
 import java.util.List;
 
-public class FaroritePresenterImpl implements FaroritePresenter{
+public class FavoritePresenterImpl implements FavoritePresenter {
     MealRepositry mealRepositry;
     FavoriteView favoriteView;
-    public FaroritePresenterImpl(Context context, FavoriteView favoriteView){
+    public FavoritePresenterImpl(Context context, FavoriteView favoriteView){
         mealRepositry = new MealRepositry(context);
         this.favoriteView = favoriteView;
     }
     @Override
     public LiveData<List<Meal>> getFavMeal() {
-        return mealRepositry.getAllLocalMeals();
+        return mealRepositry.getFavMeals();
     }
 
     @Override

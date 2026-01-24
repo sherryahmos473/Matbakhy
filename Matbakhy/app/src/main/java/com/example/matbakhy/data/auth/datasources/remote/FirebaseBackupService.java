@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import com.example.matbakhy.data.Meals.model.FirebaseMeal;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.data.auth.callbacks.BackupCallback;
+import com.example.matbakhy.data.auth.callbacks.RestoreCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -112,7 +113,7 @@ public class FirebaseBackupService {
                         if (meal != null) {
                             restoredMeals.add(meal);
                             count++;
-                            Log.d(TAG, "Restored meal: " + meal.getName());
+                            Log.d(TAG, "Restored meal: " + meal.getName() + "is favorite "+ meal.isFavorite());
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Error parsing meal: " + e.getMessage());
@@ -141,13 +142,10 @@ public class FirebaseBackupService {
             meal.setCategory(snapshot.child("category").getValue(String.class));
             meal.setArea(snapshot.child("area").getValue(String.class));
             meal.setInstructions(snapshot.child("instructions").getValue(String.class));
+            meal.setFavorite(snapshot.child("is_favorite").getValue(Boolean.class));
+            meal.setPlanned(snapshot.child("is_planned").getValue(Boolean.class));
+            meal.setPlanDate(snapshot.child("plan_date").getValue(String.class));
 
-            Boolean isFavorite = snapshot.child("is_favorite").getValue(Boolean.class);
-            if (isFavorite != null) {
-                meal.setFavorite(isFavorite);
-            } else {
-                meal.setFavorite(true);
-            }
 
             for (int i = 1; i <= 20; i++) {
                 String ingredient = snapshot.child("ingredient_" + i).getValue(String.class);
@@ -184,10 +182,5 @@ public class FirebaseBackupService {
         } catch (Exception e) {
             Log.e(TAG, "Error setting measure " + index, e);
         }
-    }
-
-    public interface RestoreCallback {
-        void onSuccess(int restoredCount, List<Meal> meals, String message);
-        void onError(String errorMessage);
     }
 }

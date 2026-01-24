@@ -77,5 +77,13 @@
             android:id="@+id/action_searchFragment_to_mealDetailsFragment"
             app:destination="@id/mealDetailsFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/calenderFragment"
+        android:name="com.example.matbakhy.presentation.Calender.views.CalenderFragment"
+        android:label="CalenderFragment" >
+        <action
+            android:id="@+id/action_calenderFragment_to_mealDetailsFragment"
+            app:destination="@id/mealDetailsFragment" />
+    </fragment>
 
 </navigation>

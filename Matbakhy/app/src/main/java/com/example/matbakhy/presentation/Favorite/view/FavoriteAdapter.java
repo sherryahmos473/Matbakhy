@@ -4,7 +4,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,12 +20,12 @@ import java.util.List;
 
 public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.FavoriteHolder> {
     private List<Meal> favMeal;
-    private FavoriteOnClickListner favoriteOnClickListner;
+    private FavoriteOnClickListener favoriteOnClickListener;
     MealClickListener mealClickListener;
 
-    public FavoriteAdapter(FavoriteOnClickListner favoriteOnClickListner,MealClickListener mealClickListener) {
+    public FavoriteAdapter(FavoriteOnClickListener favoriteOnClickListener, MealClickListener mealClickListener) {
         this.favMeal = new ArrayList<>();
-        this.favoriteOnClickListner = favoriteOnClickListner;
+        this.favoriteOnClickListener = favoriteOnClickListener;
         this.mealClickListener = mealClickListener;
         Log.d("FavoriteAdapter", "Adapter created");
     }
@@ -103,7 +102,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
             addToFavoritesButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    favoriteOnClickListner.deleteFav(meal);
+                    favoriteOnClickListener.deleteFav(meal);
                 }
             });
             mealImageView.setOnClickListener(v -> mealClickListener.onMealClick(meal));
