@@ -10,4 +10,5 @@ public interface BaseAuthPresenter {
     void onGoogleSignInResult(int requestCode, int resultCode, android.content.Intent data);
     void onViewCreated();
     void onDestroyView();
+    void onGoogleSignInClickedWithRestore();
 }

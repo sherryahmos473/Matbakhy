@@ -8,6 +8,7 @@ import com.example.matbakhy.data.Meals.dataSource.MealRemoteResponse;
 import com.example.matbakhy.data.Meals.model.Category;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.data.auth.AuthRepository;
+import com.example.matbakhy.data.auth.callbacks.LogoutCallback;
 import com.example.matbakhy.presentation.Meals.view.HomeView;
 
 import java.util.List;
@@ -62,7 +63,7 @@ public class HomePresenterImpl implements HomePresenter{
         });
     }
     public void logout() {
-        authRepository.logoutWithBackup(new AuthRepository.LogoutCallback() {
+        authRepository.logoutWithBackup(new LogoutCallback() {
             @Override
             public void onLogoutComplete(boolean backupSuccess, String message) {
                 homeView.navigateToLogin();

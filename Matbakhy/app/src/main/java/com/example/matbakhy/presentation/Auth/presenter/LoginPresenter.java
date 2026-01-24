@@ -14,4 +14,5 @@ public interface LoginPresenter {
     void checkIfUserLoggedIn();
     void onViewCreated();
     void onDestroyView();
+    void onGoogleSignInClickedWithRestore();
 }

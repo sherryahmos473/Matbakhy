@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.example.matbakhy.data.Meals.model.FirebaseMeal;
 import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.auth.callbacks.BackupCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -38,13 +39,8 @@ public class FirebaseBackupService {
             callback.onError("User not authenticated");
             return;
         }
-
         String userId = firebaseAuth.getCurrentUser().getUid();
         String userEmail = firebaseAuth.getCurrentUser().getEmail();
-
-        Log.d(TAG, "Starting backup for user: " + userId);
-        Log.d(TAG, "Number of meals to backup: " + (meals != null ? meals.size() : 0));
-
         if (meals == null || meals.isEmpty()) {
             callback.onSuccess(0, "No meals to backup");
             return;
@@ -57,12 +53,9 @@ public class FirebaseBackupService {
 
         userBackupRef.removeValue()
                 .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "✅ Old meals deleted successfully");
-
                     saveNewMeals(meals, userId, userEmail, userBackupRef, callback);
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "❌ Failed to delete old meals: " + e.getMessage());
                     callback.onError("Failed to clear old data: " + e.getMessage());
                 });
     }
@@ -75,25 +68,18 @@ public class FirebaseBackupService {
             String mealId = meal.getId() != null ? meal.getId() : "meal_" + System.currentTimeMillis();
             FirebaseMeal firebaseMeal = new FirebaseMeal(meal, userId, userEmail);
             batchUpdate.put(mealId, firebaseMeal);
-            Log.d(TAG, "Preparing meal for backup: " + meal.getName() + " (ID: " + mealId + ")");
         }
 
-        Log.d(TAG, "Saving " + batchUpdate.size() + " meals to Firebase...");
 
         userBackupRef.updateChildren(batchUpdate)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "✅ Successfully backed up " + meals.size() + " meals");
                     callback.onSuccess(meals.size(), "Backup completed successfully");
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "❌ Backup failed: " + e.getMessage(), e);
                     callback.onError("Backup failed: " + e.getMessage());
                 });
     }
-    public interface BackupCallback {
-        void onSuccess(int backedUpCount, String message);
-        void onError(String errorMessage);
-    }
+
     public void restoreMealsFromFirebase(RestoreCallback callback) {
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         if (currentUser == null) {
@@ -102,7 +88,6 @@ public class FirebaseBackupService {
         }
 
         String userId = currentUser.getUid();
-        Log.d(TAG, "Restoring meals for user: " + userId);
 
         DatabaseReference userBackupRef = databaseReference
                 .child(BACKUP_PATH)
@@ -161,10 +146,9 @@ public class FirebaseBackupService {
             if (isFavorite != null) {
                 meal.setFavorite(isFavorite);
             } else {
-                meal.setFavorite(true); // Default to favorite when restoring
+                meal.setFavorite(true);
             }
 
-            // المكونات والكميات
             for (int i = 1; i <= 20; i++) {
                 String ingredient = snapshot.child("ingredient_" + i).getValue(String.class);
                 String measure = snapshot.child("measure_" + i).getValue(String.class);

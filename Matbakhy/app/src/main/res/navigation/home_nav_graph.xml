@@ -20,9 +20,6 @@
         <action
             android:id="@+id/action_homeFragment_to_favoriteFragment"
             app:destination="@+id/favoriteFragment" />
-        <action
-            android:id="@+id/action_homeFragment_to_loginFragment2"
-            app:destination="@id/loginFragment2" />
     </fragment>
 
     <fragment
@@ -62,9 +59,5 @@
             android:id="@+id/action_favoriteFragment_to_mealDetailsFragment"
             app:destination="@id/mealDetailsFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/loginFragment2"
-        android:name="com.example.matbakhy.presentation.Auth.view.LoginFragment"
-        android:label="LoginFragment" />
 
 </navigation>

@@ -12,6 +12,7 @@ import com.example.matbakhy.data.Meals.dataSource.MealOfTheDayDataSource;
 import com.example.matbakhy.data.Meals.dataSource.MealRemoteResponse;
 import com.example.matbakhy.data.Meals.model.Category;
 import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.auth.callbacks.BackupCallback;
 import com.example.matbakhy.data.auth.datasources.remote.FirebaseBackupService;
 import com.example.matbakhy.data.auth.datasources.remote.MealBackupManager;
 
@@ -55,7 +56,7 @@ public class MealRepositry {
     public LiveData<Boolean>  isFavorite(String mealId){
         return mealsLocalDataSource.isFavorite(mealId);
     }
-    public void backupAllMealsToFirebase(FirebaseBackupService.BackupCallback callback) {
+    public void backupAllMealsToFirebase(BackupCallback callback) {
         List<Meal> meals = getAllMealsFromLocal();
         backupManager.backupMeals(meals, callback);
     }

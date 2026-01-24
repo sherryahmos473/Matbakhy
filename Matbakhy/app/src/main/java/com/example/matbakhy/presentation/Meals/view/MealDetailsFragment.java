@@ -30,6 +30,14 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
     private MealDetailsPresenter mealDetailsPresenter;
     private boolean isFavorite = false;
 
+    public static MealDetailsFragment newInstance(Meal meal) {
+        MealDetailsFragment fragment = new MealDetailsFragment();
+        Bundle args = new Bundle();
+        args.putParcelable("meal_object", meal);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -80,19 +88,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
         Log.d(TAG, "onViewCreated - Starting...");
 
         try {
-            // 🔴 المشكلة: هذا السطر قد يسبب crash إذا كان Fragment ليس ready
-            // Log.e("MealDetailsCrash", "Crash in details fragment");
 
-            // بدلاً من ذلك، استخدم Log.d
-            Log.d(TAG, "Attempting to load meal data...");
-
-            // 1. تحقق من أن Fragment مرفق (attached)
-            if (!isAdded() || getActivity() == null) {
-                Log.e(TAG, "Fragment not attached to activity");
-                return;
-            }
-
-            // 2. تحقق من الـ Arguments
             Bundle args = getArguments();
             if (args == null) {
                 Log.e(TAG, "No arguments found");
@@ -100,35 +96,18 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
                 return;
             }
 
-            // 3. استخرج الـ Meal من الـ Arguments
             meal = args.getParcelable("meal_object");
-            if (meal == null) {
-                Log.e(TAG, "Meal is null in arguments");
-                showErrorAndNavigateBack("Invalid meal data");
-                return;
-            }
-
-            // 4. تحقق من البيانات الأساسية للـ Meal
-            if (meal.getId() == null || meal.getName() == null) {
-                Log.w(TAG, "Meal has null fields, using defaults");
-                // تعيين قيم افتراضية
-                if (meal.getId() == null) meal.setId("unknown_id");
-                if (meal.getName() == null) meal.setName("Unknown Meal");
-            }
 
             Log.d(TAG, "Meal loaded successfully: " + meal.getName());
 
-            // 5. تحديث الـ UI
             updateUI(meal);
 
-            // 6. تحقق من حالة المفضلة
             checkIsFav();
 
         } catch (Exception e) {
             Log.e(TAG, "CRASH in onViewCreated: " + e.getMessage(), e);
-            e.printStackTrace(); // هذا مهم لمعرفة سبب الـ Crash
+            e.printStackTrace();
 
-            // عرض رسالة خطأ
             showErrorAndNavigateBack("Error loading meal: " + e.getMessage());
         }
     }
@@ -140,7 +119,6 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
             if (isAdded() && getContext() != null) {
                 new MyToast(getContext(), message);
 
-                // تأخير العودة للخلف
                 new android.os.Handler().postDelayed(() -> {
                     try {
                         if (getActivity() != null) {
@@ -173,7 +151,6 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
                 return;
             }
 
-            // تحقق من أن الـ Views ليست null
             if (mealName != null) {
                 mealName.setText(meal.getName() != null ? meal.getName() : "Unknown");
             }
@@ -182,14 +159,12 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
                 mealCategory.setText(meal.getCategory() != null ? meal.getCategory() : "");
             }
 
-            // تحضير نص المنطقة والمكونات
             String areaText = meal.getArea() != null ? meal.getArea() : "";
             int ingredientCount = meal.getIngredients() != null ? meal.getIngredients().size() : 0;
             if (mealArea != null) {
                 mealArea.setText(areaText + " • " + ingredientCount + " ingredients");
             }
 
-            // تحضير قائمة المكونات
             StringBuilder ingredientsBuilder = new StringBuilder();
             if (meal.getIngredients() != null) {
                 for (String ingredient : meal.getIngredients()) {
@@ -208,14 +183,12 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
                 mealIngredients.setText(ingredientsBuilder.toString());
             }
 
-            // تحميل الصورة
             if (mealImage != null && meal.getThumbnail() != null && !meal.getThumbnail().isEmpty()) {
                 try {
-                    // استخدم requireContext() بدلاً من getContext() لتجنك null
                     Glide.with(requireContext())
                             .load(meal.getThumbnail())
-                            .placeholder(R.drawable.meal)  // صورة مؤقتة
-                            .error(R.drawable.meal)        // صورة في حالة الخطأ
+                            .placeholder(R.drawable.meal)
+                            .error(R.drawable.meal)
                             .into(mealImage);
                 } catch (Exception e) {
                     Log.e(TAG, "Glide loading error: " + e.getMessage());

@@ -1,6 +1,7 @@
 package com.example.matbakhy.presentation.Auth.view;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -171,7 +172,7 @@ public class RegisterFragment extends Fragment implements RegisterView {
     }
 
     @Override
-    public void startGoogleSignInIntent(android.content.Intent intent) {
+    public void startGoogleSignInIntent(Intent intent, int rcSignIn) {
         startActivityForResult(intent, 9001);
     }
 
@@ -190,7 +191,6 @@ public class RegisterFragment extends Fragment implements RegisterView {
         if (edtConfirmPassword != null) edtConfirmPassword.setText("");
     }
 
-    // ==================== Private Helper Methods ====================
 
     private void initializeViews(View view) {
         edtName = view.findViewById(R.id.nameEditText);
@@ -212,7 +212,7 @@ public class RegisterFragment extends Fragment implements RegisterView {
         }
 
         if (btnGoogle != null) {
-            btnGoogle.setOnClickListener(v -> presenter.onGoogleSignInClicked());
+            btnGoogle.setOnClickListener(v -> presenter.onGoogleSignInClickedWithRestore());
         }
 
         if (txtLogin != null) {

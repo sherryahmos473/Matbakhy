@@ -5,4 +5,11 @@
     </style>
 
     <style name="Theme.Matbakhy" parent="Base.Theme.Matbakhy" />
+    <style name="ActiveIndicatorStyle" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:width">35dp</item>
+        <item name="android:height">35dp</item>
+        <item name="android:layout_margin">10dp</item>
+        <item name="itemIconTint">@color/white</item>
+        <item name="android:color">@color/light_orange</item>
+    </style>
 </resources>

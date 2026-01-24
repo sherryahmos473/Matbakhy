@@ -35,12 +35,12 @@
         android:layout_height="wrap_content"
         android:background="@color/white"
         android:elevation="8dp"
-        app:itemIconTint="@color/gray"
-        app:itemTextColor="@color/gray"
+        app:itemIconTint="@drawable/bottom_nav_icon_colors"
+        app:itemTextColor="@color/light_orange"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:itemActiveIndicatorStyle="@style/ActiveIndicatorStyle"
         app:menu="@menu/bottom_nav_menu" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

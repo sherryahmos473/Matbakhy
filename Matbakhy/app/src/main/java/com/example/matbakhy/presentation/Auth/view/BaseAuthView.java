@@ -1,6 +1,8 @@
 package com.example.matbakhy.presentation.Auth.view;
 
 
+import android.content.Intent;
+
 public interface BaseAuthView {
     void showLoading(String message);
     void hideLoading();
@@ -14,6 +16,6 @@ public interface BaseAuthView {
     String getPassword();
     void clearPasswordField();
     void focusPasswordField();
-    void startGoogleSignInIntent(android.content.Intent intent);
+    void startGoogleSignInIntent(Intent intent, int rcSignIn);
     void clearEmailField();
 }

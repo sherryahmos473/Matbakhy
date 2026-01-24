@@ -10,6 +10,8 @@ import androidx.lifecycle.Observer;
 import com.example.matbakhy.data.Meals.MealRepositry;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.data.auth.callbacks.AuthCallback;
+import com.example.matbakhy.data.auth.callbacks.BackupCallback;
+import com.example.matbakhy.data.auth.callbacks.LogoutCallback;
 import com.example.matbakhy.data.auth.callbacks.SimpleCallback;
 import com.example.matbakhy.data.auth.datasources.local.SharedPref;
 import com.example.matbakhy.data.auth.datasources.remote.AuthNetwork;
@@ -76,34 +78,24 @@ public class AuthRepository {
         return firebaseServices.isNetworkAvailable();
     }
     public void logoutWithBackup(LogoutCallback callback) {
-        Log.d(TAG, "Starting logout with backup");
-
-        backupUserData(new FirebaseBackupService.BackupCallback() {
+        backupUserData(new BackupCallback() {
             @Override
             public void onSuccess(int backedUpCount, String message) {
-                Log.d(TAG, "Backup successful: " + message);
-
                 firebaseServices.logout();
-
                 mealRepository.clearAllLocalMeals();
-
                 callback.onLogoutComplete(true, message);
             }
 
             @Override
             public void onError(String errorMessage) {
-                Log.e(TAG, "Backup failed: " + errorMessage);
-
                 firebaseServices.logout();
-
                 callback.onLogoutComplete(false, "Logged out but backup failed: " + errorMessage);
             }
         });
     }
 
-    private void backupUserData(FirebaseBackupService.BackupCallback callback) {
+    private void backupUserData(BackupCallback callback) {
         LiveData<List<Meal>> mealsLiveData = mealRepository.getAllLocalMeals();
-        Log.d(TAG, "backupUserData: " + mealsLiveData);
         mealsLiveData.observeForever(new Observer<List<Meal>>() {
             @Override
             public void onChanged(List<Meal> meals) {
@@ -114,9 +106,7 @@ public class AuthRepository {
             }
         });
     }
-    public interface LogoutCallback {
-        void onLogoutComplete(boolean backupSuccess, String message);
-    }
+
     public void loginWithRestore(String email, String password, AuthCallback callback) {
         Log.d(TAG, "Logging in with restore");
 
@@ -142,10 +132,35 @@ public class AuthRepository {
             }
         });
     }
+    public void handleGoogleSignInWithRestore(Intent data, AuthCallback callback) {
+        Log.d(TAG, "Handling Google sign in with restore");
+
+        firebaseServices.handleGoogleSignInResult(data, new AuthCallback() {
+            @Override
+            public void onSuccess(User user) {
+                Log.d(TAG, "Google sign in successful for: " + user.getEmail());
+                restoreUserData(new RestoreCallback() {
+                    @Override
+                    public void onRestoreComplete(boolean success, int restoredCount, String message) {
+                        if (success && restoredCount > 0) {
+                            Log.d(TAG, "Restored " + restoredCount + " favorite meals");
+                            callback.onSuccess(user);
+                        } else {
+                            callback.onSuccess(user);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Log.e(TAG, "Google sign in failed: " + errorMessage);
+                callback.onFailure(errorMessage);
+            }
+        });
+    }
 
     private void restoreUserData(RestoreCallback callback) {
-        Log.d(TAG, "Restoring user data from Firebase...");
-
         MealRestoreManager restoreManager = new MealRestoreManager(context);
 
         restoreManager.restoreMealsFromFirebase(new MealRestoreManager.RestoreCallback() {
@@ -153,7 +168,6 @@ public class AuthRepository {
             public void onSuccess(int restoredCount, List<Meal> meals, String message) {
                 if (meals != null && !meals.isEmpty()) {
                     saveMealsLocally(meals);
-                    Log.d(TAG, "✅ Saved " + meals.size() + " meals locally");
                 }
                 callback.onRestoreComplete(true, restoredCount, message);
             }
@@ -170,7 +184,6 @@ public class AuthRepository {
             meal.setFavorite(true);
             mealRepository.insertMealInFav(meal);
         }
-        Log.d(TAG, "Saved " + meals.size() + " meals to local database");
     }
 
     public interface RestoreCallback {

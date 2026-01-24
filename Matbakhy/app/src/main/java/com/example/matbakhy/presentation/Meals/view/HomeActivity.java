@@ -62,10 +62,8 @@ public class HomeActivity extends AppCompatActivity {
 
                         int destId = destination.getId();
 
-                        if (destId == R.id.mealListFragment || destId == R.id.loginFragment2 || destId == R.id.loginFragment | destId == R.id.registerFragment || destId == R.id.forgotPasswordFragment) {
-
+                        if (destId == R.id.mealListFragment  || destId == R.id.mealDetailsFragment || destId == R.id.loginFragment || destId == R.id.registerFragment || destId == R.id.forgotPasswordFragment) {
                             hideBottomNavigation();
-
                         } else {
                             showBottomNavigation();
                         }
@@ -77,21 +75,12 @@ public class HomeActivity extends AppCompatActivity {
 
     private void hideBottomNavigation() {
         binding.bottomNavigation.setVisibility(View.GONE);
-        binding.frame.setLayoutParams(new androidx.constraintlayout.widget.ConstraintLayout.LayoutParams(
-                androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.MATCH_PARENT,
-                androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.MATCH_PARENT
-        ));
-        binding.frame.setPadding(0, 0, 0, 0);
     }
 
     private void showBottomNavigation() {
         binding.bottomNavigation.setVisibility(View.VISIBLE);
-        androidx.constraintlayout.widget.ConstraintLayout.LayoutParams params =
-                (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) binding.frame.getLayoutParams();
-        params.height = 0;
-        params.bottomToTop = R.id.bottomNavigation;
-        binding.frame.setLayoutParams(params);
     }
+
 
     @Override
     protected void onDestroy() {

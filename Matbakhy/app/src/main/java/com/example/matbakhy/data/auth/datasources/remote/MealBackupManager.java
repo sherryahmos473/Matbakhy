@@ -3,6 +3,8 @@ package com.example.matbakhy.data.auth.datasources.remote;
 import android.content.Context;
 import android.util.Log;
 import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.auth.callbacks.BackupCallback;
+
 import java.util.List;
 
 public class MealBackupManager {
@@ -16,7 +18,7 @@ public class MealBackupManager {
         this.backupService = new FirebaseBackupService();
     }
 
-    public void backupMeals(List<Meal> meals, FirebaseBackupService.BackupCallback callback) {
+    public void backupMeals(List<Meal> meals, BackupCallback callback) {
         if (meals == null || meals.isEmpty()) {
             callback.onSuccess(0, "No meals to backup");
             return;

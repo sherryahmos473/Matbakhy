@@ -149,7 +149,7 @@ public class LoginFragment extends Fragment implements LoginView {
     }
 
     @Override
-    public void startGoogleSignInIntent(Intent intent) {
+    public void startGoogleSignInIntent(Intent intent, int rcSignIn) {
         startActivityForResult(intent, RC_SIGN_IN);
     }
 
@@ -186,7 +186,7 @@ public class LoginFragment extends Fragment implements LoginView {
         }
 
         if (btnGoogle != null) {
-            btnGoogle.setOnClickListener(v -> presenter.onGoogleSignInClicked());
+            btnGoogle.setOnClickListener(v -> presenter.onGoogleSignInClickedWithRestore());
         }
     }
 

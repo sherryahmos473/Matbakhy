@@ -1,11 +1,13 @@
 package com.example.matbakhy.presentation.Meals.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,10 +23,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.matbakhy.MainActivity;
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.Meals.model.Category;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.helper.MyToast;
+import com.example.matbakhy.presentation.Auth.view.LoginFragment;
 import com.example.matbakhy.presentation.Meals.presenter.HomePresenter;
 import com.example.matbakhy.presentation.Meals.presenter.HomePresenterImpl;
 
@@ -125,8 +129,9 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
 
     @Override
     public void navigateToLogin() {
-        Navigation.findNavController(requireView()).navigate(R.id.action_homeFragment_to_loginFragment2);
-    }
+        Intent intent = new Intent(requireContext(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);    }
 
     @Override
     public void onDestroy() {
