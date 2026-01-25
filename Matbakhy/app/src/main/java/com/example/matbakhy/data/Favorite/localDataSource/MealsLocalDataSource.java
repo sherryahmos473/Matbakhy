@@ -9,7 +9,11 @@ import com.example.matbakhy.data.Favorite.DataBase.AppDataBase;
 import com.example.matbakhy.data.Favorite.DataBase.MealDAO;
 import com.example.matbakhy.data.Meals.model.Meal;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MealsLocalDataSource {
     public MealDAO mealsDAO;
@@ -68,6 +72,15 @@ public class MealsLocalDataSource {
         return mealsDAO.getFavMeals();
     }
     public LiveData<List<Meal>> getCalMeals(){
+        String today = new SimpleDateFormat("dd-MM-yyyy", Locale.US)
+                .format(new Date());
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mealsDAO.deletePlannedMealsBeforeToday(today);
+            }
+        }).start();
         return mealsDAO.getCalMeals();
     }
     public LiveData<List<Meal>> getAllMealsSync(){

@@ -185,23 +185,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/materialDivider2" />
 
-<!--        <TextView-->
-<!--            android:id="@+id/ingredients"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginStart="24dp"-->
-<!--            android:layout_marginTop="12dp"-->
-<!--            android:layout_marginEnd="24dp"-->
-<!--            android:layout_marginBottom="32dp"-->
-<!--            android:lineSpacingExtra="6dp"-->
-<!--            android:text="• 1/4 cup Butter\n• 2 Pounds Ground Beef\n• 2 teaspoons Salt\n• 1/2 teaspoon Allspice"-->
-<!--            android:textSize="16sp"-->
-<!--            android:textColor="@android:color/black"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/ingredientsLabel" />-->
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/ingrediantsList"
+            android:id="@+id/ingredientsList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:elevation="24dp"
@@ -212,6 +197,28 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ingredientsLabel"/>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
 
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ingredientsList">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/videoBtn"
+                android:src="@drawable/ic_youtube"
+                android:layout_gravity="center"
+                android:clickable="true"
+                />
+        <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:id="@+id/youtubeVideo"
+            app:autoPlay="false"
+            android:visibility="gone"
+            />
+        </FrameLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>

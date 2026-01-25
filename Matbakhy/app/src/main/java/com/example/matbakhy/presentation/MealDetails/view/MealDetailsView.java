@@ -1,4 +1,4 @@
-package com.example.matbakhy.presentation.Meals.view;
+package com.example.matbakhy.presentation.MealDetails.view;
 
 import androidx.lifecycle.LifecycleOwner;
 

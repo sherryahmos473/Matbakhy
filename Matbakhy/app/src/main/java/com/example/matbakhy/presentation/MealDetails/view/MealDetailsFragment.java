@@ -1,0 +1,283 @@
+package com.example.matbakhy.presentation.MealDetails.view;
+
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.example.matbakhy.R;
+import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.helper.MyToast;
+import com.example.matbakhy.presentation.MealDetails.presenter.MealDetailsPresenter;
+import com.example.matbakhy.presentation.MealDetails.presenter.MealDetailsPresenterImpl;
+import com.example.matbakhy.presentation.Meals.view.IngredientListAdapter;
+import com.example.matbakhy.presentation.Meals.view.IngredientListener;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointForward;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+
+public class MealDetailsFragment extends Fragment implements MealDetailsView , IngredientListener {
+    private static final String TAG = "MealDetailsFragment";
+
+    private Meal meal;
+    private ImageView mealImage;
+    private TextView mealName, mealCategory, mealArea, mealInstructions;
+    private FloatingActionButton favbtn, calBtn;
+    private MealDetailsPresenter mealDetailsPresenter;
+    IngredientListAdapter ingredientListAdapter;
+    RecyclerView recyclerView;
+    YouTubePlayerView youTubePlayerView;
+    ImageView youtubeBtn;
+    private boolean isFavorite = false, isPlanned = false;
+
+    public static MealDetailsFragment newInstance(Meal meal) {
+        MealDetailsFragment fragment = new MealDetailsFragment();
+        Bundle args = new Bundle();
+        args.putParcelable("meal_object", meal);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_meal_details, container, false);
+
+        mealImage = view.findViewById(R.id.mealOfTheDayImage);
+        mealName = view.findViewById(R.id.mealofTheDayName);
+        mealCategory = view.findViewById(R.id.mealCategory);
+        mealArea = view.findViewById(R.id.mealOfTheDayArea);
+        mealInstructions = view.findViewById(R.id.instructions);
+        recyclerView = view.findViewById(R.id.ingredientsList);
+        calBtn = view.findViewById(R.id.fabCalendar);
+        ingredientListAdapter = new IngredientListAdapter(this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setAdapter(ingredientListAdapter);
+        recyclerView.setLayoutManager(layoutManager);
+        favbtn = view.findViewById(R.id.fabFavorite);
+        youtubeBtn = view.findViewById(R.id.videoBtn);
+        youTubePlayerView = view.findViewById(R.id.youtubeVideo);
+        getLifecycle().addObserver(youTubePlayerView);
+
+        mealDetailsPresenter = new MealDetailsPresenterImpl(getContext(), this);
+
+        favbtn.setOnClickListener(v -> {
+            if (meal != null && getContext() != null) {
+                if (!isFavorite) {
+                    mealDetailsPresenter.addMealToFav(meal);
+                } else {
+                    mealDetailsPresenter.removeMealFromFav(meal);
+                }
+            }
+        });
+        calBtn.setOnClickListener(v -> {
+            if(isPlanned){
+                mealDetailsPresenter.removeMealFromCal(meal);
+            }else{
+                showDatePicker();
+            }
+        });
+        youtubeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                youTubePlayerView.setVisibility(View.VISIBLE);
+                youtubeBtn.setVisibility(View.GONE);
+            }
+        });
+
+        return view;
+    }
+
+
+    private void showDatePicker() {
+        CalendarConstraints calendarConstraints = new CalendarConstraints.Builder()
+                .setValidator(DateValidatorPointForward.now())
+                .build();
+
+        MaterialDatePicker<Long> materialDatePicker =
+                MaterialDatePicker.Builder.datePicker()
+                        .setTitleText("Select Date")
+                        .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                        .setCalendarConstraints(calendarConstraints)
+                        .setTheme(R.style.MaterialDatePickerTheme)
+                        .build();
+
+        materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(selection);
+
+            onDateSelected(
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+            );
+        });
+
+        materialDatePicker.show(getParentFragmentManager(), "DATE_PICKER");
+    }
+    private void onDateSelected(int year, int month, int dayOfMonth) {
+        int actualMonth = month + 1;
+        Calendar selectedDate = Calendar.getInstance();
+        selectedDate.set(year, month, dayOfMonth);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        String formattedDate = dateFormat.format(selectedDate.getTime());
+        Log.d(TAG, "Date selected: " + formattedDate + " (" + formattedDate + ")");
+        mealDetailsPresenter.addMealToCal(meal, formattedDate);
+    }
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Bundle args = getArguments();
+        meal = args.getParcelable("meal_object");
+        Log.d(TAG, "Meal loaded successfully: " + meal.getName());
+        youTubePlayerView.addYouTubePlayerListener(new AbstractYouTubePlayerListener() {
+            @Override
+            public void onReady(@NonNull YouTubePlayer youTubePlayer) {
+                super.onReady(youTubePlayer);
+                String videoId = mealDetailsPresenter.extractYouTubeVideoId(meal.getYoutubeUrl());
+                youTubePlayer.loadVideo(videoId,0);
+            }
+        });
+        updateUI(meal);
+        checkLocalMeals();
+    }
+
+    private void checkLocalMeals() {
+        mealDetailsPresenter.isFavorite(meal.getId());
+        mealDetailsPresenter.isCal(meal.getId());
+    }
+
+    private void updateUI(Meal meal) {
+        mealName.setText(meal.getName() != null ? meal.getName() : "Unknown");
+        mealCategory.setText(meal.getCategory() != null ? meal.getCategory() : "");
+        String areaText = meal.getArea() != null ? meal.getArea() : "";
+        int ingredientCount = meal.getIngredients() != null ? meal.getIngredients().size() : 0;
+        mealArea.setText(areaText + " • " + ingredientCount + " ingredients");
+
+        ingredientListAdapter.setIngredients(meal.getIngredients());
+        mealInstructions.setText(meal.getInstructions() != null ?
+                meal.getInstructions() : "No instructions available");
+        Glide.with(requireContext())
+                .load(meal.getThumbnail())
+                .placeholder(R.drawable.meal)
+                .error(R.drawable.meal)
+                .into(mealImage);
+    }
+
+    private void updateFavButtonColor() {
+        favbtn.setImageTintList(
+                ContextCompat.getColorStateList(requireContext(), isFavorite ? R.color.light_orange: R.color.gray)
+        );
+        favbtn.setImageResource(isFavorite ? R.drawable.ic_heart : R.drawable.ic_favorite_border);
+    }
+    private void updateCalButtonColor() {
+        calBtn.setImageTintList(
+                ContextCompat.getColorStateList(requireContext(),isPlanned ? R.color.light_orange :
+                        R.color.gray)
+        );
+        calBtn.setImageResource(R.drawable.ic_calender);
+    }
+
+    @Override
+    public void onAddToFav() {
+        if (isAdded() && getContext() != null) {
+            new MyToast(getContext(), "Added to Favorite");
+        }
+        isFavorite = true;
+        updateFavButtonColor();
+    }
+
+    @Override
+    public void onAddToCal() {
+        if (isAdded() && getContext() != null) {
+            new MyToast(getContext(), "Added to Plan");
+        }
+        isPlanned = true;
+        updateCalButtonColor();
+    }
+
+    @Override
+    public void isFav(boolean isFav) {
+        isFavorite = isFav;
+        updateFavButtonColor();
+    }
+
+    @Override
+    public void isCal(boolean isPlan) {
+        isPlanned = isPlan;
+        updateCalButtonColor();
+    }
+
+    @Override
+    public void removeMealFromFav() {
+        new MyToast(getContext(), "Removed from Favorite");
+        isFavorite = false;
+        updateFavButtonColor();
+
+    }
+
+    @Override
+    public void removeMealFromCal() {
+        new MyToast(getContext(), "Removed from Planned Meal");
+        isPlanned = false;
+        updateFavButtonColor();
+    }
+
+    @Override
+    public LifecycleOwner getLifecycleOwner() {
+        return getViewLifecycleOwner();
+    }
+
+    @Override
+    public void onSuccess(List<Meal> meals) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("meals", new ArrayList<>(meals));
+        Navigation.findNavController(requireView())
+                .navigate(R.id.action_mealDetailsFragment_to_mealListFragment, bundle);
+    }
+
+    @Override
+    public void onFailure(String errorMessage) {
+        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mealImage = null;
+        mealName = null;
+        mealCategory = null;
+        mealArea = null;
+        mealInstructions = null;
+        favbtn = null;
+    }
+
+    @Override
+    public void getMealOfIngredient(String ingredient) {
+        mealDetailsPresenter.getMealOfIngredient(ingredient);
+    }
+}

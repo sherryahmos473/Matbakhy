@@ -27,7 +27,7 @@
 
     <fragment
         android:id="@+id/mealDetailsFragment"
-        android:name="com.example.matbakhy.presentation.Meals.view.MealDetailsFragment"
+        android:name="com.example.matbakhy.presentation.MealDetails.view.MealDetailsFragment"
         android:label="Meal Details"
         tools:layout="@layout/fragment_meal_details">
 

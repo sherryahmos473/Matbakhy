@@ -1,12 +1,9 @@
 package com.example.matbakhy.presentation.MealsList.views;
 
-import static android.view.View.VISIBLE;
-
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,13 +12,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.helper.MyToast;
-import com.example.matbakhy.presentation.Meals.view.MealDetailsFragment;
 import com.example.matbakhy.presentation.MealsList.presenter.MealListPresenter;
 import com.example.matbakhy.presentation.MealsList.presenter.MealListPresenterImpl;
 import java.util.List;

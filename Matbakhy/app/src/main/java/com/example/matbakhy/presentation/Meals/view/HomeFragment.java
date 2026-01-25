@@ -129,12 +129,10 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         countryListAdapter.setCountryList(countries);
     }
 
-
     @Override
     public void onSuccess(List<Meal> mealList) {
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("meals", new ArrayList<>(mealList));
-
         Navigation.findNavController(requireView())
                 .navigate(R.id.action_homeFragment_to_mealListFragment, bundle);
     }

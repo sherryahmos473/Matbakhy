@@ -1,4 +1,4 @@
-package com.example.matbakhy.presentation.Meals.presenter;
+package com.example.matbakhy.presentation.MealDetails.presenter;
 
 import android.content.Context;
 import android.util.Log;
@@ -8,7 +8,7 @@ import androidx.lifecycle.Observer;
 import com.example.matbakhy.data.Meals.MealRepositry;
 import com.example.matbakhy.data.Meals.dataSource.MealRemoteResponse;
 import com.example.matbakhy.data.Meals.model.Meal;
-import com.example.matbakhy.presentation.Meals.view.MealDetailsView;
+import com.example.matbakhy.presentation.MealDetails.view.MealDetailsView;
 
 import java.util.List;
 
@@ -38,33 +38,25 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
 
     @Override
     public void isFavorite(String mealId) {
-        if (mealDetailsView == null || mealDetailsView.getLifecycleOwner() == null) {
-            return;
-        }
-        mealRepositry.isFavorite(mealId)
-                .observe(mealDetailsView.getLifecycleOwner(), new Observer<Boolean>() {
-                    @Override
-                    public void onChanged(Boolean isFavorite) {
-                        if (mealDetailsView != null) {
-                            mealDetailsView.isFav(isFavorite != null && isFavorite);
-                        }
-                    }
-                });
+        mealRepositry.isFavorite(mealId).observe(mealDetailsView.getLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isFavorite) {
+                if (mealDetailsView != null) {
+                    mealDetailsView.isFav(isFavorite != null && isFavorite);
+                }
+            }
+        });
     }
     @Override
     public void isCal(String mealId) {
-        if (mealDetailsView == null || mealDetailsView.getLifecycleOwner() == null) {
-            return;
-        }
-        mealRepositry.isCal(mealId)
-                .observe(mealDetailsView.getLifecycleOwner(), new Observer<Boolean>() {
-                    @Override
-                    public void onChanged(Boolean isPlanned) {
-                        if (mealDetailsView != null) {
-                            mealDetailsView.isCal(isPlanned != null && isPlanned);
-                        }
-                    }
-                });
+        mealRepositry.isCal(mealId).observe(mealDetailsView.getLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isPlanned) {
+                if (mealDetailsView != null) {
+                    mealDetailsView.isCal(isPlanned != null && isPlanned);
+                }
+            }
+        });
     }
     @Override
     public void getMealOfIngredient(String ingredient) {
@@ -74,7 +66,6 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
                 Log.d("SearchFragment", "onSuccess: "+ mealList.size());
                 mealDetailsView.onSuccess(mealList);
             }
-
             @Override
             public void onFailure(String errorMessage) {
                 mealDetailsView.onFailure(errorMessage);
@@ -86,5 +77,9 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
     public void addMealToCal(Meal meal, String date) {
         mealRepositry.insertMealInCal(meal,date);
         mealDetailsView.onAddToCal();
+    }
+    public String extractYouTubeVideoId(String url) {
+        if (url.contains("v=")) return url.split("v=")[1].split("&")[0];
+        return null;
     }
 }

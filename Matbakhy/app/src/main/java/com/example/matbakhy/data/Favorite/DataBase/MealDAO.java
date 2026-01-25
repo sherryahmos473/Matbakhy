@@ -40,7 +40,8 @@ public interface MealDAO {
     @Query("DELETE FROM meals WHERE id = :mealId AND is_favorite = 0 AND is_planned = 0")
     int deleteIfNotFavoriteAndNotPlanned(String mealId);
 
-
+    @Query("DELETE FROM meals WHERE is_planned = 1 AND plan_date < :todayTimestamp")
+    void deletePlannedMealsBeforeToday(String todayTimestamp);
     @Query("SELECT * FROM meals")
     LiveData<List<Meal>> getAllMealsSync();
 }
