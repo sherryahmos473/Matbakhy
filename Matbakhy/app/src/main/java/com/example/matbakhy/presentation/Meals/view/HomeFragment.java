@@ -23,6 +23,7 @@ import com.example.matbakhy.R;
 import com.example.matbakhy.data.Meals.model.Area;
 import com.example.matbakhy.data.Meals.model.Category;
 import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.Meals.model.MealList;
 import com.example.matbakhy.helper.MyToast;
 import com.example.matbakhy.presentation.Meals.presenter.HomePresenter;
 import com.example.matbakhy.presentation.Meals.presenter.HomePresenterImpl;
@@ -111,9 +112,8 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
             imageCard.setOnClickListener(v -> navigateToMealDetails(meal));
         }
     private void navigateToMealDetails(Meal meal) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("meal_object", meal);
-        Navigation.findNavController(requireView()) .navigate(R.id.action_homeFragment_to_mealDetailsFragment, bundle);
+        HomeFragmentDirections.ActionHomeFragmentToMealDetailsFragment action = HomeFragmentDirections.actionHomeFragmentToMealDetailsFragment(meal);
+        Navigation.findNavController(view).navigate(action);
     }
     @Override public void onFailure(String errorMeassge) {
         new MyToast(getContext(),"Can't Load");
@@ -131,10 +131,11 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
 
     @Override
     public void onSuccess(List<Meal> mealList) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("meals", new ArrayList<>(mealList));
-        Navigation.findNavController(requireView())
-                .navigate(R.id.action_homeFragment_to_mealListFragment, bundle);
+
+
+        MealList mealsList = new MealList(mealList);
+        HomeFragmentDirections.ActionHomeFragmentToMealListFragment action = HomeFragmentDirections.actionHomeFragmentToMealListFragment(mealsList);
+        Navigation.findNavController(view).navigate(action);
     }
 
     @Override public void navigateToLogin() {

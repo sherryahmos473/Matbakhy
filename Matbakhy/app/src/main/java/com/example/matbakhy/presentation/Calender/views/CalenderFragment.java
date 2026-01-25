@@ -22,6 +22,7 @@ import com.example.matbakhy.helper.MyToast;
 import com.example.matbakhy.presentation.Calender.presenter.CalenderPresenter;
 import com.example.matbakhy.presentation.Calender.presenter.CalenderPresenterImpl;
 import com.example.matbakhy.presentation.Favorite.view.FavoriteAdapter;
+import com.example.matbakhy.presentation.Favorite.view.FavoriteFragmentDirections;
 import com.example.matbakhy.presentation.MealsList.views.MealClickListener;
 
 
@@ -95,9 +96,8 @@ public class CalenderFragment extends Fragment  implements CalenderView , Calend
 
     @Override
     public void onMealClick(Meal meal) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("meal_object", meal);
-        Navigation.findNavController(requireView())
-                .navigate(R.id.action_calenderFragment_to_mealDetailsFragment, bundle);
+
+        CalenderFragmentDirections.ActionCalenderFragmentToMealDetailsFragment action = CalenderFragmentDirections.actionCalenderFragmentToMealDetailsFragment(meal);
+        Navigation.findNavController(view).navigate(action);
     }
 }

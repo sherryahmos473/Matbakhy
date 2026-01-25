@@ -23,6 +23,7 @@ import com.example.matbakhy.helper.MyToast;
 import com.example.matbakhy.presentation.Favorite.presenter.FavoritePresenter;
 import com.example.matbakhy.presentation.Favorite.presenter.FavoritePresenterImpl;
 import com.example.matbakhy.presentation.Favorite.presenter.FavoriteView;
+import com.example.matbakhy.presentation.Meals.view.HomeFragmentDirections;
 import com.example.matbakhy.presentation.MealsList.views.MealClickListener;
 
 
@@ -120,9 +121,7 @@ public class FavoriteFragment extends Fragment implements FavoriteOnClickListene
 
     @Override
     public void onMealClick(Meal meal) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("meal_object", meal);
-        Navigation.findNavController(requireView())
-                .navigate(R.id.action_favoriteFragment_to_mealDetailsFragment, bundle);
+        FavoriteFragmentDirections.ActionFavoriteFragmentToMealDetailsFragment action = FavoriteFragmentDirections.actionFavoriteFragmentToMealDetailsFragment(meal);
+        Navigation.findNavController(view).navigate(action);
     }
 }

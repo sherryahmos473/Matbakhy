@@ -17,10 +17,12 @@ import com.example.matbakhy.R;
 import com.example.matbakhy.data.Meals.model.Area;
 import com.example.matbakhy.data.Meals.model.Category;
 import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.Meals.model.MealList;
 import com.example.matbakhy.presentation.Meals.view.CategoryListAdapter;
 import com.example.matbakhy.presentation.Meals.view.CategoryListener;
 import com.example.matbakhy.presentation.Meals.view.CountryListAdapter;
 import com.example.matbakhy.presentation.Meals.view.CountryListener;
+import com.example.matbakhy.presentation.Meals.view.HomeFragmentDirections;
 import com.example.matbakhy.presentation.Meals.view.IngredientListAdapter;
 import com.example.matbakhy.presentation.Meals.view.IngredientListener;
 import com.example.matbakhy.presentation.Search.presenter.SearchPresenter;
@@ -165,10 +167,8 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
 
     @Override
     public void getMealByName(Meal meal) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("meal_object", meal);
-        Navigation.findNavController(requireView())
-                .navigate(R.id.action_searchFragment_to_mealDetailsFragment, bundle);
+        SearchFragmentDirections.ActionSearchFragmentToMealDetailsFragment action = SearchFragmentDirections.actionSearchFragmentToMealDetailsFragment(meal);
+        Navigation.findNavController(view).navigate(action);
     }
 
     @Override
@@ -178,11 +178,11 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
 
     @Override
     public void onSuccess(List<Meal> mealList) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("meals", new ArrayList<>(mealList));
-        Log.d("SearchFragment", "onSuccess: " + mealList.size());
-        Navigation.findNavController(requireView())
-                .navigate(R.id.action_searchFragment_to_mealListFragment, bundle);
+
+
+        MealList mealsList = new MealList(mealList);
+        SearchFragmentDirections.ActionSearchFragmentToMealListFragment action = SearchFragmentDirections.actionSearchFragmentToMealListFragment(mealsList);
+        Navigation.findNavController(view).navigate(action);
     }
 
     @Override

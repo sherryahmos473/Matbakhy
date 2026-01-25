@@ -21,9 +21,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.Meals.model.MealList;
 import com.example.matbakhy.helper.MyToast;
 import com.example.matbakhy.presentation.MealDetails.presenter.MealDetailsPresenter;
 import com.example.matbakhy.presentation.MealDetails.presenter.MealDetailsPresenterImpl;
+import com.example.matbakhy.presentation.Meals.view.HomeFragmentDirections;
 import com.example.matbakhy.presentation.Meals.view.IngredientListAdapter;
 import com.example.matbakhy.presentation.Meals.view.IngredientListener;
 import com.google.android.material.datepicker.CalendarConstraints;
@@ -52,20 +54,15 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
     RecyclerView recyclerView;
     YouTubePlayerView youTubePlayerView;
     ImageView youtubeBtn;
+    private YouTubePlayer youTubePlayer;
+    private boolean isPlayerReady = false;
     private boolean isFavorite = false, isPlanned = false;
-
-    public static MealDetailsFragment newInstance(Meal meal) {
-        MealDetailsFragment fragment = new MealDetailsFragment();
-        Bundle args = new Bundle();
-        args.putParcelable("meal_object", meal);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    View view;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_meal_details, container, false);
+         view = inflater.inflate(R.layout.fragment_meal_details, container, false);
 
         mealImage = view.findViewById(R.id.mealOfTheDayImage);
         mealName = view.findViewById(R.id.mealofTheDayName);
@@ -106,6 +103,9 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
             public void onClick(View v) {
                 youTubePlayerView.setVisibility(View.VISIBLE);
                 youtubeBtn.setVisibility(View.GONE);
+                if (isPlayerReady && youTubePlayer != null) {
+                    youTubePlayer.play();
+                }
             }
         });
 
@@ -151,15 +151,18 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Bundle args = getArguments();
-        meal = args.getParcelable("meal_object");
+        MealDetailsFragmentArgs args = MealDetailsFragmentArgs.fromBundle(getArguments());
+        meal = args.getMeal();
         Log.d(TAG, "Meal loaded successfully: " + meal.getName());
         youTubePlayerView.addYouTubePlayerListener(new AbstractYouTubePlayerListener() {
             @Override
             public void onReady(@NonNull YouTubePlayer youTubePlayer) {
                 super.onReady(youTubePlayer);
+                MealDetailsFragment.this.youTubePlayer = youTubePlayer;
+                isPlayerReady = true;
                 String videoId = mealDetailsPresenter.extractYouTubeVideoId(meal.getYoutubeUrl());
-                youTubePlayer.loadVideo(videoId,0);
+                youTubePlayer.cueVideo(videoId, 0);
+                youTubePlayer.setVolume(100);
             }
         });
         updateUI(meal);
@@ -254,10 +257,9 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
 
     @Override
     public void onSuccess(List<Meal> meals) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("meals", new ArrayList<>(meals));
-        Navigation.findNavController(requireView())
-                .navigate(R.id.action_mealDetailsFragment_to_mealListFragment, bundle);
+        MealList mealsList = new MealList(meals);
+        MealDetailsFragmentDirections.ActionMealDetailsFragmentToMealListFragment action = MealDetailsFragmentDirections.actionMealDetailsFragmentToMealListFragment(mealsList);
+        Navigation.findNavController(view).navigate(action);
     }
 
     @Override

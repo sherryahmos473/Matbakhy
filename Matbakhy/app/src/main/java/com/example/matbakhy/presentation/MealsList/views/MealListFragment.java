@@ -16,9 +16,14 @@ import android.widget.TextView;
 
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.Meals.model.MealList;
 import com.example.matbakhy.helper.MyToast;
+import com.example.matbakhy.presentation.MealDetails.view.MealDetailsFragmentArgs;
+import com.example.matbakhy.presentation.Meals.view.HomeFragmentDirections;
 import com.example.matbakhy.presentation.MealsList.presenter.MealListPresenter;
 import com.example.matbakhy.presentation.MealsList.presenter.MealListPresenterImpl;
+
+import java.util.Arrays;
 import java.util.List;
 
 public class MealListFragment extends Fragment implements MealListView{
@@ -34,16 +39,17 @@ public class MealListFragment extends Fragment implements MealListView{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            meals = getArguments().getParcelableArrayList("meals");
-        }
-        Log.d("Meals", "onCreate: " + meals.size());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        MealListFragmentArgs args = MealListFragmentArgs.fromBundle(getArguments());
+        MealList  mealList = args.getMealList();
+        meals = mealList.getMeals();
+
+
+
         view = inflater.inflate(R.layout.fragment_meal_list, container, false);
         recyclerView = view.findViewById(R.id.recycleView);
         title = view.findViewById(R.id.category_name);
@@ -69,10 +75,8 @@ public class MealListFragment extends Fragment implements MealListView{
 
     @Override
     public void onClickMeal(Meal meal) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("meal_object", meal);
-        Navigation.findNavController(requireView())
-                .navigate(R.id.action_mealListFragment_to_mealDetailsFragment, bundle);
+        MealListFragmentDirections.ActionMealListFragmentToMealDetailsFragment action = MealListFragmentDirections.actionMealListFragmentToMealDetailsFragment(meal);
+        Navigation.findNavController(view).navigate(action);
     }
 
 
