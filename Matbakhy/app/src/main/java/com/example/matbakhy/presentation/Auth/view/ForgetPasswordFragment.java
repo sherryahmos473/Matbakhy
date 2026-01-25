@@ -23,8 +23,8 @@ import com.google.android.material.textfield.TextInputLayout;
 public class ForgetPasswordFragment extends Fragment implements ForgotPasswordView {
     private EditText edtEmail;
     private TextInputLayout inputLayoutEmail;
-    private Button btnSendReset;
-    private ImageView btnBack; // Changed from Button to ImageView
+    private Button btnSendReset, signin;
+    private ImageView btnBack;
     private TextView txtRememberPassword, txtResendEmail, txtEmailSentTo;
     private LinearLayout layoutSuccess;
     private ProgressDialog progressDialog;
@@ -154,8 +154,9 @@ public class ForgetPasswordFragment extends Fragment implements ForgotPasswordVi
         edtEmail = view.findViewById(R.id.emailEditText);
         inputLayoutEmail = view.findViewById(R.id.emailInputLayout);
         btnSendReset = view.findViewById(R.id.btnSendReset);
-        btnBack = view.findViewById(R.id.btnBack); // Add this line
+        btnBack = view.findViewById(R.id.btnBack);
         txtRememberPassword = view.findViewById(R.id.signInTextView);
+        signin = view.findViewById(R.id.signInButton);
         txtResendEmail = view.findViewById(R.id.txtResendEmail);
         txtEmailSentTo = view.findViewById(R.id.txtEmailSentTo);
         layoutSuccess = view.findViewById(R.id.layoutSuccess);
@@ -173,6 +174,9 @@ public class ForgetPasswordFragment extends Fragment implements ForgotPasswordVi
 
         if (txtRememberPassword != null) {
             txtRememberPassword.setOnClickListener(v -> presenter.onRememberPasswordClicked());
+        }
+        if (signin != null) {
+            signin.setOnClickListener(v -> presenter.onRememberPasswordClicked());
         }
 
         if (txtResendEmail != null) {

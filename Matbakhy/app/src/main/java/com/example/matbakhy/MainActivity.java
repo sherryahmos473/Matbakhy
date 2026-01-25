@@ -19,7 +19,7 @@ import com.example.matbakhy.presentation.Meals.view.HomeActivity;
 
 public class MainActivity extends AppCompatActivity implements MainView {
     private static final String TAG = "MainActivity";
-    private static final int SPLASH_DELAY = 2000; // 2 seconds
+    private static final int SPLASH_DELAY = 3000;
 
     private MainPresenter presenter;
     private Handler handler;
