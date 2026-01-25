@@ -17,7 +17,7 @@ import android.widget.TextView;
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.data.Meals.model.MealList;
-import com.example.matbakhy.helper.MyToast;
+import com.example.matbakhy.helper.MySnackBar;
 import com.example.matbakhy.presentation.MealDetails.view.MealDetailsFragmentArgs;
 import com.example.matbakhy.presentation.Meals.view.HomeFragmentDirections;
 import com.example.matbakhy.presentation.MealsList.presenter.MealListPresenter;
@@ -69,7 +69,7 @@ public class MealListFragment extends Fragment implements MealListView{
     @Override
     public void onFailure(String errMessge) {
         if (getContext() != null) {
-            new MyToast(getContext(), errMessge);
+            new MySnackBar(view, errMessge);
         }
     }
 

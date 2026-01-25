@@ -5,11 +5,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.matbakhy.helper.MyToast;
+import com.example.matbakhy.helper.MySnackBar;
 import com.example.matbakhy.presentation.Auth.presenter.MainPresenter;
 import com.example.matbakhy.presentation.Auth.presenter.MainPresenterImpl;
 import com.example.matbakhy.presentation.Auth.view.AuthActivity;
@@ -22,13 +23,14 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     private MainPresenter presenter;
     private Handler handler;
+    View rootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-
+        rootView = findViewById(android.R.id.content);
         presenter = new MainPresenterImpl(this);
         presenter.attachView(this);
 
@@ -76,6 +78,6 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     @Override
     public void showError(String message) {
-        new MyToast(this, message);
+        new MySnackBar(rootView, message);
     }
 }

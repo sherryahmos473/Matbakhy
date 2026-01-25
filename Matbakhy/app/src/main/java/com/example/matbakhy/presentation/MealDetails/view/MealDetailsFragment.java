@@ -22,7 +22,7 @@ import com.bumptech.glide.Glide;
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.data.Meals.model.MealList;
-import com.example.matbakhy.helper.MyToast;
+import com.example.matbakhy.helper.MySnackBar;
 import com.example.matbakhy.presentation.MealDetails.presenter.MealDetailsPresenter;
 import com.example.matbakhy.presentation.MealDetails.presenter.MealDetailsPresenterImpl;
 import com.example.matbakhy.presentation.Meals.view.HomeFragmentDirections;
@@ -208,7 +208,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
     @Override
     public void onAddToFav() {
         if (isAdded() && getContext() != null) {
-            new MyToast(getContext(), "Added to Favorite");
+            new MySnackBar(view, "Added to Favorite");
         }
         isFavorite = true;
         updateFavButtonColor();
@@ -217,7 +217,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
     @Override
     public void onAddToCal() {
         if (isAdded() && getContext() != null) {
-            new MyToast(getContext(), "Added to Plan");
+            new MySnackBar(view, "Added to Planned Meals");
         }
         isPlanned = true;
         updateCalButtonColor();
@@ -237,7 +237,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
 
     @Override
     public void removeMealFromFav() {
-        new MyToast(getContext(), "Removed from Favorite");
+        new MySnackBar(view, "Removed from Favorite");
         isFavorite = false;
         updateFavButtonColor();
 
@@ -245,7 +245,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
 
     @Override
     public void removeMealFromCal() {
-        new MyToast(getContext(), "Removed from Planned Meal");
+        new MySnackBar(view, "Removed from Planned Meal");
         isPlanned = false;
         updateFavButtonColor();
     }

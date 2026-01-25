@@ -24,7 +24,8 @@ import com.example.matbakhy.data.Meals.model.Area;
 import com.example.matbakhy.data.Meals.model.Category;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.data.Meals.model.MealList;
-import com.example.matbakhy.helper.MyToast;
+import com.example.matbakhy.helper.MySnackBar;
+
 import com.example.matbakhy.presentation.Meals.presenter.HomePresenter;
 import com.example.matbakhy.presentation.Meals.presenter.HomePresenterImpl;
 import com.google.android.material.textfield.TextInputLayout;
@@ -116,7 +117,7 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         Navigation.findNavController(view).navigate(action);
     }
     @Override public void onFailure(String errorMeassge) {
-        new MyToast(getContext(),"Can't Load");
+        new MySnackBar(view,"Can't Load");
     }
     @Override public void getAllCategories(List<Category> categories) {
         Log.d("TAG", "getAllCategories: " + categories.size());

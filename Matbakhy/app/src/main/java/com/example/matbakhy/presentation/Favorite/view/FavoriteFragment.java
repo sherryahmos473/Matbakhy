@@ -19,7 +19,7 @@ import android.widget.ProgressBar;
 
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.Meals.model.Meal;
-import com.example.matbakhy.helper.MyToast;
+import com.example.matbakhy.helper.MySnackBar;
 import com.example.matbakhy.presentation.Favorite.presenter.FavoritePresenter;
 import com.example.matbakhy.presentation.Favorite.presenter.FavoritePresenterImpl;
 import com.example.matbakhy.presentation.Favorite.presenter.FavoriteView;
@@ -111,7 +111,7 @@ public class FavoriteFragment extends Fragment implements FavoriteOnClickListene
     }
     @Override
     public void onMealDeleted() {
-        new MyToast(getContext(),"Meal Deleted");
+        new MySnackBar(view,"Meal Deleted");
     }
 
     @Override

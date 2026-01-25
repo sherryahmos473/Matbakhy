@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.matbakhy.R;
-import com.example.matbakhy.helper.MyToast;
+import com.example.matbakhy.helper.MySnackBar;
 import com.example.matbakhy.presentation.Auth.presenter.ForgotPasswordPresenter;
 import com.example.matbakhy.presentation.Auth.presenter.ForgotPasswordPresenterImpl;
 import com.google.android.material.textfield.TextInputLayout;
@@ -29,11 +29,12 @@ public class ForgetPasswordFragment extends Fragment implements ForgotPasswordVi
     private LinearLayout layoutSuccess;
     private ProgressDialog progressDialog;
     private ForgotPasswordPresenter presenter;
+    View view;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_forget_password, container, false);
+         view = inflater.inflate(R.layout.fragment_forget_password, container, false);
 
         presenter = new ForgotPasswordPresenterImpl(getContext());
         presenter.attachView(this);
@@ -85,7 +86,7 @@ public class ForgetPasswordFragment extends Fragment implements ForgotPasswordVi
     @Override
     public void showToast(String message) {
         if (getContext() != null) {
-            new MyToast(getContext(), message);
+            new MySnackBar(view, message);
         }
     }
 
