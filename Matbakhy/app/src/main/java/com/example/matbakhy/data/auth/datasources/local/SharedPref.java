@@ -8,5 +8,7 @@ public interface SharedPref {
     String getUserEmail();
     String getUserName();
     String getUserId();
+    void loginAsGuest(SimpleCallback callback);
     void clearUserData(SimpleCallback callback);
+    boolean isGuest();
 }

@@ -197,28 +197,30 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ingredientsLabel"/>
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
 
-            app:layout_constraintStart_toStartOf="parent"
+        <FrameLayout
+            android:id="@+id/youtubeFrame"
+            android:layout_width="match_parent"
+
+            android:layout_height="300dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ingredientsList">
+
             <ImageView
+                android:id="@+id/videoBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/videoBtn"
-                android:src="@drawable/ic_youtube"
                 android:layout_gravity="center"
                 android:clickable="true"
-                />
-        <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:id="@+id/youtubeVideo"
-            app:autoPlay="false"
-            android:visibility="gone"
-            />
+                android:src="@drawable/ic_youtube" />
+
+            <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+                android:id="@+id/youtubeVideo"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:visibility="gone"
+                app:autoPlay="false" />
         </FrameLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>

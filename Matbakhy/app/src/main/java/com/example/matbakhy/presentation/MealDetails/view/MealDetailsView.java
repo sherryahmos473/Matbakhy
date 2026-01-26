@@ -16,4 +16,6 @@ public interface MealDetailsView {
     LifecycleOwner getLifecycleOwner();
     void onSuccess(List<Meal> meals);
     void onFailure(String errorMessage);
+    void guestDialog();
+    void navToLogin();
 }

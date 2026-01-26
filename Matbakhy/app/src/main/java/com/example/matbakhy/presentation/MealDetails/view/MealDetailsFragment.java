@@ -1,10 +1,15 @@
 package com.example.matbakhy.presentation.MealDetails.view;
 
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.matbakhy.MainActivity;
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.data.Meals.model.MealList;
@@ -55,9 +61,9 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
     YouTubePlayerView youTubePlayerView;
     ImageView youtubeBtn;
     private YouTubePlayer youTubePlayer;
-    private boolean isPlayerReady = false;
-    private boolean isFavorite = false, isPlanned = false;
+    private boolean isPlayerReady = false, isGuest, isFavorite = false, isPlanned = false;
     View view;
+    FrameLayout youtubeFrame;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -71,6 +77,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
         mealInstructions = view.findViewById(R.id.instructions);
         recyclerView = view.findViewById(R.id.ingredientsList);
         calBtn = view.findViewById(R.id.fabCalendar);
+        youtubeFrame = view.findViewById(R.id.youtubeFrame);
         ingredientListAdapter = new IngredientListAdapter(this);
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setAdapter(ingredientListAdapter);
@@ -83,19 +90,25 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
         mealDetailsPresenter = new MealDetailsPresenterImpl(getContext(), this);
 
         favbtn.setOnClickListener(v -> {
-            if (meal != null && getContext() != null) {
+            if (!mealDetailsPresenter.isGuest()) {
                 if (!isFavorite) {
                     mealDetailsPresenter.addMealToFav(meal);
                 } else {
                     mealDetailsPresenter.removeMealFromFav(meal);
                 }
+            }else{
+                guestDialog();
             }
         });
         calBtn.setOnClickListener(v -> {
-            if(isPlanned){
-                mealDetailsPresenter.removeMealFromCal(meal);
-            }else{
-                showDatePicker();
+            if (!mealDetailsPresenter.isGuest()) {
+                if(isPlanned){
+                    mealDetailsPresenter.removeMealFromCal(meal);
+                }else{
+                    showDatePicker();
+                }
+            }else {
+                guestDialog();
             }
         });
         youtubeBtn.setOnClickListener(new View.OnClickListener() {
@@ -161,8 +174,14 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
                 MealDetailsFragment.this.youTubePlayer = youTubePlayer;
                 isPlayerReady = true;
                 String videoId = mealDetailsPresenter.extractYouTubeVideoId(meal.getYoutubeUrl());
-                youTubePlayer.cueVideo(videoId, 0);
-                youTubePlayer.setVolume(100);
+                if(videoId != null){
+                    youTubePlayer.cueVideo(videoId, 0);
+                    youTubePlayer.setVolume(100);
+                }else{
+                    youtubeFrame.setVisibility(View.GONE);
+                    youtubeBtn.setVisibility(View.GONE);
+                    youTubePlayerView.setVisibility(View.GONE);
+                }
             }
         });
         updateUI(meal);
@@ -265,6 +284,44 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
     @Override
     public void onFailure(String errorMessage) {
         Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void guestDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_guest_mode, null);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(true);
+
+        Button btnLogin = dialogView.findViewById(R.id.btnLogin);
+        TextView btnContinue = dialogView.findViewById(R.id.btnContinue);
+
+        btnLogin.setOnClickListener(v -> {
+            dialog.dismiss();
+            mealDetailsPresenter.login();
+        });
+
+        btnContinue.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+
+        dialog.show();
+
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+        }
+    }
+
+    @Override
+    public void navToLogin() {
+        Intent intent = new Intent(requireContext(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     @Override

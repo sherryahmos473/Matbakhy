@@ -43,6 +43,7 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
     CardView imageCard, searchCard;
     View view, noInternet;
     Button btn,retry;
+    boolean isGuest;
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
@@ -50,14 +51,7 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         view = inflater.inflate(R.layout.fragment_home, container, false);
         Initialization();
         recycleViewSetup();
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                if(homePresenter.isNetworkAvailable(getContext())){
-                    homePresenter.logout();
-                }else{
-                    checkNetworkAndLoad();
-                }
-            } });
+
         return view;
     }
 
@@ -91,6 +85,7 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         searchCard = view.findViewById(R.id.searchCard);
         noInternet = view.findViewById(R.id.internetErrorOverlay);
         retry = view.findViewById(R.id.button);
+
     }
 
     @Override public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -103,6 +98,24 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
                 Navigation.findNavController(requireView()).navigate(R.id.action_homeFragment_to_searchFragment);
             }
         });
+
+        isGuest = homePresenter.isGuest();
+        if (isGuest) {
+            btn.setText("Login");
+        }
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                if(homePresenter.isNetworkAvailable(getContext())){
+                    if (isGuest) {
+                        homePresenter.login();
+                    } else {
+                        Log.d("Logout", "onClick: ");
+                        homePresenter.logout();
+                    }
+                }else{
+                    checkNetworkAndLoad();
+                }
+            } });
         retry.setOnClickListener(v -> retryConnection());
     }
     private void checkNetworkAndLoad() {
@@ -134,14 +147,14 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         }
     }
     @Override public void getMealOfTheDay(Meal meal)
-        {
+    {
             hideNoInternet();
             MealOfTheDayName.setText(meal.getName());
             MealOfTheDayArea.setText(meal.getArea() + " " +meal.getIngredients().size() + " ingredients");
             MealOfTheDayCategory.setText(meal.getCategory());
             Glide.with(view) .load(meal.getThumbnail()) .into(MealOfTheDayImage);
             imageCard.setOnClickListener(v -> navigateToMealDetails(meal));
-        }
+    }
     private void navigateToMealDetails(Meal meal) {
         HomeFragmentDirections.ActionHomeFragmentToMealDetailsFragment action = HomeFragmentDirections.actionHomeFragmentToMealDetailsFragment(meal);
         Navigation.findNavController(view).navigate(action);

@@ -131,6 +131,12 @@ public class HomePresenterImpl implements HomePresenter{
             }
         });
     }
+
+    @Override
+    public void login() {
+        homeView.navigateToLogin();
+    }
+
     public boolean isNetworkAvailable(Context context ) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (cm == null) return false;
@@ -144,5 +150,11 @@ public class HomePresenterImpl implements HomePresenter{
             return networkInfo != null && networkInfo.isConnected();
         }
     }
+
+    @Override
+    public boolean isGuest() {
+        return authRepository.isGuest();
+    }
+
 
 }

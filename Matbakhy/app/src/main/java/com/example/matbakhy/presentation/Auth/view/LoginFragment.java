@@ -27,7 +27,7 @@ public class LoginFragment extends Fragment implements LoginView {
 
     private EditText edtEmail, edtPassword;
     private Button btnLogin, btnGoogle;
-    private TextView txtRegister, txtForgotPassword;
+    private TextView txtRegister, txtForgotPassword, guestTextView;
     private ProgressDialog progressDialog;
     private LoginPresenter presenter;
     View view;
@@ -169,27 +169,18 @@ public class LoginFragment extends Fragment implements LoginView {
         btnLogin = view.findViewById(R.id.signInButton);
         txtRegister = view.findViewById(R.id.signUpTextView);
         txtForgotPassword = view.findViewById(R.id.forgotPasswordTextView);
+        guestTextView = view.findViewById(R.id.guestTextView);
         btnGoogle = view.findViewById(R.id.googleButton);
 
         progressDialog = AuthUtils.createProgressDialog(requireContext(), "Logging in...");
     }
 
     private void setupListeners() {
-        if (btnLogin != null) {
-            btnLogin.setOnClickListener(v -> presenter.onLoginClicked());
-        }
-
-        if (txtRegister != null) {
-            txtRegister.setOnClickListener(v -> presenter.onRegisterClicked());
-        }
-
-        if (txtForgotPassword != null) {
-            txtForgotPassword.setOnClickListener(v -> presenter.onForgotPasswordClicked());
-        }
-
-        if (btnGoogle != null) {
-            btnGoogle.setOnClickListener(v -> presenter.onGoogleSignInClickedWithRestore());
-        }
+        btnLogin.setOnClickListener(v -> presenter.onLoginClicked());
+        txtRegister.setOnClickListener(v -> presenter.onRegisterClicked());
+        txtForgotPassword.setOnClickListener(v -> presenter.onForgotPasswordClicked());
+        btnGoogle.setOnClickListener(v -> presenter.onGoogleSignInClickedWithRestore());
+        guestTextView.setOnClickListener(v -> presenter.loginGuest());
     }
 
     private void setupEnterKeyListener() {

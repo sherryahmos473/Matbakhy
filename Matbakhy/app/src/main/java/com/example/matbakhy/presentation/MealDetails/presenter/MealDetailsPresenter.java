@@ -11,4 +11,6 @@ public interface MealDetailsPresenter {
     void getMealOfIngredient(String ingredient);
     public void addMealToCal(Meal meal, String date);
     String extractYouTubeVideoId(String url);
+    boolean isGuest();
+    void login();
 }

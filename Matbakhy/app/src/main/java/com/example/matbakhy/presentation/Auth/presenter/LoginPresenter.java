@@ -1,6 +1,7 @@
 package com.example.matbakhy.presentation.Auth.presenter;
 
 
+import com.example.matbakhy.data.auth.callbacks.SimpleCallback;
 import com.example.matbakhy.presentation.Auth.view.LoginView;
 
 public interface LoginPresenter {
@@ -15,4 +16,6 @@ public interface LoginPresenter {
     void onViewCreated();
     void onDestroyView();
     void onGoogleSignInClickedWithRestore();
+    void loginGuest();
+    boolean isGuest();
 }

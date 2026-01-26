@@ -29,6 +29,7 @@ public class AuthRepository {
 
     private static final String TAG = "AuthRepository";
     private final FirebaseServices firebaseServices;
+    private  final SharedPref sharedPref;
     private final MealRepositry mealRepository;
     Context context;
 
@@ -37,8 +38,14 @@ public class AuthRepository {
         this.firebaseServices = AuthNetwork.getInstance(context).services;
         this.mealRepository = new MealRepositry(context);
         this.firebaseServices.initialize(context);
+        this.sharedPref = AuthNetwork.getInstance(context).sharedPref;
     }
-
+    public void loginAsGuest(SimpleCallback callback){
+        sharedPref.loginAsGuest(callback);
+    }
+    public boolean isGuest(){
+        return sharedPref.isGuest();
+    }
     public void register(String email, String password, String name, AuthCallback callback) {
         firebaseServices.register(email, password, name, callback);
     }

@@ -8,6 +8,7 @@ import androidx.lifecycle.Observer;
 import com.example.matbakhy.data.Meals.MealRepositry;
 import com.example.matbakhy.data.Meals.dataSource.MealRemoteResponse;
 import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.auth.AuthRepository;
 import com.example.matbakhy.presentation.MealDetails.view.MealDetailsView;
 
 import java.util.List;
@@ -15,8 +16,10 @@ import java.util.List;
 public class MealDetailsPresenterImpl implements MealDetailsPresenter{
     MealRepositry mealRepositry;
     MealDetailsView mealDetailsView;
+    AuthRepository authRepository;
     public MealDetailsPresenterImpl(Context context,MealDetailsView mealDetailsView){
         mealRepositry = new MealRepositry(context);
+        authRepository = new AuthRepository(context);
         this.mealDetailsView = mealDetailsView;
     }
     @Override
@@ -81,5 +84,16 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
     public String extractYouTubeVideoId(String url) {
         if (url.contains("v=")) return url.split("v=")[1].split("&")[0];
         return null;
+    }
+
+    @Override
+    public boolean isGuest() {
+        return authRepository.isGuest();
+
+    }
+
+    @Override
+    public void login() {
+        mealDetailsView.navToLogin();
     }
 }

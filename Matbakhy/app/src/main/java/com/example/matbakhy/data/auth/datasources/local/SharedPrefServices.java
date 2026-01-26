@@ -11,6 +11,7 @@ import com.example.matbakhy.data.auth.callbacks.SimpleCallback;
 public class SharedPrefServices implements SharedPref {
     private static final String PREF_NAME = "MatbakhyPrefs";
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
+    private static final String KEY_IS_GUEST = "isGuest";
     private static final String KEY_USER_EMAIL = "userEmail";
     private static final String KEY_USER_NAME = "userName";
     private static final String KEY_USER_ID = "userId";
@@ -40,6 +41,7 @@ public class SharedPrefServices implements SharedPref {
         });
     }
 
+
     @Override
     public boolean isLoggedIn() {
         return pref.getBoolean(KEY_IS_LOGGED_IN, false);
@@ -61,6 +63,20 @@ public class SharedPrefServices implements SharedPref {
     }
 
     @Override
+    public void loginAsGuest(SimpleCallback callback) {
+        executeAsync(() -> {
+            try {
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putBoolean(KEY_IS_GUEST, true);
+                editor.apply();
+                notifySuccess(callback, "User logged in as a guest");
+            } catch (Exception e) {
+                notifyError(callback, "Failed to login : " + e.getMessage());
+            }
+        });
+    }
+
+    @Override
     public void clearUserData(SimpleCallback callback) {
         executeAsync(() -> {
             try {
@@ -70,6 +86,11 @@ public class SharedPrefServices implements SharedPref {
                 notifyError(callback, "Failed to clear data: " + e.getMessage());
             }
         });
+    }
+
+    @Override
+    public boolean isGuest() {
+        return pref.getBoolean(KEY_IS_GUEST, false);
     }
 
     private void executeAsync(Runnable runnable) {

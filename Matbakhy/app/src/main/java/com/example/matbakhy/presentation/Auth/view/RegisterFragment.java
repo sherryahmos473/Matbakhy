@@ -27,7 +27,7 @@ public class RegisterFragment extends Fragment implements RegisterView {
 
     private EditText edtName, edtEmail, edtPassword, edtConfirmPassword;
     private Button btnRegister, btnGoogle;
-    private TextView txtLogin;
+    private TextView txtLogin, guestTextView;
     private ProgressDialog progressDialog;
     private RegisterPresenter presenter;
     View view;
@@ -202,6 +202,8 @@ public class RegisterFragment extends Fragment implements RegisterView {
         btnRegister = view.findViewById(R.id.signUpButton);
         btnGoogle = view.findViewById(R.id.googleButton);
         txtLogin = view.findViewById(R.id.signInTextView);
+        guestTextView = view.findViewById(R.id.guestTextView);
+
 
         progressDialog = new ProgressDialog(requireContext());
         progressDialog.setCancelable(false);
@@ -209,16 +211,10 @@ public class RegisterFragment extends Fragment implements RegisterView {
     }
 
     private void setupListeners() {
-        if (btnRegister != null) {
-            btnRegister.setOnClickListener(v -> presenter.onRegisterClicked());
-        }
+        btnRegister.setOnClickListener(v -> presenter.onRegisterClicked());
+        btnGoogle.setOnClickListener(v -> presenter.onGoogleSignInClickedWithRestore());
+        txtLogin.setOnClickListener(v -> presenter.onLoginClicked());
+        guestTextView.setOnClickListener(v -> presenter.loginGuest());
 
-        if (btnGoogle != null) {
-            btnGoogle.setOnClickListener(v -> presenter.onGoogleSignInClickedWithRestore());
-        }
-
-        if (txtLogin != null) {
-            txtLogin.setOnClickListener(v -> presenter.onLoginClicked());
-        }
     }
 }

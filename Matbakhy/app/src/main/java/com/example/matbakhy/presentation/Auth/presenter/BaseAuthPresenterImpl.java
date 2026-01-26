@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.example.matbakhy.data.auth.AuthRepository;
 import com.example.matbakhy.data.auth.callbacks.AuthCallback;
+import com.example.matbakhy.data.auth.callbacks.SimpleCallback;
 import com.example.matbakhy.data.auth.model.User;
 import com.example.matbakhy.presentation.Auth.view.BaseAuthView;
 
@@ -163,5 +164,26 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
 
 
         return isValid;
+    }
+
+    @Override
+    public void loginGuest() {
+        authRepository.loginAsGuest(new SimpleCallback() {
+            @Override
+            public void onSuccess(String message) {
+                view.showToast("Logged in successfully");
+                view.navigateToHome("none");
+            }
+
+            @Override
+            public void onFailure(String error) {
+                view.showToast("Can't login");
+            }
+        });
+    }
+
+    @Override
+    public boolean isGuest() {
+        return authRepository.isGuest();
     }
 }
