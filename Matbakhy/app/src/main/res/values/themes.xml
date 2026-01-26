@@ -2,9 +2,16 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.Matbakhy" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
+
     </style>
 
-    <style name="Theme.Matbakhy" parent="Base.Theme.Matbakhy" />
+    <style name="Theme.Matbakhy" parent="Base.Theme.Matbakhy" >
+
+        <item name="colorPrimary">@color/light_orange</item>
+        <item name="colorPrimaryVariant">@color/light_orange</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+    </style>
     <style name="ActiveIndicatorStyle" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:width">35dp</item>
         <item name="android:height">35dp</item>

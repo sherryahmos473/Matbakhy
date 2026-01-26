@@ -99,6 +99,21 @@ public class MealDataSource {
             }
         });
     }
+    public void getMealByFLetter(MealRemoteResponse callback, String FLetter){
+        mealServices.getMealByFLetter(FLetter).enqueue(new Callback<MealListResponse>() {
+            @Override
+            public void onResponse(Call<MealListResponse> call, Response<MealListResponse> response) {
+                if(response.isSuccessful() && response.body() != null){
+                    List<Meal> products = response.body().getMeals();
+                    callback.onSuccess(products);
+                }
+            }
+            @Override
+            public void onFailure(Call<MealListResponse> call, Throwable t) {
+                callback.onFailure("Something Wrong Happend");
+            }
+        });
+    }
     public void getAllCategories(CategoriesRemoteResponse callback){
         mealServices.getAllCategories().enqueue(new Callback<CategoryListResponse>() {
             @Override

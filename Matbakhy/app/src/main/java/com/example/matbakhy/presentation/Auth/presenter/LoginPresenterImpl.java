@@ -78,7 +78,6 @@ public class LoginPresenterImpl extends BaseAuthPresenterImpl implements LoginPr
                     loginView.navigateToHome(email);
                 }
             }
-
             @Override
             public void onFailure(String errorMessage) {
                 if (loginView != null) {

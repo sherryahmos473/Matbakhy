@@ -1,6 +1,9 @@
 package com.example.matbakhy.presentation.Search.presenter;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.os.Build;
 import android.util.Log;
 
 import com.example.matbakhy.data.Meals.MealRepositry;
@@ -143,5 +146,31 @@ public class SearchPresenterImpl implements SearchPresenter {
             }
         },name);
     }
+    @Override
+    public void getMealByFLetter(String FLetter) {
+        mealRepositry.getMealByFLetter(new MealRemoteResponse() {
+            @Override
+            public void onSuccess(List<Meal> mealList) {
+                searchView.getMealByFLetter(mealList);
+            }
 
+            @Override
+            public void onFailure(String errorMessage) {
+                searchView.onFailure(errorMessage);
+            }
+        },FLetter);
+    }
+    public boolean isNetworkAvailable(Context context ) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            android.net.Network network = cm.getActiveNetwork();
+            if (network == null) return false;
+            NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
+            return capabilities != null && (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR));
+        } else {
+            android.net.NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+            return networkInfo != null && networkInfo.isConnected();
+        }
+    }
 }

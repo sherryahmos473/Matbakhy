@@ -41,12 +41,8 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
     TextView MealOfTheDayName, MealOfTheDayArea,MealOfTheDayCategory;
     ImageView MealOfTheDayImage;
     CardView imageCard, searchCard;
-    View view;
-    Button btn;
-    public static HomeFragment newInstance() {
-        HomeFragment fragment = new HomeFragment();
-        return fragment;
-    }
+    View view, noInternet;
+    Button btn,retry;
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
@@ -56,7 +52,11 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         recycleViewSetup();
         btn.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                homePresenter.logout();
+                if(homePresenter.isNetworkAvailable(getContext())){
+                    homePresenter.logout();
+                }else{
+                    checkNetworkAndLoad();
+                }
             } });
         return view;
     }
@@ -85,27 +85,57 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         progressBar.setVisibility(View.VISIBLE);
         progressBar2.setVisibility(View.VISIBLE);
         imageCard = view.findViewById(R.id.mealCard);
-        btn = view.findViewById(R.id.button);
+        btn = view.findViewById(R.id.logout);
         categoryList = view.findViewById(R.id.categoryList);
         countryList = view.findViewById(R.id.countryList);
         searchCard = view.findViewById(R.id.searchCard);
+        noInternet = view.findViewById(R.id.internetErrorOverlay);
+        retry = view.findViewById(R.id.button);
     }
 
     @Override public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         homePresenter.attachView(this);
-        homePresenter.getMealOfTheDay();
-        homePresenter.getAllCategories();
-        homePresenter.getAllCountries();
+        checkNetworkAndLoad();
         searchCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Navigation.findNavController(requireView()).navigate(R.id.action_homeFragment_to_searchFragment);
             }
         });
+        retry.setOnClickListener(v -> retryConnection());
+    }
+    private void checkNetworkAndLoad() {
+        if (homePresenter.isNetworkAvailable(getContext())) {
+            hideNoInternet();
+            progressBar.setVisibility(View.VISIBLE);
+            progressBar2.setVisibility(View.VISIBLE);
+            homePresenter.getMealOfTheDay();
+            homePresenter.getAllCategories();
+            homePresenter.getAllCountries();
+        } else {
+            showNoInternet();
+        }
+    }
+    private void showNoInternet() {
+        if (noInternet != null) noInternet.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.GONE);
+        progressBar2.setVisibility(View.GONE);
+    }
+
+    private void hideNoInternet() {
+        if (noInternet != null) noInternet.setVisibility(View.GONE);
+    }
+
+    private void retryConnection() {
+        if (homePresenter.isNetworkAvailable(getContext())) {
+            hideNoInternet();
+            checkNetworkAndLoad();
+        }
     }
     @Override public void getMealOfTheDay(Meal meal)
         {
+            hideNoInternet();
             MealOfTheDayName.setText(meal.getName());
             MealOfTheDayArea.setText(meal.getArea() + " " +meal.getIngredients().size() + " ingredients");
             MealOfTheDayCategory.setText(meal.getCategory());
@@ -117,23 +147,23 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         Navigation.findNavController(view).navigate(action);
     }
     @Override public void onFailure(String errorMeassge) {
-        new MySnackBar(view,"Can't Load");
+        showNoInternet();
     }
     @Override public void getAllCategories(List<Category> categories) {
-        Log.d("TAG", "getAllCategories: " + categories.size());
+        hideNoInternet();
         progressBar.setVisibility(view.GONE);
         categoryListAdapter.setCategoryList(categories);
     }
     @Override public void getAllCountries(List<Area> countries)
     {
+        hideNoInternet();
         progressBar2.setVisibility(view.GONE);
         countryListAdapter.setCountryList(countries);
     }
 
     @Override
     public void onSuccess(List<Meal> mealList) {
-
-
+        hideNoInternet();
         MealList mealsList = new MealList(mealList);
         HomeFragmentDirections.ActionHomeFragmentToMealListFragment action = HomeFragmentDirections.actionHomeFragmentToMealListFragment(mealsList);
         Navigation.findNavController(view).navigate(action);

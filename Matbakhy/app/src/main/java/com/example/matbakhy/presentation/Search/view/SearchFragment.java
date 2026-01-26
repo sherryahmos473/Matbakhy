@@ -1,5 +1,6 @@
 package com.example.matbakhy.presentation.Search.view;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -7,6 +8,9 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +29,9 @@ import com.example.matbakhy.presentation.Meals.view.CountryListener;
 import com.example.matbakhy.presentation.Meals.view.HomeFragmentDirections;
 import com.example.matbakhy.presentation.Meals.view.IngredientListAdapter;
 import com.example.matbakhy.presentation.Meals.view.IngredientListener;
+import com.example.matbakhy.presentation.MealsList.views.MealClickListener;
+import com.example.matbakhy.presentation.MealsList.views.MealListAdapter;
+import com.example.matbakhy.presentation.MealsList.views.MealListFragmentDirections;
 import com.example.matbakhy.presentation.Search.presenter.SearchPresenter;
 import com.example.matbakhy.presentation.Search.presenter.SearchPresenterImpl;
 import com.google.android.material.chip.Chip;
@@ -33,18 +40,25 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class SearchFragment extends Fragment implements CategoryListener, CountryListener, SearchView, IngredientListener {
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
+public class SearchFragment extends Fragment implements CategoryListener, CountryListener, SearchView, IngredientListener, MealClickListener {
     private static final String TAG = "SearchFragment";
-    View view;
+    View view, noInternet;
     ChipGroup filter;
-    RecyclerView filterList;
+    RecyclerView filterList,recyclerView;
     CategoryListAdapter categoryListAdapter;
     CountryListAdapter countryListAdapter;
     IngredientListAdapter ingredientListAdapter;
     SearchPresenter searchPresenter;
-    Button searchBtn;
     TextInputEditText search;
+    MealListAdapter mealListAdapter;
+    List<Meal> mealList;
+    Button retry;
 
     public SearchFragment() {
     }
@@ -59,13 +73,19 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        Log.d(TAG, "onViewCreated called");
-
         filter = view.findViewById(R.id.chipGroup);
         filterList = view.findViewById(R.id.filterList);
-        searchBtn = view.findViewById(R.id.button);
         search = view.findViewById(R.id.textInputEditText);
+        recyclerView = view.findViewById(R.id.recycleView);
+        noInternet = view.findViewById(R.id.internetErrorOverlay);
+        retry = view.findViewById(R.id.button);
+
+        mealListAdapter = new MealListAdapter(new MealListAdapter.MealClickListener() {
+            @Override
+            public void onMealClick(Meal meal) {
+                searchPresenter.getMealByName(meal.getName());
+            }
+        });
         searchPresenter = new SearchPresenterImpl(requireContext());
         searchPresenter.attachView(this);
         categoryListAdapter = new CategoryListAdapter(this);
@@ -73,86 +93,92 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
         ingredientListAdapter = new IngredientListAdapter(this);
         LinearLayoutManager LayoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
         filterList.setLayoutManager(LayoutManager);
-        searchBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchPresenter.getMealByName(search.getText().toString());
-            }
-        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerView.setAdapter(mealListAdapter);
+        retry.setOnClickListener(v -> retryConnection());
+        retryConnection();
         setupChips();
+        search();
+    }
+    private void showNoInternet() {
+        if (noInternet != null) noInternet.setVisibility(View.VISIBLE);
     }
 
+    private void hideNoInternet() {
+        if (noInternet != null) noInternet.setVisibility(View.GONE);
+    }
+
+    private void retryConnection() {
+        if (searchPresenter.isNetworkAvailable(getContext())) {
+            hideNoInternet();
+        }else{
+            showNoInternet();
+        }
+    }
     private void setupChips() {
         Chip categoryChip = view.findViewById(R.id.category);
         Chip countryChip = view.findViewById(R.id.country);
         Chip ingredientChip = view.findViewById(R.id.ingredient);
+        categoryChip.setOnClickListener(v -> searchPresenter.getAllCategories());
+        countryChip.setOnClickListener(v -> searchPresenter.getAllCountries());
+        ingredientChip.setOnClickListener(v -> searchPresenter.getAllIngredients());
+    }
+    void search() {
+        TextWatcher textWatcher = new TextWatcher() {
 
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-        if (categoryChip != null) {
-            categoryChip.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "Category chip clicked");
-                    searchPresenter.getAllCategories();
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @SuppressLint("CheckResult")
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterList.setVisibility(View.GONE);
+                String query = s.toString().toLowerCase().trim();
+                if (query.length() == 1) {
+                    searchPresenter.getMealByFLetter(query);
+                    return;
                 }
-            });
 
-        } else {
-            Toast.makeText(requireContext(), "Category chip not found", Toast.LENGTH_SHORT).show();
-        }
+                Observable.fromIterable(mealList)
+                        .filter(meal ->
+                                meal.getName() != null &&
+                                        meal.getName().toLowerCase().contains(query)
+                        )
+                        .toList()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                filteredList -> mealListAdapter.setMealList(filteredList),
+                                throwable -> Log.e("Search", throwable.getMessage())
+                        );
+            }
+        };
 
-        if (countryChip != null) {
-            countryChip.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "Country chip clicked");
-                    searchPresenter.getAllCountries();
-                }
-            });
-        } else {
-            Toast.makeText(requireContext(), "Country chip not found", Toast.LENGTH_SHORT).show();
-        }
-        if (ingredientChip != null) {
-            ingredientChip.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "ingredient chip clicked");
-                    searchPresenter.getAllIngredients();
-                }
-            });
-        } else {
-            Toast.makeText(requireContext(), "ingredient chip not found", Toast.LENGTH_SHORT).show();
-        }
+        search.addTextChangedListener(textWatcher);
     }
 
     @Override
     public void getMealOfCategory(String category) {
-        try {
-            searchPresenter.getMealOfCategory(category);
-        } catch (Exception e) {
-            Log.e(TAG, "Error in getMealOfCategory: " + e.getMessage());
-            e.printStackTrace();
-        }
+        searchPresenter.getMealOfCategory(category);
     }
 
     @Override
     public void getMealOfCountry(String country) {
-        try {
-            searchPresenter.getMealOfCountry(country);
-        } catch (Exception e) {
-            Log.e(TAG, "Error in getMealOfCountry: " + e.getMessage());
-            e.printStackTrace();
-        }
+        searchPresenter.getMealOfCountry(country);
     }
 
     @Override
     public void getCategories(List<Category> categories) {
+        filterList.setVisibility(View.VISIBLE);
         filterList.setAdapter(categoryListAdapter);
         categoryListAdapter.setCategoryList(categories);
     }
 
     @Override
     public void getCountries(List<Area> countries) {
+        filterList.setVisibility(View.VISIBLE);
         filterList.setAdapter(countryListAdapter);
         countryListAdapter.setCountryList(countries);
 
@@ -160,7 +186,6 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
 
     @Override
     public void getIngredients(List<String> ingredients) {
-        Log.d("SearchFragment", "getIngredients: "+ ingredients.size());
         filterList.setAdapter(ingredientListAdapter);
         ingredientListAdapter.setIngredients(ingredients);
     }
@@ -172,21 +197,31 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
     }
 
     @Override
+    public void getMealByFLetter(List<Meal> mealList) {
+        this.mealList = mealList;
+        mealListAdapter.setMealList(mealList);
+    }
+
+    @Override
     public void onFailure(String errorMessage) {
-        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
+        retryConnection();
     }
 
     @Override
     public void onSuccess(List<Meal> mealList) {
-
-
-        MealList mealsList = new MealList(mealList);
-        SearchFragmentDirections.ActionSearchFragmentToMealListFragment action = SearchFragmentDirections.actionSearchFragmentToMealListFragment(mealsList);
-        Navigation.findNavController(view).navigate(action);
+        this.mealList = mealList;
+        mealListAdapter.setMealList(mealList);
     }
 
     @Override
     public void getMealOfIngredient(String ingredient) {
+        filterList.setVisibility(View.VISIBLE);
         searchPresenter.getMealOfIngredient(ingredient);
+    }
+
+    @Override
+    public void onMealClick(Meal meal) {
+        SearchFragmentDirections.ActionSearchFragmentToMealDetailsFragment action = SearchFragmentDirections.actionSearchFragmentToMealDetailsFragment(meal);
+        Navigation.findNavController(view).navigate(action);
     }
 }

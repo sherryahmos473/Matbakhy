@@ -54,8 +54,6 @@ public class FirebaseServices implements com.example.matbakhy.data.auth.datasour
                 return;
             }
 
-            Log.d(TAG, "Firebase initialized successfully");
-
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                     .requestIdToken(context.getString(R.string.default_web_client_id))
                     .requestEmail()
@@ -64,11 +62,6 @@ public class FirebaseServices implements com.example.matbakhy.data.auth.datasour
             Log.d(TAG, "Google Sign-In initialized successfully");
 
             FirebaseUser currentUser = mAuth.getCurrentUser();
-            if (currentUser != null) {
-                Log.d(TAG, "Current Firebase user: " + currentUser.getEmail());
-            } else {
-                Log.d(TAG, "No current Firebase user");
-            }
 
         } catch (Exception e) {
             Log.e(TAG, "Firebase initialization failed: " + e.getMessage());
@@ -99,13 +92,9 @@ public class FirebaseServices implements com.example.matbakhy.data.auth.datasour
                 return;
             }
         }
-
-        Log.d(TAG, "Sending password reset email to: " + email);
-
         mAuth.sendPasswordResetEmail(email.trim())
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Log.d(TAG, "Password reset email sent successfully");
                         callback.onSuccess("Password reset email sent to " + email);
                     } else {
                         String error = getErrorMessage(task.getException());
@@ -138,7 +127,6 @@ public class FirebaseServices implements com.example.matbakhy.data.auth.datasour
                 callback.onFailure("Google sign in failed - invalid account");
             }
         } catch (ApiException e) {
-            Log.e(TAG, "Google sign in failed: " + e.getStatusCode() + ", " + e.getMessage());
             callback.onFailure("Google sign in failed: " + e.getMessage());
         }
     }

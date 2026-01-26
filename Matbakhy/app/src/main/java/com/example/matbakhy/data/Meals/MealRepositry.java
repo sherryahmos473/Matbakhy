@@ -33,6 +33,9 @@ public class MealRepositry {
     public void getMealByName(MealRemoteResponse callback, String name){
         mealServices.getMealByName(callback, name);
     }
+    public void getMealByFLetter(MealRemoteResponse callback, String FLetter){
+        mealServices.getMealByName(callback, FLetter);
+    }
     public void getMealOfCategory(MealRemoteResponse callback, String category){
         mealServices.getMealOfCategory(callback, category);
     }

@@ -1,5 +1,7 @@
 package com.example.matbakhy.presentation.Meals.presenter;
 
+import android.content.Context;
+
 import com.example.matbakhy.data.Meals.model.Category;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.presentation.Meals.view.HomeView;
@@ -15,4 +17,5 @@ public interface HomePresenter {
     public void getMealOfCategory(String categoryName);
     public void getMealOfCountry(String countryName);
     void logout();
+    boolean isNetworkAvailable(Context context);
 }

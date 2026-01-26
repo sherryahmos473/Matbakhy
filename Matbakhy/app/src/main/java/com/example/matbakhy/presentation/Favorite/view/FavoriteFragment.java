@@ -23,7 +23,6 @@ import com.example.matbakhy.helper.MySnackBar;
 import com.example.matbakhy.presentation.Favorite.presenter.FavoritePresenter;
 import com.example.matbakhy.presentation.Favorite.presenter.FavoritePresenterImpl;
 import com.example.matbakhy.presentation.Favorite.presenter.FavoriteView;
-import com.example.matbakhy.presentation.Meals.view.HomeFragmentDirections;
 import com.example.matbakhy.presentation.MealsList.views.MealClickListener;
 
 
@@ -32,7 +31,7 @@ public class FavoriteFragment extends Fragment implements FavoriteOnClickListene
     View view;
     ProgressBar progressBar;
     FavoriteAdapter favoriteAdapter;
-    FavoritePresenter faroritePresenter;
+    FavoritePresenter favoritePresenter;
     private View emptyStateView;
 
     RecyclerView recyclerView;
@@ -49,7 +48,6 @@ public class FavoriteFragment extends Fragment implements FavoriteOnClickListene
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
 
@@ -68,9 +66,7 @@ public class FavoriteFragment extends Fragment implements FavoriteOnClickListene
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(favoriteAdapter);
-
-        faroritePresenter = new FavoritePresenterImpl(getContext(), this);
-
+        favoritePresenter = new FavoritePresenterImpl(getContext(), this);
         return view;
     }
 
@@ -84,7 +80,7 @@ public class FavoriteFragment extends Fragment implements FavoriteOnClickListene
             );
             recyclerView.requestLayout();
         });
-        faroritePresenter.getFavMeal()
+        favoritePresenter.getFavMeal()
                 .observe(getViewLifecycleOwner(), meals -> {
                     if (meals != null && !meals.isEmpty()) {
                         hideEmptyState();
@@ -116,7 +112,7 @@ public class FavoriteFragment extends Fragment implements FavoriteOnClickListene
 
     @Override
     public void deleteFav(Meal meal) {
-        faroritePresenter.deleteMeal(meal);
+        favoritePresenter.deleteMeal(meal);
     }
 
     @Override
