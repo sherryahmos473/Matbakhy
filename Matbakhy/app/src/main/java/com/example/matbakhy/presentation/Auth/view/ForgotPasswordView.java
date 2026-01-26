@@ -6,6 +6,7 @@ public interface ForgotPasswordView {
     void showEmailError(String message);
     void clearEmailError();
     void showToast(String message);
+    void showError(String message);
     void showSuccessScreen(String email);
     void hideInputForm();
     void showInputForm();

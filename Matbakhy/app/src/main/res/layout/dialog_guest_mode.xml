@@ -41,6 +41,7 @@
         android:layout_marginBottom="12dp"
         android:text="Sign In"
         android:textAllCaps="false"
+        android:textColor="@color/white"
         app:backgroundTint="@color/light_orange"
         app:cornerRadius="8dp" />
 

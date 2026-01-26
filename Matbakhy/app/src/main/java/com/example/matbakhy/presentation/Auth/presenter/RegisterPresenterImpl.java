@@ -1,8 +1,8 @@
 package com.example.matbakhy.presentation.Auth.presenter;
 
 import android.content.Context;
+import android.util.Log;
 
-import com.example.matbakhy.data.auth.AuthRepository;
 import com.example.matbakhy.data.auth.callbacks.AuthCallback;
 import com.example.matbakhy.data.auth.model.User;
 import com.example.matbakhy.presentation.Auth.view.RegisterView;
@@ -62,22 +62,25 @@ public class RegisterPresenterImpl extends BaseAuthPresenterImpl implements Regi
 
         if (registerView == null) return false;
         view.clearErrors();
+
         if (name.isEmpty()) {
+            Log.d(TAG, "validateInputs: Name is empty");
             registerView.showNameError("Name is required");
             isValid = false;
         }
 
-        if (!validateEmailAndPassword(email, password)) {
+        if (validateEmailAndPassword(email, password)) {
             isValid = false;
         }
 
         if (confirmPassword.isEmpty()) {
-            registerView.showConfirmPasswordError("Please confirm your password");
+            registerView.showConfirmPasswordError("Confirm password is required");
             isValid = false;
         } else if (!password.equals(confirmPassword)) {
             registerView.showConfirmPasswordError("Passwords do not match");
             isValid = false;
         }
+
         return isValid;
     }
 
@@ -100,7 +103,7 @@ public class RegisterPresenterImpl extends BaseAuthPresenterImpl implements Regi
             public void onFailure(String errorMessage) {
                 if (registerView != null) {
                     registerView.hideLoading();
-                    registerView.showToast(errorMessage);
+                    registerView.showError(errorMessage);
                 }
             }
         });

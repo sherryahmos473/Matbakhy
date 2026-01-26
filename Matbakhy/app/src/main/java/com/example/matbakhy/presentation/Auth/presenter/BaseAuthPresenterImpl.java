@@ -35,7 +35,7 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
     public void onGoogleSignInClicked() {
         if (view == null) return;
         if (!authRepository.isNetworkAvailable()) {
-            view.showToast("No internet connection. Please check your network.");
+            view.showError("No internet connection. Please check your network.");
             return;
         }
         Intent signInIntent = authRepository.getGoogleSignInIntent();
@@ -43,7 +43,7 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
             view.showLoading("Signing in with Google...");
             view.startGoogleSignInIntent(signInIntent, RC_SIGN_IN);
         } else {
-            view.showToast("Google Sign-In not available. Please try again.");
+            view.showError("Google Sign-In not available. Please try again.");
         }
     }
 
@@ -51,7 +51,7 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
         if (view == null) return;
 
         if (!authRepository.isNetworkAvailable()) {
-            view.showToast("No internet connection. Please check your network.");
+            view.showError("No internet connection. Please check your network.");
             return;
         }
 
@@ -60,7 +60,7 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
             view.showLoading("Signing in with Google...");
             view.startGoogleSignInIntent(signInIntent, RC_SIGN_IN);
         } else {
-            view.showToast("Google Sign-In not available. Please try again.");
+            view.showError("Google Sign-In not available. Please try again.");
         }
     }
 
@@ -76,7 +76,7 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
             } else {
                 Log.e(TAG, "Google Sign-In returned null data");
                 if (view != null) {
-                    view.showToast("Google Sign-In failed. Please try again.");
+                    view.showError("Google Sign-In failed. Please try again.");
                 }
             }
         }
@@ -97,7 +97,7 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
             public void onFailure(String errorMessage) {
                 if (view != null) {
                     Log.e(TAG, "Google Sign-In failed: " + errorMessage);
-                    view.showToast(errorMessage);
+                    view.showError(errorMessage);
                 }
             }
         });
@@ -135,7 +135,7 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
             public void onFailure(String errorMessage) {
                 if (view != null) {
                     Log.e(TAG, "Google Sign-Up failed: " + errorMessage);
-                    view.showToast(errorMessage);
+                    view.showError(errorMessage);
                 }
             }
         });
@@ -177,7 +177,7 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
 
             @Override
             public void onFailure(String error) {
-                view.showToast("Can't login");
+                view.showError("Can't login");
             }
         });
     }

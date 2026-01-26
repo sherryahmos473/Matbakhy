@@ -84,10 +84,6 @@ public class FavoriteFragment extends Fragment implements FavoriteOnClickListene
                 .observe(getViewLifecycleOwner(), meals -> {
                     if (meals != null && !meals.isEmpty()) {
                         hideEmptyState();
-
-                        for (Meal meal : meals) {
-                            Log.d("FavoriteFragment", "Meal: " + meal.getName() + " ID: " + meal.getId());
-                        }
                     }else{
                         showEmptyState();
                     }

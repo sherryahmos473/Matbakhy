@@ -108,7 +108,7 @@ public class ForgotPasswordPresenterImpl implements ForgotPasswordPresenter {
                 if (view != null) {
                     view.hideLoading();
                     Log.e(TAG, "Failed to send reset email: " + errorMessage);
-                    view.showToast(errorMessage);
+                    view.showError(errorMessage);
                 }
             }
         });

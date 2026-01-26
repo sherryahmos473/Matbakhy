@@ -3,7 +3,6 @@ package com.example.matbakhy.presentation.Auth.presenter;
 
 import android.content.Context;
 
-import com.example.matbakhy.data.auth.AuthRepository;
 import com.example.matbakhy.data.auth.callbacks.AuthCallback;
 import com.example.matbakhy.data.auth.model.User;
 import com.example.matbakhy.presentation.Auth.view.LoginView;
@@ -33,7 +32,7 @@ public class LoginPresenterImpl extends BaseAuthPresenterImpl implements LoginPr
         String email = loginView.getEmail();
         String password = loginView.getPassword();
 
-        if (!validateEmailAndPassword(email, password)) {
+        if (validateEmailAndPassword(email, password)) {
             return;
         }
 

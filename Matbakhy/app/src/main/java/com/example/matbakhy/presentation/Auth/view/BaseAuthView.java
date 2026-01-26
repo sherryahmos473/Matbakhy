@@ -10,6 +10,7 @@ public interface BaseAuthView {
     void showPasswordError(String message);
     void clearErrors();
     void showToast(String message);
+    void showError(String message);
     void navigateToHome(String email);
     void setEmail(String email);
     String getEmail();

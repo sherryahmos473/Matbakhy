@@ -28,6 +28,7 @@ import com.example.matbakhy.MainActivity;
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.data.Meals.model.MealList;
+import com.example.matbakhy.helper.ErrorSnackBar;
 import com.example.matbakhy.helper.MySnackBar;
 import com.example.matbakhy.presentation.MealDetails.presenter.MealDetailsPresenter;
 import com.example.matbakhy.presentation.MealDetails.presenter.MealDetailsPresenterImpl;
@@ -59,7 +60,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
     IngredientListAdapter ingredientListAdapter;
     RecyclerView recyclerView;
     YouTubePlayerView youTubePlayerView;
-    ImageView youtubeBtn;
+    ImageView youtubeBtn, btnBack;;
     private YouTubePlayer youTubePlayer;
     private boolean isPlayerReady = false, isGuest, isFavorite = false, isPlanned = false;
     View view;
@@ -85,28 +86,25 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
         favbtn = view.findViewById(R.id.fabFavorite);
         youtubeBtn = view.findViewById(R.id.videoBtn);
         youTubePlayerView = view.findViewById(R.id.youtubeVideo);
+        btnBack = view.findViewById(R.id.btnBack);
         getLifecycle().addObserver(youTubePlayerView);
-
         mealDetailsPresenter = new MealDetailsPresenterImpl(getContext(), this);
 
+       setUpListeners();
+        return view;
+    }
+
+    private void setUpListeners() {
         favbtn.setOnClickListener(v -> {
             if (!mealDetailsPresenter.isGuest()) {
-                if (!isFavorite) {
-                    mealDetailsPresenter.addMealToFav(meal);
-                } else {
-                    mealDetailsPresenter.removeMealFromFav(meal);
-                }
+                mealDetailsPresenter.favOnClick(meal,isFavorite);
             }else{
                 guestDialog();
             }
         });
         calBtn.setOnClickListener(v -> {
             if (!mealDetailsPresenter.isGuest()) {
-                if(isPlanned){
-                    mealDetailsPresenter.removeMealFromCal(meal);
-                }else{
-                    showDatePicker();
-                }
+                mealDetailsPresenter.calenderOnClick(getParentFragmentManager(),meal,isPlanned);
             }else {
                 guestDialog();
             }
@@ -121,46 +119,9 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
                 }
             }
         });
-
-        return view;
+        btnBack.setOnClickListener(v -> mealDetailsPresenter.onBackClicked());
     }
 
-
-    private void showDatePicker() {
-        CalendarConstraints calendarConstraints = new CalendarConstraints.Builder()
-                .setValidator(DateValidatorPointForward.now())
-                .build();
-
-        MaterialDatePicker<Long> materialDatePicker =
-                MaterialDatePicker.Builder.datePicker()
-                        .setTitleText("Select Date")
-                        .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
-                        .setCalendarConstraints(calendarConstraints)
-                        .setTheme(R.style.MaterialDatePickerTheme)
-                        .build();
-
-        materialDatePicker.addOnPositiveButtonClickListener(selection -> {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(selection);
-
-            onDateSelected(
-                    calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH)
-            );
-        });
-
-        materialDatePicker.show(getParentFragmentManager(), "DATE_PICKER");
-    }
-    private void onDateSelected(int year, int month, int dayOfMonth) {
-        int actualMonth = month + 1;
-        Calendar selectedDate = Calendar.getInstance();
-        selectedDate.set(year, month, dayOfMonth);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
-        String formattedDate = dateFormat.format(selectedDate.getTime());
-        Log.d(TAG, "Date selected: " + formattedDate + " (" + formattedDate + ")");
-        mealDetailsPresenter.addMealToCal(meal, formattedDate);
-    }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -179,15 +140,12 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
                     youTubePlayer.setVolume(100);
                 }else{
                     youtubeFrame.setVisibility(View.GONE);
-                    youtubeBtn.setVisibility(View.GONE);
-                    youTubePlayerView.setVisibility(View.GONE);
                 }
             }
         });
         updateUI(meal);
         checkLocalMeals();
     }
-
     private void checkLocalMeals() {
         mealDetailsPresenter.isFavorite(meal.getId());
         mealDetailsPresenter.isCal(meal.getId());
@@ -235,9 +193,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
 
     @Override
     public void onAddToCal() {
-        if (isAdded() && getContext() != null) {
-            new MySnackBar(view, "Added to Planned Meals");
-        }
+        new MySnackBar(view, "Added to Planned Meals");
         isPlanned = true;
         updateCalButtonColor();
     }
@@ -283,7 +239,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
 
     @Override
     public void onFailure(String errorMessage) {
-        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
+        new ErrorSnackBar(view, errorMessage);
     }
 
     @Override
@@ -334,7 +290,12 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
         mealInstructions = null;
         favbtn = null;
     }
-
+    @Override
+    public void navigateBack() {
+        if (getView() != null) {
+            Navigation.findNavController(getView()).popBackStack();
+        }
+    }
     @Override
     public void getMealOfIngredient(String ingredient) {
         mealDetailsPresenter.getMealOfIngredient(ingredient);

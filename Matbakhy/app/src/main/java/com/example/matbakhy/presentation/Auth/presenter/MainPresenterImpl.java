@@ -31,7 +31,7 @@ public class MainPresenterImpl implements MainPresenter {
         Log.d(TAG, "Checking login status...");
 
         try {
-            if (authRepository.isUserLoggedIn()) {
+            if (authRepository.isUserLoggedIn() || authRepository.isGuest()) {
                 String userEmail = authRepository.getCurrentUserEmail();
                 if (userEmail == null || userEmail.isEmpty()) {
                     userEmail = "User";

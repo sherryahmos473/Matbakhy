@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.matbakhy.R;
+import com.example.matbakhy.helper.ErrorSnackBar;
 import com.example.matbakhy.helper.MySnackBar;
 import com.example.matbakhy.presentation.Auth.presenter.ForgotPasswordPresenter;
 import com.example.matbakhy.presentation.Auth.presenter.ForgotPasswordPresenterImpl;
@@ -88,6 +89,11 @@ public class ForgetPasswordFragment extends Fragment implements ForgotPasswordVi
         if (getContext() != null) {
             new MySnackBar(view, message);
         }
+    }
+
+    @Override
+    public void showError(String message) {
+        new ErrorSnackBar(view, message);
     }
 
     @Override

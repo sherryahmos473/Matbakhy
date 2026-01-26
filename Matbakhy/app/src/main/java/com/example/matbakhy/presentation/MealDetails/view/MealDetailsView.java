@@ -18,4 +18,6 @@ public interface MealDetailsView {
     void onFailure(String errorMessage);
     void guestDialog();
     void navToLogin();
+
+    void navigateBack();
 }

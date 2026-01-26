@@ -106,12 +106,9 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         btn.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 if(homePresenter.isNetworkAvailable(getContext())){
-                    if (isGuest) {
-                        homePresenter.login();
-                    } else {
-                        Log.d("Logout", "onClick: ");
-                        homePresenter.logout();
-                    }
+                    Log.d("Logout", "onClick: ");
+                    homePresenter.logout();
+
                 }else{
                     checkNetworkAndLoad();
                 }

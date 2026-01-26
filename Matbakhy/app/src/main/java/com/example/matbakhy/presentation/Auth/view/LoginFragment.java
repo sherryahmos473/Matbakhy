@@ -16,10 +16,12 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.matbakhy.R;
+import com.example.matbakhy.helper.ErrorSnackBar;
 import com.example.matbakhy.helper.MySnackBar;
 import com.example.matbakhy.presentation.Auth.presenter.AuthUtils;
 import com.example.matbakhy.presentation.Auth.presenter.LoginPresenter;
 import com.example.matbakhy.presentation.Auth.presenter.LoginPresenterImpl;
+import com.google.android.material.textfield.TextInputLayout;
 
 public class LoginFragment extends Fragment implements LoginView {
     private static final String TAG = "LoginFragment";
@@ -28,6 +30,7 @@ public class LoginFragment extends Fragment implements LoginView {
     private EditText edtEmail, edtPassword;
     private Button btnLogin, btnGoogle;
     private TextView txtRegister, txtForgotPassword, guestTextView;
+    TextInputLayout passwordInputLayout, emailInputLayout;
     private ProgressDialog progressDialog;
     private LoginPresenter presenter;
     View view;
@@ -42,7 +45,6 @@ public class LoginFragment extends Fragment implements LoginView {
 
         initializeViews(view);
         setupListeners();
-        setupEnterKeyListener();
 
         return view;
     }
@@ -85,12 +87,12 @@ public class LoginFragment extends Fragment implements LoginView {
 
     @Override
     public void showEmailError(String message) {
-        edtEmail.setError(message);
+        emailInputLayout.setError(message);
     }
 
     @Override
     public void showPasswordError(String message) {
-        edtPassword.setError(message);
+        passwordInputLayout.setError(message);
     }
 
     @Override
@@ -102,6 +104,11 @@ public class LoginFragment extends Fragment implements LoginView {
     @Override
     public void showToast(String message) {
         new MySnackBar(view, message);
+    }
+
+    @Override
+    public void showError(String message) {
+        new ErrorSnackBar(view, message);
     }
 
     @Override
@@ -171,6 +178,9 @@ public class LoginFragment extends Fragment implements LoginView {
         txtForgotPassword = view.findViewById(R.id.forgotPasswordTextView);
         guestTextView = view.findViewById(R.id.guestTextView);
         btnGoogle = view.findViewById(R.id.googleButton);
+        emailInputLayout = view.findViewById(R.id.emailInputLayout);
+        passwordInputLayout = view.findViewById(R.id.passwordInputLayout);
+
 
         progressDialog = AuthUtils.createProgressDialog(requireContext(), "Logging in...");
     }
@@ -181,29 +191,5 @@ public class LoginFragment extends Fragment implements LoginView {
         txtForgotPassword.setOnClickListener(v -> presenter.onForgotPasswordClicked());
         btnGoogle.setOnClickListener(v -> presenter.onGoogleSignInClickedWithRestore());
         guestTextView.setOnClickListener(v -> presenter.loginGuest());
-    }
-
-    private void setupEnterKeyListener() {
-        if (edtPassword != null) {
-            edtPassword.setOnEditorActionListener((v, actionId, event) -> {
-                if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
-                    presenter.onLoginClicked();
-                    return true;
-                }
-                return false;
-            });
-        }
-
-        if (edtEmail != null) {
-            edtEmail.setOnEditorActionListener((v, actionId, event) -> {
-                if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_NEXT) {
-                    if (edtPassword != null) {
-                        edtPassword.requestFocus();
-                        return true;
-                    }
-                }
-                return false;
-            });
-        }
     }
 }
