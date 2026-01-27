@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +57,7 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
 
     private List<Meal> fullMealList = new ArrayList<>();
     private boolean isFilterMode = false;
+    private static final String TAG = "SearchFragment";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -72,6 +74,7 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
         searchEditText = view.findViewById(R.id.textInputEditText);
         noInternet = view.findViewById(R.id.internetErrorOverlay);
         retryBtn = view.findViewById(R.id.button);
+        chipGroup = view.findViewById(R.id.chipGroup);
 
         presenter = new SearchPresenterImpl(requireContext());
         presenter.attachView(this);
@@ -101,28 +104,30 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
     }
 
     private void setupChips() {
-        Chip category = root.findViewById(R.id.category);
-        Chip country = root.findViewById(R.id.country);
-        Chip ingredient = root.findViewById(R.id.ingredient);
 
-        category.setOnClickListener(v -> {
+        chipGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == View.NO_ID) {
+                resetSearch();
+                isFilterMode = false;
+                return;
+            }
+
             resetSearch();
             isFilterMode = true;
-            presenter.getAllCategories();
-        });
 
-        country.setOnClickListener(v -> {
-            resetSearch();
-            isFilterMode = true;
-            presenter.getAllCountries();
-        });
+            if (checkedId == R.id.category) {
+                presenter.getAllCategories();
 
-        ingredient.setOnClickListener(v -> {
-            resetSearch();
-            isFilterMode = true;
-            presenter.getAllIngredients();
+            } else if (checkedId == R.id.country) {
+                presenter.getAllCountries();
+
+            } else if (checkedId == R.id.ingredient) {
+                presenter.getAllIngredients();
+            }
+            Log.d(TAG, "setupChips: " + fullMealList.size());
         });
     }
+
 
     private void setupSearch() {
         searchEditText.addTextChangedListener(new TextWatcher() {
@@ -137,12 +142,15 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
                 if (s.toString().trim().isEmpty()) {
                     mealListAdapter.setMealList(fullMealList);
                     return;
+                }else if(s.toString().length() == 1 && !isFilterMode){
+                    presenter.getMealByFLetter(s.toString());
+                    Log.d(TAG, "onTextChanged: " + fullMealList.size());
+                    filterList.setVisibility(View.GONE);
                 }
 
                 if (fullMealList == null || fullMealList.isEmpty()) return;
 
-                filterList.setVisibility(View.GONE);
-                isFilterMode = false;
+
 
                 String query = s.toString().toLowerCase();
 
