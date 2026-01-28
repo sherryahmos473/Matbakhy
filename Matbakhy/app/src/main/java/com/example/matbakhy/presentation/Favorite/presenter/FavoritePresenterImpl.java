@@ -9,6 +9,8 @@ import com.example.matbakhy.data.model.Meal;
 
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+
 public class FavoritePresenterImpl implements FavoritePresenter {
     MealRepository mealRepository;
     FavoriteView favoriteView;
@@ -17,13 +19,20 @@ public class FavoritePresenterImpl implements FavoritePresenter {
         this.favoriteView = favoriteView;
     }
     @Override
-    public LiveData<List<Meal>> getFavMeal() {
-        return mealRepository.getFavMeals();
+    public void getFavMeal() {
+        mealRepository.getFavMeals().observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        mealList ->favoriteView.getMeals(mealList),
+                        throwable -> favoriteView.onFailure(throwable.getMessage())
+                );
     }
 
     @Override
     public void deleteMeal(Meal meal) {
-        mealRepository.deleteMealsFromFav(meal);
-        favoriteView.onMealDeleted();
+        mealRepository.deleteMealsFromFav(meal).observeOn(AndroidSchedulers.mainThread()).subscribe(
+                () -> favoriteView.onMealDeleted(),
+                throwable -> favoriteView.onFailure(throwable.getMessage())
+        );
+        getFavMeal();
     }
 }

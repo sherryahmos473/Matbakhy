@@ -24,6 +24,6 @@ public class MealBackupManager {
             return;
         }
         Log.d(TAG, "Starting backup of " + meals.size() + " meals");
-        backupService.backupAllMeals(meals, callback);
+        backupService.backupAllMeals(meals);
     }
 }

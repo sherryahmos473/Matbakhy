@@ -28,6 +28,8 @@ import com.example.matbakhy.data.model.User;
 
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 
 
@@ -70,46 +72,44 @@ public class MealRepository {
     public Single<List<Ingredient>> getAllIngredients(){
         return mealServices.getAllIngredients();
     }
-    public LiveData<List<Meal>> getFavMeals() {
+    public Single<List<Meal>> getFavMeals() {
         return mealsLocalDataSource.getFavMeals();
     }
-    public LiveData<List<Meal>> getCalMeals() {
+    public Single<List<Meal>> getCalMeals() {
         return mealsLocalDataSource.getCalMeals();
     }
-    public void insertMealInFav(Meal meal){
-        if (meal.getId() != null) {
-            meal.setFavorite(true);
-            mealsLocalDataSource.insertFavMeal(meal);
-        }
+    public Completable insertMealInFav(Meal meal){
+        meal.setFavorite(true);
+        return mealsLocalDataSource.insertMeal(meal);
+
+
     }
-    public void insertMeal(Meal meal){
-        if (meal.getId() != null) {
-            mealsLocalDataSource.insertFavMeal(meal);
-        }
+    public Completable insertMeal(Meal meal){
+        return mealsLocalDataSource.insertMeal(meal);
+
     }
-    public void insertMealInCal(Meal meal,String cal){
-        if (meal.getId() != null) {
-            meal.setPlanned(true);
-            meal.setPlanDate(cal);
-            mealsLocalDataSource.insertCalMeal(meal);
-        }
+    public Completable insertMealInCal(Meal meal,String cal){
+        meal.setPlanned(true);
+        meal.setPlanDate(cal);
+        return mealsLocalDataSource.insertMeal(meal);
+
     }
-    public void deleteMealsFromFav(Meal meal){
-        mealsLocalDataSource.deleteFavMeal(meal);
+    public Completable deleteMealsFromFav(Meal meal){
+        return mealsLocalDataSource.deleteFavMeal(meal);
     }
-    public void deleteMealsFromCal(Meal meal){
-        mealsLocalDataSource.deleteCalMeal(meal);
+    public Completable deleteMealsFromCal(Meal meal){
+        return mealsLocalDataSource.deleteCalMeal(meal);
     }
-    public LiveData<Boolean> isFavorite(String mealId){
+    public Maybe<Boolean> isFavorite(String mealId){
         return mealsLocalDataSource.isFavorite(mealId);
     }
-    public LiveData<Boolean> isCal(String mealId){
+    public Maybe<Boolean> isCal(String mealId){
         return mealsLocalDataSource.isCal(mealId);
     }
-    public LiveData<List<Meal>> getAllMealsFromLocal() {
-        return mealsLocalDataSource.getAllMealsSync();
+    public Single<List<Meal>> getAllMealsFromLocal() {
+        return mealsLocalDataSource.getAllMeals();
     }
-    public void clearAllLocalMeals() {
-        mealsLocalDataSource.deleteAllMeals();
+    public Completable clearAllLocalMeals() {
+        return mealsLocalDataSource.deleteAllMeals();
     }
 }

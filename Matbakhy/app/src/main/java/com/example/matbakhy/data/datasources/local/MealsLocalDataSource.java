@@ -12,90 +12,64 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
+
 public class MealsLocalDataSource {
     public MealDAO mealsDAO;
     public MealsLocalDataSource(Context context){
        AppDataBase dataBase = AppDataBase.getInstance(context);
         mealsDAO = dataBase.mealDAO();
     }
-    public void insertFavMeal(Meal meal){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d("insert", "run: "+ meal);
-                mealsDAO.insertFavMeal(meal);
-            }
-        }).start();
+    public Completable insertMeal(Meal meal){
+        return mealsDAO.insertMeal(meal)
+                .subscribeOn(Schedulers.io());
+    }
 
+    public Completable deleteFavMeal(Meal meal){
+        return mealsDAO.deleteFavMeal(meal.getId())
+                .andThen(mealsDAO.deleteIfNotFavoriteAndNotPlanned(meal.getId()))
+                .subscribeOn(Schedulers.io());
     }
-    public void insertMeal(Meal meal){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mealsDAO.insertFavMeal(meal);
-            }
-        }).start();
 
+    public Completable deleteCalMeal(Meal meal){
+        return mealsDAO.deleteCalMeal(meal.getId())
+                .andThen(mealsDAO.deleteIfNotFavoriteAndNotPlanned(meal.getId()))
+                .subscribeOn(Schedulers.io());
     }
-    public void insertCalMeal(Meal meal){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d("insert", "run: "+ meal);
-                mealsDAO.insertCalMeal(meal);
-            }
-        }).start();
 
+    public Single<List<Meal>> getFavMeals(){
+        return mealsDAO.getFavMeals()
+                .subscribeOn(Schedulers.io());
     }
-    public void deleteFavMeal(Meal meal){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mealsDAO.deleteFavMeal(meal.getId());
-                mealsDAO.deleteIfNotFavoriteAndNotPlanned(meal.getId());
-            }
-        }).start();
-    }
-    public void deleteCalMeal(Meal meal){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mealsDAO.deleteCalMeal(meal.getId());
-                mealsDAO.deleteIfNotFavoriteAndNotPlanned(meal.getId());
-            }
-        }).start();
-    }
-    public LiveData<List<Meal>> getFavMeals(){
-        return mealsDAO.getFavMeals();
-    }
-    public LiveData<List<Meal>> getCalMeals(){
-        String today = new SimpleDateFormat("dd-MM-yyyy", Locale.US)
-                .format(new Date());
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mealsDAO.deletePlannedMealsBeforeToday(today);
-            }
-        }).start();
-        return mealsDAO.getCalMeals();
+    public Single<List<Meal>> getCalMeals(){
+        String today = new SimpleDateFormat("dd-MM-yyyy", Locale.US).format(new Date());
+
+        return mealsDAO.deletePlannedMealsBeforeToday(today)
+                .andThen(mealsDAO.getCalMeals())
+                .subscribeOn(Schedulers.io());
     }
-    public LiveData<List<Meal>> getAllMealsSync(){
-        return  mealsDAO.getAllMealsSync();
+
+    public Single<List<Meal>> getAllMeals(){
+        return mealsDAO.getAllMeals()
+                .subscribeOn(Schedulers.io());
     }
-    public LiveData<Boolean> isFavorite(String mealId) {
-        return mealsDAO.isFavorite(mealId);
+
+    public Maybe<Boolean> isFavorite(String mealId) {
+        return mealsDAO.isFavorite(mealId)
+                .subscribeOn(Schedulers.io());
     }
-    public LiveData<Boolean> isCal(String mealId) {
-        return mealsDAO.isCal(mealId);
+
+    public Maybe<Boolean> isCal(String mealId) {
+        return mealsDAO.isCal(mealId)
+                .subscribeOn(Schedulers.io());
     }
-    public void deleteAllMeals() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mealsDAO.deleteAllMeals();
-                Log.d("MealsLocalDataSource", "Deleted all meals from local database");
-            }
-        }).start();
+
+    public Completable deleteAllMeals() {
+        return mealsDAO.deleteAllMeals()
+                .subscribeOn(Schedulers.io());
     }
 }

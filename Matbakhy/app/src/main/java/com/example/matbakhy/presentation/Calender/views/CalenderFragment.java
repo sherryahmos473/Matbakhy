@@ -18,10 +18,13 @@ import android.widget.ProgressBar;
 
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.model.Meal;
+import com.example.matbakhy.helper.ErrorSnackBar;
 import com.example.matbakhy.helper.MySnackBar;
 import com.example.matbakhy.presentation.Calender.presenter.CalenderPresenter;
 import com.example.matbakhy.presentation.Calender.presenter.CalenderPresenterImpl;
 import com.example.matbakhy.presentation.MealsList.views.MealClickListener;
+
+import java.util.List;
 
 
 public class CalenderFragment extends Fragment  implements CalenderView , CalenderOnClickListener, MealClickListener {
@@ -62,16 +65,7 @@ public class CalenderFragment extends Fragment  implements CalenderView , Calend
             );
             recyclerView.requestLayout();
         });
-        calenderPresenter.getCalMeal()
-                .observe(getViewLifecycleOwner(), meals -> {
-                    if (meals != null && !meals.isEmpty()) {
-                        hideEmptyState();
-                    }else{
-                        showEmptyState();
-                    }
-                    progressBar.setVisibility(View.GONE);
-                    calenderAdapter.setMealList(meals);
-                });
+        calenderPresenter.getCalMeal();
     }
     private void showEmptyState() {
         recyclerView.setVisibility(View.GONE);
@@ -82,6 +76,23 @@ public class CalenderFragment extends Fragment  implements CalenderView , Calend
         recyclerView.setVisibility(View.VISIBLE);
         emptyStateView.setVisibility(View.GONE);
     }
+
+    @Override
+    public void getMeals(List<Meal> meals) {
+        if (meals != null && !meals.isEmpty()) {
+            hideEmptyState();
+        }else{
+            showEmptyState();
+        }
+        progressBar.setVisibility(View.GONE);
+        calenderAdapter.setMealList(meals);
+    }
+
+    @Override
+    public void onFailure(String message) {
+        new ErrorSnackBar(view,message);
+    }
+
     @Override
     public void onMealDeleted() {
         new MySnackBar(view,"Meal Deleted");

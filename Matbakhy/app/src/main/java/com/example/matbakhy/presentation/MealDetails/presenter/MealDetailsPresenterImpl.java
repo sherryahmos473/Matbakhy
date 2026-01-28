@@ -31,41 +31,41 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
         this.mealDetailsView = mealDetailsView;
     }
     public void addMealToFav(Meal meal) {
-        mealRepository.insertMealInFav(meal);
-        mealDetailsView.onAddToFav();
+        mealRepository.insertMealInFav(meal).observeOn(AndroidSchedulers.mainThread()).subscribe(
+                () -> mealDetailsView.onAddToFav(),
+                throwable -> mealDetailsView.onFailure(throwable.getMessage())
+        );
     }
 
     public void removeMealFromFav(Meal meal) {
-        mealRepository.deleteMealsFromFav(meal);
-        mealDetailsView.removeMealFromFav();
+        mealRepository.deleteMealsFromFav(meal).observeOn(AndroidSchedulers.mainThread()).subscribe(
+                () -> mealDetailsView.removeMealFromFav(),
+                throwable -> mealDetailsView.onFailure(throwable.getMessage())
+        );
     }
 
     public void removeMealFromCal(Meal meal) {
-        mealRepository.deleteMealsFromCal(meal);
-        mealDetailsView.removeMealFromCal();
+        mealRepository.deleteMealsFromCal(meal).observeOn(AndroidSchedulers.mainThread()).subscribe(
+                () -> mealDetailsView.removeMealFromCal(),
+                throwable -> mealDetailsView.onFailure(throwable.getMessage())
+        );
     }
 
     @Override
     public void isFavorite(String mealId) {
-        mealRepository.isFavorite(mealId).observe(mealDetailsView.getLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isFavorite) {
-                if (mealDetailsView != null) {
-                    mealDetailsView.isFav(isFavorite != null && isFavorite);
-                }
-            }
-        });
+        mealRepository.isFavorite(mealId).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        isFavorite -> mealDetailsView.isFav(isFavorite != null && isFavorite),
+                        throwable -> mealDetailsView.onFailure(throwable.getMessage())
+                );
     }
     @Override
     public void isCal(String mealId) {
-        mealRepository.isCal(mealId).observe(mealDetailsView.getLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isPlanned) {
-                if (mealDetailsView != null) {
-                    mealDetailsView.isCal(isPlanned != null && isPlanned);
-                }
-            }
-        });
+        mealRepository.isCal(mealId).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        isFavorite -> mealDetailsView.isCal(isFavorite != null && isFavorite),
+                        throwable -> mealDetailsView.onFailure(throwable.getMessage())
+                );
     }
     @Override
     public void getMealOfIngredient(String ingredient) {
@@ -78,8 +78,10 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
     }
 
     public void addMealToCal(Meal meal, String date) {
-        mealRepository.insertMealInCal(meal,date);
-        mealDetailsView.onAddToCal();
+        mealRepository.insertMealInCal(meal,date).observeOn(AndroidSchedulers.mainThread()).subscribe(
+                () -> mealDetailsView.onAddToCal(),
+                throwable -> mealDetailsView.onFailure(throwable.getMessage())
+        );
     }
     public String extractYouTubeVideoId(String url) {
         if (url.contains("v=")) return url.split("v=")[1].split("&")[0];

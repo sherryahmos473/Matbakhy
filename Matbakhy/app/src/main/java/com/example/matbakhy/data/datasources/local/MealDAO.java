@@ -10,37 +10,42 @@ import com.example.matbakhy.data.model.Meal;
 
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+
 @Dao
 public interface MealDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertFavMeal(Meal meal);
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertCalMeal(Meal meal);
+    Completable insertMeal(Meal meal);
 
     @Query("SELECT * FROM meals WHERE is_favorite = 1")
-    LiveData<List<Meal>> getFavMeals();
+    Single<List<Meal>> getFavMeals();
+
     @Query("SELECT * FROM meals WHERE is_planned = 1")
-    LiveData<List<Meal>> getCalMeals();
+    Single<List<Meal>> getCalMeals();
 
     @Query("UPDATE meals SET is_favorite = 0 WHERE id = :mealId")
-    void deleteFavMeal(String mealId);
+    Completable deleteFavMeal(String mealId);
+
     @Query("UPDATE meals SET is_planned = 0 WHERE id = :mealId")
-    void deleteCalMeal(String mealId);
+    Completable deleteCalMeal(String mealId);
 
     @Query("SELECT is_favorite FROM meals WHERE id = :mealId")
-    LiveData<Boolean> isFavorite(String mealId);
+    Maybe<Boolean> isFavorite(String mealId);
+
     @Query("SELECT is_planned FROM meals WHERE id = :mealId")
-    LiveData<Boolean> isCal(String mealId);
+    Maybe<Boolean> isCal(String mealId);
 
     @Query("DELETE FROM meals")
-    void deleteAllMeals();
+    Completable deleteAllMeals();
 
     @Query("DELETE FROM meals WHERE id = :mealId AND is_favorite = 0 AND is_planned = 0")
-    int deleteIfNotFavoriteAndNotPlanned(String mealId);
+    Completable deleteIfNotFavoriteAndNotPlanned(String mealId);
 
     @Query("DELETE FROM meals WHERE is_planned = 1 AND plan_date < :todayTimestamp")
-    void deletePlannedMealsBeforeToday(String todayTimestamp);
+    Completable deletePlannedMealsBeforeToday(String todayTimestamp);
+
     @Query("SELECT * FROM meals")
-    LiveData<List<Meal>> getAllMealsSync();
+    Single<List<Meal>> getAllMeals();
 }

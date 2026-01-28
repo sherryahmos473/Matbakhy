@@ -15,6 +15,7 @@ import com.example.matbakhy.data.callbacks.SimpleCallback;
 import com.example.matbakhy.data.datasources.local.SharedPref;
 import com.example.matbakhy.data.datasources.local.SharedPrefServices;
 import com.example.matbakhy.data.datasources.remote.AuthNetwork;
+import com.example.matbakhy.data.datasources.remote.FirebaseBackupService;
 import com.example.matbakhy.data.datasources.remote.FirebaseServices;
 import com.example.matbakhy.data.datasources.remote.MealBackupManager;
 import com.example.matbakhy.data.datasources.remote.MealRestoreManager;
@@ -24,10 +25,13 @@ import com.example.matbakhy.data.model.User;
 
 import java.util.List;
 
+import io.reactivex.schedulers.Schedulers;
+
 public class AuthRepository {
 
     private static final String TAG = "AuthRepository";
     private final FirebaseServices firebaseServices;
+    private final FirebaseBackupService firebaseBackupService;
     private  final SharedPref sharedPref;
     private final MealRepository mealRepository;
     Context context;
@@ -38,6 +42,7 @@ public class AuthRepository {
         this.mealRepository = new MealRepository(context);
         this.firebaseServices.initialize(context);
         this.sharedPref = SharedPrefServices.getInstance(context);
+        this.firebaseBackupService = new FirebaseBackupService();
     }
     public void loginAsGuest(SimpleCallback callback){
         sharedPref.loginAsGuest(callback);
@@ -102,16 +107,8 @@ public class AuthRepository {
     }
 
     private void backupUserData(BackupCallback callback) {
-        LiveData<List<Meal>> mealsLiveData = mealRepository.getAllMealsFromLocal();
-        mealsLiveData.observeForever(new Observer<List<Meal>>() {
-            @Override
-            public void onChanged(List<Meal> meals) {
-                mealsLiveData.removeObserver(this);
-
-                MealBackupManager backupManager = new MealBackupManager(context);
-                backupManager.backupMeals(meals, callback);
-            }
-        });
+        mealRepository.getAllMealsFromLocal().subscribeOn(Schedulers.io()).subscribe(
+                meals -> firebaseBackupService.backupAllMeals(meals));
     }
 
     public void loginWithRestore(String email, String password, AuthCallback callback) {

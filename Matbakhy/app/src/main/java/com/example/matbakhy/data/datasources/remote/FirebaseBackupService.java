@@ -34,17 +34,10 @@ public class FirebaseBackupService {
         this.databaseReference = FirebaseDatabase.getInstance().getReference();
     }
 
-    public void backupAllMeals(List<Meal> meals, BackupCallback callback) {
-        if (firebaseAuth.getCurrentUser() == null) {
-            callback.onError("User not authenticated");
-            return;
-        }
+    public void backupAllMeals(List<Meal> meals) {
         String userId = firebaseAuth.getCurrentUser().getUid();
         String userEmail = firebaseAuth.getCurrentUser().getEmail();
-        if (meals == null || meals.isEmpty()) {
-            callback.onSuccess(0, "No meals to backup");
-            return;
-        }
+
 
         DatabaseReference userBackupRef = databaseReference
                 .child(BACKUP_PATH)
@@ -53,15 +46,14 @@ public class FirebaseBackupService {
 
         userBackupRef.removeValue()
                 .addOnSuccessListener(aVoid -> {
-                    saveNewMeals(meals, userId, userEmail, userBackupRef, callback);
+                    saveNewMeals(meals, userId, userEmail, userBackupRef);
                 })
                 .addOnFailureListener(e -> {
-                    callback.onError("Failed to clear old data: " + e.getMessage());
                 });
     }
 
     private void saveNewMeals(List<Meal> meals, String userId, String userEmail,
-                              DatabaseReference userBackupRef, BackupCallback callback) {
+                              DatabaseReference userBackupRef) {
         Map<String, Object> batchUpdate = new HashMap<>();
 
         for (Meal meal : meals) {
@@ -71,13 +63,7 @@ public class FirebaseBackupService {
         }
 
 
-        userBackupRef.updateChildren(batchUpdate)
-                .addOnSuccessListener(aVoid -> {
-                    callback.onSuccess(meals.size(), "Backup completed successfully");
-                })
-                .addOnFailureListener(e -> {
-                    callback.onError("Backup failed: " + e.getMessage());
-                });
+        userBackupRef.updateChildren(batchUpdate);
     }
 
     public void restoreMealsFromFirebase(RestoreCallback callback) {

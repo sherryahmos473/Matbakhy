@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface CalenderPresenter {
 
-    LiveData<List<Meal>> getCalMeal();
+    void getCalMeal();
     void deleteMeal(Meal meal);
 }

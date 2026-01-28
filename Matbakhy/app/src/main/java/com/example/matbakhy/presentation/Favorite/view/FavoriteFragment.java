@@ -18,11 +18,14 @@ import android.widget.ProgressBar;
 
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.model.Meal;
+import com.example.matbakhy.helper.ErrorSnackBar;
 import com.example.matbakhy.helper.MySnackBar;
 import com.example.matbakhy.presentation.Favorite.presenter.FavoritePresenter;
 import com.example.matbakhy.presentation.Favorite.presenter.FavoritePresenterImpl;
 import com.example.matbakhy.presentation.Favorite.presenter.FavoriteView;
 import com.example.matbakhy.presentation.MealsList.views.MealClickListener;
+
+import java.util.List;
 
 
 public class FavoriteFragment extends Fragment implements FavoriteOnClickListener, FavoriteView, MealClickListener {
@@ -79,17 +82,7 @@ public class FavoriteFragment extends Fragment implements FavoriteOnClickListene
             );
             recyclerView.requestLayout();
         });
-        favoritePresenter.getFavMeal()
-                .observe(getViewLifecycleOwner(), meals -> {
-                    if (meals != null && !meals.isEmpty()) {
-                        hideEmptyState();
-                    }else{
-                        showEmptyState();
-                    }
-                    progressBar.setVisibility(View.GONE);
-                    favoriteAdapter.setMealList(meals);
-
-                });
+        favoritePresenter.getFavMeal();
     }
     private void showEmptyState() {
         recyclerView.setVisibility(View.GONE);
@@ -100,6 +93,23 @@ public class FavoriteFragment extends Fragment implements FavoriteOnClickListene
         recyclerView.setVisibility(View.VISIBLE);
         emptyStateView.setVisibility(View.GONE);
     }
+
+    @Override
+    public void getMeals(List<Meal> meals) {
+        if (meals != null && !meals.isEmpty()) {
+            hideEmptyState();
+        }else{
+            showEmptyState();
+        }
+        progressBar.setVisibility(View.GONE);
+        favoriteAdapter.setMealList(meals);
+    }
+
+    @Override
+    public void onFailure(String message) {
+        new ErrorSnackBar(view,message);
+    }
+
     @Override
     public void onMealDeleted() {
         new MySnackBar(view,"Meal Deleted");
