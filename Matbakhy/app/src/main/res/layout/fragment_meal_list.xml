@@ -18,7 +18,7 @@
             android:id="@+id/category_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Meals"
+            android:text="@string/meals"
             android:gravity="center"
             android:textSize="18sp"
             android:textColor="@color/black"

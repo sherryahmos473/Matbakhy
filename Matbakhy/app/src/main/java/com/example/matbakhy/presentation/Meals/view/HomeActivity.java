@@ -1,21 +1,18 @@
 package com.example.matbakhy.presentation.Meals.view;
 
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.matbakhy.R;
-import com.example.matbakhy.data.auth.AuthRepository;
+import com.example.matbakhy.data.AuthRepository;
+import com.example.matbakhy.data.MealRepository;
+import com.example.matbakhy.data.datasources.local.SharedPrefServices;
 import com.example.matbakhy.databinding.ActivityHomeBinding;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class HomeActivity extends AppCompatActivity {
 

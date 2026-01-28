@@ -1,62 +1,53 @@
 package com.example.matbakhy.presentation.MealDetails.presenter;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 
 import com.example.matbakhy.R;
-import com.example.matbakhy.data.Meals.MealRepositry;
-import com.example.matbakhy.data.Meals.dataSource.MealRemoteResponse;
-import com.example.matbakhy.data.Meals.model.Meal;
-import com.example.matbakhy.data.auth.AuthRepository;
-import com.example.matbakhy.data.auth.callbacks.LogoutCallback;
-import com.example.matbakhy.presentation.MealDetails.view.MealDetailsFragment;
-import com.example.matbakhy.presentation.MealDetails.view.MealDetailsFragmentArgs;
+import com.example.matbakhy.data.AuthRepository;
+import com.example.matbakhy.data.MealRepository;
+import com.example.matbakhy.data.model.Meal;
+import com.example.matbakhy.data.callbacks.LogoutCallback;
 import com.example.matbakhy.presentation.MealDetails.view.MealDetailsView;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+
 public class MealDetailsPresenterImpl implements MealDetailsPresenter{
-    MealRepositry mealRepositry;
+    MealRepository mealRepository;
     MealDetailsView mealDetailsView;
     AuthRepository authRepository;
     public MealDetailsPresenterImpl(Context context,MealDetailsView mealDetailsView){
-        mealRepositry = new MealRepositry(context);
+        mealRepository = new MealRepository(context);
         authRepository = new AuthRepository(context);
         this.mealDetailsView = mealDetailsView;
     }
     public void addMealToFav(Meal meal) {
-        mealRepositry.insertMealInFav(meal);
+        mealRepository.insertMealInFav(meal);
         mealDetailsView.onAddToFav();
     }
 
     public void removeMealFromFav(Meal meal) {
-        mealRepositry.deleteMealsFromFav(meal);
+        mealRepository.deleteMealsFromFav(meal);
         mealDetailsView.removeMealFromFav();
     }
 
     public void removeMealFromCal(Meal meal) {
-        mealRepositry.deleteMealsFromCal(meal);
+        mealRepository.deleteMealsFromCal(meal);
         mealDetailsView.removeMealFromCal();
     }
 
     @Override
     public void isFavorite(String mealId) {
-        mealRepositry.isFavorite(mealId).observe(mealDetailsView.getLifecycleOwner(), new Observer<Boolean>() {
+        mealRepository.isFavorite(mealId).observe(mealDetailsView.getLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isFavorite) {
                 if (mealDetailsView != null) {
@@ -67,7 +58,7 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
     }
     @Override
     public void isCal(String mealId) {
-        mealRepositry.isCal(mealId).observe(mealDetailsView.getLifecycleOwner(), new Observer<Boolean>() {
+        mealRepository.isCal(mealId).observe(mealDetailsView.getLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isPlanned) {
                 if (mealDetailsView != null) {
@@ -78,21 +69,16 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
     }
     @Override
     public void getMealOfIngredient(String ingredient) {
-        mealRepositry.getMealOfIngredient(new MealRemoteResponse() {
-            @Override
-            public void onSuccess(List<Meal> mealList) {
-                Log.d("SearchFragment", "onSuccess: "+ mealList.size());
-                mealDetailsView.onSuccess(mealList);
-            }
-            @Override
-            public void onFailure(String errorMessage) {
-                mealDetailsView.onFailure(errorMessage);
-            }
-        }, ingredient);
+        mealRepository.getMealOfIngredient(ingredient)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        meals -> mealDetailsView.onSuccess(meals),
+                        throwable -> mealDetailsView.onFailure(throwable.getMessage())
+                );
     }
 
     public void addMealToCal(Meal meal, String date) {
-        mealRepositry.insertMealInCal(meal,date);
+        mealRepository.insertMealInCal(meal,date);
         mealDetailsView.onAddToCal();
     }
     public String extractYouTubeVideoId(String url) {
@@ -103,7 +89,6 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
     @Override
     public boolean isGuest() {
         return authRepository.isGuest();
-
     }
 
     @Override

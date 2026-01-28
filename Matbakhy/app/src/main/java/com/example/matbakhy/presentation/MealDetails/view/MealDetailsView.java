@@ -2,7 +2,7 @@ package com.example.matbakhy.presentation.MealDetails.view;
 
 import androidx.lifecycle.LifecycleOwner;
 
-import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.model.Meal;
 
 import java.util.List;
 

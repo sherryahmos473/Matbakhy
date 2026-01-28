@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.matbakhy.R;
-import com.example.matbakhy.data.Meals.model.Area;
+import com.example.matbakhy.data.model.Area;
 
 import java.util.ArrayList;
 import java.util.List;

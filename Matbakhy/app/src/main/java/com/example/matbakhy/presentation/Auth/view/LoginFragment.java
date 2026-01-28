@@ -3,6 +3,7 @@ package com.example.matbakhy.presentation.Auth.view;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -186,7 +187,13 @@ public class LoginFragment extends Fragment implements LoginView {
     }
 
     private void setupListeners() {
-        btnLogin.setOnClickListener(v -> presenter.onLoginClicked());
+        btnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: ");
+                presenter.onLoginClicked();
+            }
+        });
         txtRegister.setOnClickListener(v -> presenter.onRegisterClicked());
         txtForgotPassword.setOnClickListener(v -> presenter.onForgotPasswordClicked());
         btnGoogle.setOnClickListener(v -> presenter.onGoogleSignInClickedWithRestore());

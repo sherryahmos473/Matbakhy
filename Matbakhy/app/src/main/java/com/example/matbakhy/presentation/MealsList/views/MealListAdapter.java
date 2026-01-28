@@ -12,7 +12,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.matbakhy.R;
-import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.model.Meal;
 import java.util.ArrayList;
 import java.util.List;
 

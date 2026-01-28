@@ -17,12 +17,10 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.example.matbakhy.R;
-import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.model.Meal;
 import com.example.matbakhy.helper.MySnackBar;
 import com.example.matbakhy.presentation.Calender.presenter.CalenderPresenter;
 import com.example.matbakhy.presentation.Calender.presenter.CalenderPresenterImpl;
-import com.example.matbakhy.presentation.Favorite.view.FavoriteAdapter;
-import com.example.matbakhy.presentation.Favorite.view.FavoriteFragmentDirections;
 import com.example.matbakhy.presentation.MealsList.views.MealClickListener;
 
 

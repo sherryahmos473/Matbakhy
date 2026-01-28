@@ -2,9 +2,10 @@ package com.example.matbakhy.presentation.Auth.presenter;
 
 
 import android.content.Context;
+import android.util.Log;
 
-import com.example.matbakhy.data.auth.callbacks.AuthCallback;
-import com.example.matbakhy.data.auth.model.User;
+import com.example.matbakhy.data.callbacks.AuthCallback;
+import com.example.matbakhy.data.model.User;
 import com.example.matbakhy.presentation.Auth.view.LoginView;
 
 public class LoginPresenterImpl extends BaseAuthPresenterImpl implements LoginPresenter {
@@ -32,10 +33,10 @@ public class LoginPresenterImpl extends BaseAuthPresenterImpl implements LoginPr
         String email = loginView.getEmail();
         String password = loginView.getPassword();
 
-        if (validateEmailAndPassword(email, password)) {
+        if (!validateEmailAndPassword(email, password)) {
             return;
         }
-
+        Log.d(TAG, "onLoginClicked: ");
         performLogin(email, password);
     }
 
@@ -65,7 +66,7 @@ public class LoginPresenterImpl extends BaseAuthPresenterImpl implements LoginPr
 
     private void performLogin(String email, String password) {
         if (loginView == null) return;
-
+        Log.d(TAG, "performLogin: ");
         loginView.showLoading("Logging in...");
 
         authRepository.loginWithRestore(email, password, new AuthCallback() {

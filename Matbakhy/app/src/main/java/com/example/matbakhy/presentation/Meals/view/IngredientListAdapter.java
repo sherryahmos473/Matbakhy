@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.matbakhy.R;
-import com.example.matbakhy.data.Meals.model.Category;
 
 import java.util.List;
 

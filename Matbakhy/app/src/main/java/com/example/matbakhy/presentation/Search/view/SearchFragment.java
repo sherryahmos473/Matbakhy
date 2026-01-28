@@ -18,9 +18,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.matbakhy.R;
-import com.example.matbakhy.data.Meals.model.Area;
-import com.example.matbakhy.data.Meals.model.Category;
-import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.model.Area;
+import com.example.matbakhy.data.model.Category;
+import com.example.matbakhy.data.model.Meal;
 import com.example.matbakhy.presentation.Meals.view.CategoryListAdapter;
 import com.example.matbakhy.presentation.Meals.view.CategoryListener;
 import com.example.matbakhy.presentation.Meals.view.CountryListAdapter;
@@ -31,15 +31,15 @@ import com.example.matbakhy.presentation.MealsList.views.MealClickListener;
 import com.example.matbakhy.presentation.MealsList.views.MealListAdapter;
 import com.example.matbakhy.presentation.Search.presenter.SearchPresenter;
 import com.example.matbakhy.presentation.Search.presenter.SearchPresenterImpl;
-import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+
 
 public class SearchFragment extends Fragment implements CategoryListener, CountryListener, IngredientListener, SearchView, MealClickListener {
     private View root, noInternet;
@@ -82,7 +82,6 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
         mealListAdapter = new MealListAdapter(new MealListAdapter.MealClickListener() {
             @Override
             public void onMealClick(Meal meal) {
-
                 getMealByName(meal);
             } });
         categoryAdapter = new CategoryListAdapter(this);
@@ -109,8 +108,10 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
             if (checkedId == View.NO_ID) {
                 resetSearch();
                 isFilterMode = false;
+                filterList.setVisibility(View.GONE);
                 return;
             }
+            filterList.setVisibility(View.VISIBLE);
 
             resetSearch();
             isFilterMode = true;
@@ -143,14 +144,13 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
                     mealListAdapter.setMealList(fullMealList);
                     return;
                 }else if(s.toString().length() == 1 && !isFilterMode){
+
                     presenter.getMealByFLetter(s.toString());
-                    Log.d(TAG, "onTextChanged: " + fullMealList.size());
+
                     filterList.setVisibility(View.GONE);
                 }
 
                 if (fullMealList == null || fullMealList.isEmpty()) return;
-
-
 
                 String query = s.toString().toLowerCase();
 
@@ -216,6 +216,7 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
     public void getMealByFLetter(List<Meal> mealList) {
         fullMealList = mealList;
         mealListAdapter.setMealList(mealList);
+        Log.d(TAG, "onTextChanged: " + fullMealList.size());
     }
 
     @Override

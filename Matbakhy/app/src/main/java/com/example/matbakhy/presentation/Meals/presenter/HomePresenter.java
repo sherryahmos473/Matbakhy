@@ -2,11 +2,7 @@ package com.example.matbakhy.presentation.Meals.presenter;
 
 import android.content.Context;
 
-import com.example.matbakhy.data.Meals.model.Category;
-import com.example.matbakhy.data.Meals.model.Meal;
 import com.example.matbakhy.presentation.Meals.view.HomeView;
-
-import java.util.List;
 
 public interface HomePresenter {
     void attachView(HomeView view);

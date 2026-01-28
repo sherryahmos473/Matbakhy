@@ -15,13 +15,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.matbakhy.R;
-import com.example.matbakhy.data.Meals.model.Meal;
-import com.example.matbakhy.data.Meals.model.MealList;
+import com.example.matbakhy.data.model.Meal;
+import com.example.matbakhy.data.model.MealList;
 import com.example.matbakhy.helper.ErrorSnackBar;
 import com.example.matbakhy.presentation.MealsList.presenter.MealListPresenter;
 import com.example.matbakhy.presentation.MealsList.presenter.MealListPresenterImpl;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class MealListFragment extends Fragment implements MealListView{

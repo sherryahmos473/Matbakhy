@@ -41,7 +41,7 @@
             app:destination="@id/mealListFragment" />
         <argument
             android:name="meal"
-            app:argType="com.example.matbakhy.data.Meals.model.Meal" />
+            app:argType="com.example.matbakhy.data.model.Meal" />
     </fragment>
 
     <fragment
@@ -58,7 +58,7 @@
             app:destination="@+id/favoriteFragment" />
         <argument
             android:name="mealList"
-            app:argType="com.example.matbakhy.data.Meals.model.MealList"/>
+            app:argType="com.example.matbakhy.data.model.MealList"/>
     </fragment>
 
     <fragment

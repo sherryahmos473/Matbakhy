@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.matbakhy.R;
-import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.model.Meal;
 import com.example.matbakhy.presentation.MealsList.views.MealClickListener;
 
 import java.util.ArrayList;

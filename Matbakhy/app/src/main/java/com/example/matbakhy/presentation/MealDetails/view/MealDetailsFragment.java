@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,28 +25,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.matbakhy.MainActivity;
 import com.example.matbakhy.R;
-import com.example.matbakhy.data.Meals.model.Meal;
-import com.example.matbakhy.data.Meals.model.MealList;
+import com.example.matbakhy.data.model.Meal;
+import com.example.matbakhy.data.model.MealList;
 import com.example.matbakhy.helper.ErrorSnackBar;
 import com.example.matbakhy.helper.MySnackBar;
 import com.example.matbakhy.presentation.MealDetails.presenter.MealDetailsPresenter;
 import com.example.matbakhy.presentation.MealDetails.presenter.MealDetailsPresenterImpl;
-import com.example.matbakhy.presentation.Meals.view.HomeFragmentDirections;
 import com.example.matbakhy.presentation.Meals.view.IngredientListAdapter;
 import com.example.matbakhy.presentation.Meals.view.IngredientListener;
-import com.google.android.material.datepicker.CalendarConstraints;
-import com.google.android.material.datepicker.DateValidatorPointForward;
-import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 public class MealDetailsFragment extends Fragment implements MealDetailsView , IngredientListener {
     private static final String TAG = "MealDetailsFragment";

@@ -2,7 +2,7 @@ package com.example.matbakhy.presentation.MealDetails.presenter;
 
 import androidx.fragment.app.FragmentManager;
 
-import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.model.Meal;
 
 public interface MealDetailsPresenter {
     public  void isFavorite(String mealId);

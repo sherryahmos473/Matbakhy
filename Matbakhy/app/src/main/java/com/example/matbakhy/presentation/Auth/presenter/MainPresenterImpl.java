@@ -4,7 +4,7 @@ package com.example.matbakhy.presentation.Auth.presenter;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.matbakhy.data.auth.AuthRepository;
+import com.example.matbakhy.data.AuthRepository;
 import com.example.matbakhy.presentation.Auth.view.MainView;
 
 public class MainPresenterImpl implements MainPresenter {

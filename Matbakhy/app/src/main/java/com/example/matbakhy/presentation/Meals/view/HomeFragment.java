@@ -8,7 +8,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.os.Parcelable; import android.util.Log;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,20 +18,16 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.Initializable;
 import com.example.matbakhy.MainActivity;
 import com.example.matbakhy.R;
-import com.example.matbakhy.data.Meals.model.Area;
-import com.example.matbakhy.data.Meals.model.Category;
-import com.example.matbakhy.data.Meals.model.Meal;
-import com.example.matbakhy.data.Meals.model.MealList;
-import com.example.matbakhy.helper.MySnackBar;
+import com.example.matbakhy.data.model.Area;
+import com.example.matbakhy.data.model.Category;
+import com.example.matbakhy.data.model.Meal;
+import com.example.matbakhy.data.model.MealList;
 
 import com.example.matbakhy.presentation.Meals.presenter.HomePresenter;
 import com.example.matbakhy.presentation.Meals.presenter.HomePresenterImpl;
-import com.google.android.material.textfield.TextInputLayout;
 
-import java.util.ArrayList;
 import java.util.List;
 public class HomeFragment extends Fragment implements HomeView , CategoryListener, CountryListener {
     HomePresenter homePresenter;

@@ -4,10 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.example.matbakhy.data.auth.AuthRepository;
-import com.example.matbakhy.data.auth.callbacks.AuthCallback;
-import com.example.matbakhy.data.auth.callbacks.SimpleCallback;
-import com.example.matbakhy.data.auth.model.User;
+import com.example.matbakhy.data.AuthRepository;
+import com.example.matbakhy.data.callbacks.AuthCallback;
+import com.example.matbakhy.data.callbacks.SimpleCallback;
+import com.example.matbakhy.data.model.User;
 import com.example.matbakhy.presentation.Auth.view.BaseAuthView;
 
 public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
@@ -161,7 +161,7 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
             view.showPasswordError("Password must be at least 6 characters");
             isValid = false;
         }
-
+        Log.d(TAG, "validateEmailAndPassword: " + isValid);
 
         return isValid;
     }

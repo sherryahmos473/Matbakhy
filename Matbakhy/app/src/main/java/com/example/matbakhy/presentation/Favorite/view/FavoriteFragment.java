@@ -11,14 +11,13 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.example.matbakhy.R;
-import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.model.Meal;
 import com.example.matbakhy.helper.MySnackBar;
 import com.example.matbakhy.presentation.Favorite.presenter.FavoritePresenter;
 import com.example.matbakhy.presentation.Favorite.presenter.FavoritePresenterImpl;

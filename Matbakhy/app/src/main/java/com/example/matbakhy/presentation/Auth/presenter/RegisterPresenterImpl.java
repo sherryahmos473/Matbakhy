@@ -3,8 +3,8 @@ package com.example.matbakhy.presentation.Auth.presenter;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.matbakhy.data.auth.callbacks.AuthCallback;
-import com.example.matbakhy.data.auth.model.User;
+import com.example.matbakhy.data.callbacks.AuthCallback;
+import com.example.matbakhy.data.model.User;
 import com.example.matbakhy.presentation.Auth.view.RegisterView;
 
 public class RegisterPresenterImpl extends BaseAuthPresenterImpl implements RegisterPresenter {
@@ -70,7 +70,7 @@ public class RegisterPresenterImpl extends BaseAuthPresenterImpl implements Regi
         }
 
         if (validateEmailAndPassword(email, password)) {
-            isValid = false;
+            isValid = true;
         }
 
         if (confirmPassword.isEmpty()) {

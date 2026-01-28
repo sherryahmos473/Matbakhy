@@ -1,32 +1,27 @@
 package com.example.matbakhy.presentation.Meals.presenter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.os.Build;
-import android.util.Log;
 
-import com.example.matbakhy.data.Meals.MealRepositry;
-import com.example.matbakhy.data.Meals.dataSource.AreaRemoteResponse;
-import com.example.matbakhy.data.Meals.dataSource.CategoriesRemoteResponse;
-import com.example.matbakhy.data.Meals.dataSource.MealRemoteResponse;
-import com.example.matbakhy.data.Meals.model.Area;
-import com.example.matbakhy.data.Meals.model.Category;
-import com.example.matbakhy.data.Meals.model.Meal;
-import com.example.matbakhy.data.auth.AuthRepository;
-import com.example.matbakhy.data.auth.callbacks.LogoutCallback;
+import com.example.matbakhy.data.AuthRepository;
+import com.example.matbakhy.data.MealRepository;
+import com.example.matbakhy.data.callbacks.LogoutCallback;
 import com.example.matbakhy.presentation.Meals.view.HomeView;
 
-import java.util.List;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+
 
 public class HomePresenterImpl implements HomePresenter{
-    private MealRepositry mealRepositry;
+    private MealRepository mealRepository;
     private final AuthRepository authRepository;
     private HomeView homeView;
 
     public HomePresenterImpl(Context context){
 
-        mealRepositry = new MealRepositry(context);
+        mealRepository = new MealRepository(context);
         this.authRepository = new AuthRepository(context);
     }
 
@@ -39,88 +34,60 @@ public class HomePresenterImpl implements HomePresenter{
     public void detachView() {
         this.homeView = null;
     }
+    @SuppressLint("CheckResult")
     @Override
     public void getMealOfCategory(String categoryName) {
-        if (mealRepositry == null) return;
-
-        mealRepositry.getMealOfCategory(new MealRemoteResponse() {
-            @Override
-            public void onSuccess(List<Meal> meals) {
-                if (homeView != null) {
-                    Log.d("Meals", "onSuccess: "+ meals.size());
-                    homeView.onSuccess(meals);
-                }
-            }
-            @Override
-            public void onFailure(String error) {
-                if (homeView != null) {
-                    homeView.onFailure(error);
-                }
-            }
-        }, categoryName);
+        mealRepository.getMealOfCategory(categoryName)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        meals -> homeView.onSuccess(meals),
+                        throwable -> homeView.onFailure(throwable.getMessage())
+                );
     }
 
+    @SuppressLint("CheckResult")
     @Override
     public void getMealOfCountry(String countryName) {
-        if (mealRepositry == null) return;
+        if (mealRepository == null) return;
 
-        mealRepositry.getMealOfCountry(new MealRemoteResponse() {
-            @Override
-            public void onSuccess(List<Meal> meals) {
-                if (homeView != null) {
-                    Log.d("Meals", "onSuccess: "+ meals.size());
-                    homeView.onSuccess(meals);
-                }
-            }
-            @Override
-            public void onFailure(String error) {
-                if (homeView != null) {
-                    homeView.onFailure(error);
-                }
-            }
-        }, countryName);
+        mealRepository.getMealOfCountry(countryName)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        meals -> homeView.onSuccess(meals),
+                        throwable -> homeView.onFailure(throwable.getMessage())
+                );
     }
 
+    @SuppressLint("CheckResult")
     @Override
     public void getMealOfTheDay() {
-        mealRepositry.getMealOfTheDay(new MealRemoteResponse() {
-            @Override
-            public void onSuccess(List<Meal> mealList) {
-                homeView.getMealOfTheDay(mealList.get(0));
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                homeView.onFailure(errorMessage);
-            }
-        });
+        mealRepository.getMealOfTheDay()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        meals -> homeView.getMealOfTheDay(meals.get(0)),
+                        throwable -> homeView.onFailure(throwable.getMessage())
+                );
     }
 
+    @SuppressLint("CheckResult")
     @Override
     public void getAllCategories() {
-        mealRepositry.getAllCategories(new CategoriesRemoteResponse() {
-            @Override
-            public void onSuccess(List<Category> categories) {
-                homeView.getAllCategories(categories);
-            }
-            @Override
-            public void onFailure(String errorMessage) {
-                homeView.onFailure(errorMessage);
-            }
-        });
+        mealRepository.getAllCategories()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        categories -> homeView.getAllCategories(categories),
+                        throwable -> homeView.onFailure(throwable.getMessage())
+                );
     }
+    @SuppressLint("CheckResult")
     @Override
     public void getAllCountries() {
-        mealRepositry.getAllCountries(new AreaRemoteResponse() {
-            @Override
-            public void onSuccess(List<Area> areas) {
-                homeView.getAllCountries(areas);
-            }
-            @Override
-            public void onFailure(String errorMessage) {
-                homeView.onFailure(errorMessage);
-            }
-        });
+        mealRepository.getAllCountries()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        countries -> homeView.getAllCountries(countries),
+                        throwable -> homeView.onFailure(throwable.getMessage())
+                );
     }
 
     public void logout() {

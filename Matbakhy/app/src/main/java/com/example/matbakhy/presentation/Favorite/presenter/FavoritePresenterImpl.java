@@ -4,26 +4,26 @@ import android.content.Context;
 
 import androidx.lifecycle.LiveData;
 
-import com.example.matbakhy.data.Meals.MealRepositry;
-import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.MealRepository;
+import com.example.matbakhy.data.model.Meal;
 
 import java.util.List;
 
 public class FavoritePresenterImpl implements FavoritePresenter {
-    MealRepositry mealRepositry;
+    MealRepository mealRepository;
     FavoriteView favoriteView;
     public FavoritePresenterImpl(Context context, FavoriteView favoriteView){
-        mealRepositry = new MealRepositry(context);
+        mealRepository = new MealRepository(context);
         this.favoriteView = favoriteView;
     }
     @Override
     public LiveData<List<Meal>> getFavMeal() {
-        return mealRepositry.getFavMeals();
+        return mealRepository.getFavMeals();
     }
 
     @Override
     public void deleteMeal(Meal meal) {
-        mealRepositry.deleteMealsFromFav(meal);
+        mealRepository.deleteMealsFromFav(meal);
         favoriteView.onMealDeleted();
     }
 }

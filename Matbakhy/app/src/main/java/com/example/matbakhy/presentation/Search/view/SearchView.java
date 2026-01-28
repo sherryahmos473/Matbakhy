@@ -1,8 +1,8 @@
 package com.example.matbakhy.presentation.Search.view;
 
-import com.example.matbakhy.data.Meals.model.Area;
-import com.example.matbakhy.data.Meals.model.Category;
-import com.example.matbakhy.data.Meals.model.Meal;
+import com.example.matbakhy.data.model.Area;
+import com.example.matbakhy.data.model.Category;
+import com.example.matbakhy.data.model.Meal;
 
 import java.util.List;
 
