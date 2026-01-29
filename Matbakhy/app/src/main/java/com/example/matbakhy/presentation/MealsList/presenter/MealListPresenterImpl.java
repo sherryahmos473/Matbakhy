@@ -1,5 +1,6 @@
 package com.example.matbakhy.presentation.MealsList.presenter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import com.example.matbakhy.data.MealRepository; // Make sure import is correct
@@ -26,13 +27,28 @@ public class MealListPresenterImpl implements MealListPresenter {
         this.view = null;
     }
 
+    @SuppressLint("CheckResult")
     @Override
     public void getMealByName(String name) {
         repository.getMealByName(name)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        mealList -> view.onClickMeal(mealList.get(0))
-                        , throwable -> view.onFailure(throwable.getMessage())
+                        mealList -> {
+                            if (mealList != null && !mealList.isEmpty() && mealList.get(0) != null && mealList.get(0).getArea() != null && mealList.get(0).getCategory() != null && mealList.get(0).getInstructions() != null) {
+                                view.onClickMeal(mealList.get(0));
+                            } else {
+                                view.onFailure("This Meal Is Not Available");
+                            }
+                        },
+                        throwable -> {
+                            if (throwable instanceof NullPointerException &&
+                                    throwable.getMessage() != null &&
+                                    throwable.getMessage().contains("mapper function returned a null value")) {
+                                view.onFailure("Meal data could not be loaded");
+                            } else {
+                                view.onFailure(throwable.getMessage());
+                            }
+                        }
                 );
     }
 }

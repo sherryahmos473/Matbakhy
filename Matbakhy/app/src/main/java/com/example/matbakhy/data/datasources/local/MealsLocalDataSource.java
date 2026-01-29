@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import com.example.matbakhy.data.model.Meal;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -31,13 +32,13 @@ public class MealsLocalDataSource {
 
     public Completable deleteFavMeal(Meal meal){
         return mealsDAO.deleteFavMeal(meal.getId())
-                .andThen(mealsDAO.deleteIfNotFavoriteAndNotPlanned(meal.getId()))
+                .andThen(mealsDAO.deleteIfNotFavoriteAndNotPlanned())
                 .subscribeOn(Schedulers.io());
     }
 
     public Completable deleteCalMeal(Meal meal){
         return mealsDAO.deleteCalMeal(meal.getId())
-                .andThen(mealsDAO.deleteIfNotFavoriteAndNotPlanned(meal.getId()))
+                .andThen(mealsDAO.deleteIfNotFavoriteAndNotPlanned())
                 .subscribeOn(Schedulers.io());
     }
 
@@ -47,8 +48,15 @@ public class MealsLocalDataSource {
     }
 
     public Completable cleanOldPlannedMeals() {
-        long today = System.currentTimeMillis();
-        return mealsDAO.deletePlannedMealsBeforeToday(today)
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        long today = calendar.getTimeInMillis();
+        return mealsDAO.deletePlannedMealsBeforeToday(today).andThen(mealsDAO.deleteIfNotFavoriteAndNotPlanned())
                 .subscribeOn(Schedulers.io());
     }
 

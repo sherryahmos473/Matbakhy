@@ -128,7 +128,8 @@ public class HomePresenterImpl implements HomePresenter{
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 isGuest -> {
-                                    if (homeView != null && isGuest) {
+                                    if (homeView != null) {
+                                        Log.d("TAG", "isGuest: " + isGuest);
                                         homeView.onGuestStatus(isGuest);
                                     }
                                 },
@@ -140,6 +141,5 @@ public class HomePresenterImpl implements HomePresenter{
                         )
         );
     }
-
 
 }

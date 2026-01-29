@@ -18,6 +18,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -127,18 +128,6 @@ public class FirebaseServices {
                 });
     }
 
-    public Single<User> loginWithGoogleAccount(GoogleSignInAccount account) {
-        return Single.fromCallable(() -> {
-                    if (account == null || account.getIdToken() == null) {
-                        throw new Exception("Invalid Google account");
-                    }
-                    return account;
-                })
-                .subscribeOn(Schedulers.io())
-                .flatMap(this::firebaseAuthWithGoogleRx)
-                .flatMap(firebaseUser -> createOrFetchUserRx(firebaseUser, "google"));
-    }
-
     public Completable sendPasswordResetEmail(String email) {
         return Single.fromCallable(() -> {
                     if (!isValidEmail(email)) {
@@ -232,8 +221,8 @@ public class FirebaseServices {
 
     private Single<FirebaseUser> updateUserProfile(FirebaseUser firebaseUser, String name) {
         return Single.create(emitter -> {
-            com.google.firebase.auth.UserProfileChangeRequest profileUpdates =
-                    new com.google.firebase.auth.UserProfileChangeRequest.Builder()
+            UserProfileChangeRequest profileUpdates =
+                    new UserProfileChangeRequest.Builder()
                             .setDisplayName(name)
                             .build();
 
@@ -286,34 +275,42 @@ public class FirebaseServices {
     }
 
     private Single<User> createUserInFirestoreRx(FirebaseUser firebaseUser, String authProvider) {
+
         Map<String, Object> userData = new HashMap<>();
         userData.put("uid", firebaseUser.getUid());
         userData.put("email", firebaseUser.getEmail());
-        userData.put("name", firebaseUser.getDisplayName() != null ? firebaseUser.getDisplayName() : "User");
+        userData.put("name",
+                firebaseUser.getDisplayName() != null
+                        ? firebaseUser.getDisplayName()
+                        : "User");
         userData.put("authProvider", authProvider);
         userData.put("createdAt", new Date());
         userData.put("updatedAt", new Date());
 
-        return Single.<Void>create(emitter -> {
-                    firestore.collection("users").document(firebaseUser.getUid())
+        User user = new User(
+                firebaseUser.getUid(),
+                firebaseUser.getEmail(),
+                firebaseUser.getDisplayName() != null
+                        ? firebaseUser.getDisplayName()
+                        : "User"
+        );
+
+        return Completable.create(emitter -> {
+                    firestore.collection("users")
+                            .document(firebaseUser.getUid())
                             .set(userData)
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
-                                    emitter.onSuccess(null);
+                                    emitter.onComplete();
                                 } else {
                                     emitter.onError(task.getException());
                                 }
                             });
                 })
-                .flatMap(voidValue -> {
-                    User user = new User(
-                            firebaseUser.getUid(),
-                            firebaseUser.getEmail(),
-                            firebaseUser.getDisplayName() != null ? firebaseUser.getDisplayName() : "User"
-                    );
-                    return saveUserToSharedPrefRx(user).andThen(Single.just(user));
-                });
+                .andThen(saveUserToSharedPrefRx(user))
+                .andThen(Single.just(user));
     }
+
 
     private Single<User> fetchUserFromFirestoreRx(DocumentSnapshot document) {
         User user = document.toObject(User.class);
@@ -370,35 +367,11 @@ public class FirebaseServices {
         return password != null && password.length() >= 6;
     }
 
-    // Callback methods for backward compatibility
-    public void register(String email, String password, String name, com.example.matbakhy.data.callbacks.AuthCallback callback) {
-        register(email, password, name)
-                .subscribe(
-                        callback::onSuccess,
-                        error -> callback.onFailure(error.getMessage())
-                );
-    }
 
     public void login(String email, String password, com.example.matbakhy.data.callbacks.AuthCallback callback) {
         login(email, password)
                 .subscribe(
                         callback::onSuccess,
-                        error -> callback.onFailure(error.getMessage())
-                );
-    }
-
-    public void handleGoogleSignInResult(Intent data, com.example.matbakhy.data.callbacks.AuthCallback callback) {
-        loginWithGoogle(data)
-                .subscribe(
-                        callback::onSuccess,
-                        error -> callback.onFailure(error.getMessage())
-                );
-    }
-
-    public void sendPasswordResetEmail(String email, com.example.matbakhy.data.callbacks.SimpleCallback callback) {
-        sendPasswordResetEmail(email)
-                .subscribe(
-                        () -> callback.onSuccess("Password reset email sent"),
                         error -> callback.onFailure(error.getMessage())
                 );
     }

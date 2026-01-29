@@ -1,30 +1,16 @@
 package com.example.matbakhy.data;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
-
-import com.example.matbakhy.data.callbacks.AuthCallback;
-import com.example.matbakhy.data.callbacks.BackupCallback;
-import com.example.matbakhy.data.callbacks.LogoutCallback;
-import com.example.matbakhy.data.callbacks.SimpleCallback;
-import com.example.matbakhy.data.datasources.local.AppDataBase;
 import com.example.matbakhy.data.datasources.local.MealsLocalDataSource;
-import com.example.matbakhy.data.datasources.local.SharedPref;
-import com.example.matbakhy.data.datasources.local.SharedPrefServices;
 import com.example.matbakhy.data.datasources.remote.FirebaseServices;
 import com.example.matbakhy.data.datasources.remote.MealDataSource;
-import com.example.matbakhy.data.datasources.remote.MealRestoreManager;
 import com.example.matbakhy.data.datasources.remote.Network;
 import com.example.matbakhy.data.model.Area;
 import com.example.matbakhy.data.model.Category;
 import com.example.matbakhy.data.model.Ingredient;
 import com.example.matbakhy.data.model.Meal;
-import com.example.matbakhy.data.datasources.remote.MealBackupManager;
-import com.example.matbakhy.data.model.User;
 
 import java.util.List;
 
@@ -37,13 +23,11 @@ import io.reactivex.schedulers.Schedulers;
 public class MealRepository {
     private MealDataSource mealServices;
     private MealsLocalDataSource mealsLocalDataSource;
-    private final FirebaseServices firebaseServices;
 
 
     public MealRepository(Context context){
         mealServices = new MealDataSource(context);
         mealsLocalDataSource = new MealsLocalDataSource(context);
-        this.firebaseServices = Network.getInstance(context).firebaseServices;
     }
     public Single<List<Meal>> getMealOfTheDay(){
         return mealServices.getMealOfTheDay();
@@ -76,8 +60,6 @@ public class MealRepository {
         return mealsLocalDataSource.getFavMeals();
     }
     public Single<List<Meal>> getCalMeals() {
-        clearAllLocalMeals();
-
         return mealsLocalDataSource.getCalMeals();
     }
     public Completable insertMealInFav(Meal meal){
@@ -93,7 +75,6 @@ public class MealRepository {
     public Completable insertMealInCal(Meal meal,Long cal){
         meal.setPlanned(true);
         meal.setPlanDate(cal);
-        Log.d("insertMealInCal", "insertMealInCal: ");
 
         return mealsLocalDataSource.insertMeal(meal)
                 .subscribeOn(Schedulers.io())

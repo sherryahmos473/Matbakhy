@@ -5,13 +5,12 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.example.matbakhy.data.callbacks.AuthCallback;
-import com.example.matbakhy.data.callbacks.BackupCallback;
 import com.example.matbakhy.data.callbacks.LogoutCallback;
+import com.example.matbakhy.data.callbacks.RestoreCallback;
 import com.example.matbakhy.data.callbacks.SimpleCallback;
 import com.example.matbakhy.data.datasources.local.SharedPrefServices;
 import com.example.matbakhy.data.datasources.remote.FirebaseBackupService;
 import com.example.matbakhy.data.datasources.remote.FirebaseServices;
-import com.example.matbakhy.data.datasources.remote.MealRestoreManager;
 import com.example.matbakhy.data.datasources.remote.Network;
 import com.example.matbakhy.data.model.Meal;
 import com.example.matbakhy.data.model.User;
@@ -113,26 +112,18 @@ public class AuthRepository {
     }
 
     public Completable logoutWithBackup() {
-        return backupUserData()
-                .onErrorComplete()
-                .andThen(logout())
-                .andThen(Completable.fromAction(() -> mealRepository.clearAllLocalMeals()))
-                .subscribeOn(Schedulers.io());
-    }
+            return Completable.create(emitter -> {
+                mealRepository.getAllMealsFromLocal()
+                        .subscribe(meals -> {
+                            firebaseBackupService.backupAllMeals(meals);
+                            mealRepository.clearAllLocalMeals()
+                                    .subscribe(() -> {
+                                        logout().subscribe(emitter::onComplete, emitter::onError);
+                                    }, emitter::onError);
+                        }, emitter::onError);
+            }).subscribeOn(Schedulers.io());
 
-    private Completable backupUserData() {
-        Log.d(TAG, "backupUserData: ");
-        return mealRepository.getAllMealsFromLocal()
-                .flatMapCompletable(meals ->
-                        Completable.create(emitter -> {
-                                    firebaseBackupService.backupAllMeals(meals);
-                                    emitter.onComplete();
-                            Log.d(TAG, "backupUserData: ");
-                                }
-                ))
-                .subscribeOn(Schedulers.io());
     }
-
     public Single<User> loginWithRestore(String email, String password) {
         return firebaseServices.login(email, password)
                 .flatMap(user ->
@@ -155,14 +146,20 @@ public class AuthRepository {
 
     private Single<RestoreResult> restoreUserData() {
         return Single.create(emitter -> {
-            MealRestoreManager restoreManager = new MealRestoreManager(context);
-            restoreManager.restoreMealsFromFirebase(new com.example.matbakhy.data.callbacks.RestoreCallback() {
+            firebaseBackupService.restoreMealsFromFirebase(new RestoreCallback() {
                 @Override
                 public void onSuccess(int restoredCount, List<Meal> meals, String message) {
                     if (meals != null && !meals.isEmpty()) {
-                        saveMealsLocally(meals);
+                        saveMealsLocally(meals)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io())
+                                .subscribe(
+                                        () -> emitter.onSuccess(new RestoreResult(true, restoredCount, message)),
+                                        error -> emitter.onSuccess(new RestoreResult(false, restoredCount, "Save failed: " + error.getMessage()))
+                                );
+                    } else {
+                        emitter.onSuccess(new RestoreResult(true, 0, message));
                     }
-                    emitter.onSuccess(new RestoreResult(true, restoredCount, message));
                 }
 
                 @Override
@@ -173,10 +170,18 @@ public class AuthRepository {
         });
     }
 
-    private void saveMealsLocally(List<Meal> meals) {
-        for (Meal meal : meals) {
-            mealRepository.insertMeal(meal);
-        }
+    private Completable saveMealsLocally(List<Meal> meals) {
+        return Completable.create(emitter -> {
+            for (Meal meal : meals) {
+                mealRepository.insertMeal(meal)
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(
+                                () -> {},
+                                error -> Log.e(TAG, "Error saving meal: " + meal.getId(), error)
+                        );
+            }
+            emitter.onComplete();
+        });
     }
 
     public void register(String email, String password, String name, AuthCallback callback) {
@@ -233,18 +238,6 @@ public class AuthRepository {
                         callback::onSuccess,
                         error -> callback.onFailure(error.getMessage())
                 );
-    }
-
-    public void handleGoogleSignInWithRestore(Intent data, AuthCallback callback) {
-        handleGoogleSignInWithRestore(data)
-                .subscribe(
-                        callback::onSuccess,
-                        error -> callback.onFailure(error.getMessage())
-                );
-    }
-
-    public interface RestoreCallback {
-        void onRestoreComplete(boolean success, int restoredCount, String message);
     }
 
     private static class RestoreResult {

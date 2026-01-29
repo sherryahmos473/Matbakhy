@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 
 import com.example.matbakhy.data.model.FirebaseMeal;
 import com.example.matbakhy.data.model.Meal;
-import com.example.matbakhy.data.callbacks.BackupCallback;
 import com.example.matbakhy.data.callbacks.RestoreCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -64,21 +63,6 @@ public class FirebaseBackupService {
                         Log.e(TAG, "Backup failed", e));
     }
 
-
-    private void saveNewMeals(List<Meal> meals, String userId, String userEmail,
-                              DatabaseReference userBackupRef) {
-        Map<String, Object> batchUpdate = new HashMap<>();
-
-        for (Meal meal : meals) {
-            String mealId = meal.getId() != null ? meal.getId() : "meal_" + System.currentTimeMillis();
-            FirebaseMeal firebaseMeal = new FirebaseMeal(meal, userId, userEmail);
-            batchUpdate.put(mealId, firebaseMeal);
-        }
-
-
-        userBackupRef.updateChildren(batchUpdate);
-    }
-
     public void restoreMealsFromFirebase(RestoreCallback callback) {
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         if (currentUser == null) {
@@ -87,6 +71,7 @@ public class FirebaseBackupService {
         }
 
         String userId = currentUser.getUid();
+        Log.d(TAG, "restoreMealsFromFirebase: "+ userId);
 
         DatabaseReference userBackupRef = databaseReference
                 .child(BACKUP_PATH)

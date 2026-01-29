@@ -40,10 +40,11 @@ public interface MealDAO {
     @Query("DELETE FROM meals")
     Completable deleteAllMeals();
 
-    @Query("DELETE FROM meals WHERE id = :mealId AND is_favorite = 0 AND is_planned = 0")
-    Completable deleteIfNotFavoriteAndNotPlanned(String mealId);
+    @Query("DELETE FROM meals WHERE is_favorite = 0 AND is_planned = 0")
+    Completable deleteIfNotFavoriteAndNotPlanned();
 
-    @Query("DELETE FROM meals WHERE is_planned = 1 AND plan_date < :todayTimestamp")
+    @Query("UPDATE meals SET is_planned = 0, plan_date = NULL, plan_date = 0 " +
+            "WHERE is_planned = 1 AND plan_date < :todayTimestamp")
     Completable deletePlannedMealsBeforeToday(long todayTimestamp);
     @Query("SELECT * FROM meals")
     Single<List<Meal>> getAllMeals();

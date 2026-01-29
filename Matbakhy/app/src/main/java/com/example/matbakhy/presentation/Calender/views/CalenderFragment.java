@@ -11,6 +11,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,6 +85,7 @@ public class CalenderFragment extends Fragment  implements CalenderView , Calend
         }else{
             showEmptyState();
         }
+        Log.d("TAG", "getMeals: " + meals.size());
         progressBar.setVisibility(View.GONE);
         calenderAdapter.setMealList(meals);
     }

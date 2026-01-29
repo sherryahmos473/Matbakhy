@@ -1,5 +1,6 @@
 package com.example.matbakhy.presentation.Search.presenter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
@@ -94,13 +95,28 @@ public class SearchPresenterImpl implements SearchPresenter {
                 );
     }
 
+    @SuppressLint("CheckResult")
     @Override
     public void getMealByName(String name) {
         mealRepository.getMealByName(name)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        meals -> searchView.getMealByName(meals.getFirst()),
-                        throwable -> searchView.onFailure(throwable.getMessage())
+                        mealList -> {
+                            if (mealList != null && !mealList.isEmpty() && mealList.get(0) != null && mealList.get(0).getArea() != null && mealList.get(0).getCategory() != null && mealList.get(0).getInstructions() != null) {
+                                searchView.getMealByName(mealList.get(0));
+                            } else {
+                                searchView.onFailure("This Meal Is Not Available");
+                            }
+                        },
+                        throwable -> {
+                            if (throwable instanceof NullPointerException &&
+                                    throwable.getMessage() != null &&
+                                    throwable.getMessage().contains("mapper function returned a null value")) {
+                                searchView.onFailure("Meal data could not be loaded");
+                            } else {
+                                searchView.onFailure(throwable.getMessage());
+                            }
+                        }
                 );
     }
     @Override

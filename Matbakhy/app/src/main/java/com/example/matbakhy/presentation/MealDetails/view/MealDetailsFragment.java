@@ -80,22 +80,26 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
         btnBack = view.findViewById(R.id.btnBack);
         getLifecycle().addObserver(youTubePlayerView);
         mealDetailsPresenter = new MealDetailsPresenterImpl(getContext(), this);
-
+        mealDetailsPresenter.isGuest();
        setUpListeners();
         return view;
     }
 
     private void setUpListeners() {
         favbtn.setOnClickListener(v -> {
-            mealDetailsPresenter.isGuest();
+
             if (!isGuest) {
                 mealDetailsPresenter.favOnClick(meal,isFavorite);
+            }else{
+                guestDialog();
             }
         });
         calBtn.setOnClickListener(v -> {
-            mealDetailsPresenter.isGuest();
+
             if(!isGuest) {
                 mealDetailsPresenter.calenderOnClick(getParentFragmentManager(), meal, isPlanned);
+            }else{
+                guestDialog();
             }
 
         });
@@ -124,8 +128,8 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
                 super.onReady(youTubePlayer);
                 MealDetailsFragment.this.youTubePlayer = youTubePlayer;
                 isPlayerReady = true;
-                String videoId = mealDetailsPresenter.extractYouTubeVideoId(meal.getYoutubeUrl());
-                if(videoId != null){
+                if(meal.getYoutubeUrl() != null){
+                    String videoId = mealDetailsPresenter.extractYouTubeVideoId(meal.getYoutubeUrl());
                     youTubePlayer.cueVideo(videoId, 0);
                     youTubePlayer.setVolume(100);
                 }else{
@@ -212,7 +216,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
     public void removeMealFromCal() {
         new MySnackBar(view, "Removed from Planned Meal");
         isPlanned = false;
-        updateFavButtonColor();
+        updateCalButtonColor();
     }
 
     @Override
@@ -272,10 +276,8 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
 
     @Override
     public void onGuestStatus(boolean isGuest) {
-        if(isGuest){
-            this.isGuest = isGuest;
-            guestDialog();
-        }
+        this.isGuest = isGuest;
+
     }
 
     @Override

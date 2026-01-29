@@ -1,6 +1,8 @@
 package com.example.matbakhy.presentation.Calender.presenter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
@@ -20,16 +22,20 @@ public class CalenderPresenterImpl implements CalenderPresenter {
         mealRepository = new MealRepository(context);
         this.calenderView = calenderView;
     }
+    @SuppressLint("CheckResult")
     @Override
     public void getCalMeal() {
-        mealRepository.clearAllLocalMeals();
-        mealRepository.getCalMeals()
+        mealRepository.CleanOldPlannedMeals()
+                .andThen(mealRepository.getCalMeals())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                mealList ->calenderView.getMeals(mealList),
-                throwable -> calenderView.onFailure(throwable.getMessage())
-        );
+                        mealList -> {
+                            calenderView.getMeals(mealList);
+                            Log.d("TAG", "getCalMeal: " + mealList.size());
+                        },
+                        throwable -> calenderView.onFailure(throwable.getMessage())
+                );
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.example.matbakhy.presentation.MealDetails.presenter;
 import android.content.Context;
 
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Observer;
 
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.AuthRepository;
@@ -15,10 +14,7 @@ import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
-
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;

@@ -185,6 +185,9 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
     @Override
     public void onGuestStatus(boolean isGuest) {
         this.isGuest = isGuest;
+        if (isGuest) {
+            btn.setText("Login");
+        }
     }
 
     @Override public void onDestroy() {
