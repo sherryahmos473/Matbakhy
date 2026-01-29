@@ -1,5 +1,7 @@
 package com.example.matbakhy.data.datasources.remote;
 
+import android.content.Context;
+
 import com.example.matbakhy.data.model.Area;
 import com.example.matbakhy.data.model.Category;
 import com.example.matbakhy.data.model.Ingredient;
@@ -12,8 +14,8 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MealDataSource {
     public MealServices mealServices;
-    public MealDataSource(){
-        mealServices = Network.getInstance().services;
+    public MealDataSource(Context context){
+        mealServices = Network.getInstance(context).services;
     }
     public Single<List<Meal>> getMealOfTheDay(){
        return mealServices.getMealOfTheDay().subscribeOn(Schedulers.io())

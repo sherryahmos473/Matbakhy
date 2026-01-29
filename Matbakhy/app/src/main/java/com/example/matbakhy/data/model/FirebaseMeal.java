@@ -33,7 +33,7 @@ public class FirebaseMeal {
     private boolean isPlanned;
 
     @PropertyName("plan_date")
-    private String planDate;
+    private Long planDate;
 
     @PropertyName("user_id")
     private String userId;
@@ -101,10 +101,10 @@ public class FirebaseMeal {
     public void setPlanned(boolean planned) { isPlanned = planned; }
 
     @PropertyName("plan_date")
-    public String getPlanDate() { return planDate; }
+    public Long getPlanDate() { return planDate; }
 
     @PropertyName("plan_date")
-    public void setPlanDate(String planDate) { this.planDate = planDate; }
+    public void setPlanDate(Long planDate) { this.planDate = planDate; }
 
     @PropertyName("user_id")
     public String getUserId() { return userId; }

@@ -11,6 +11,7 @@ import com.example.matbakhy.presentation.Calender.views.CalenderView;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class CalenderPresenterImpl implements CalenderPresenter {
     MealRepository mealRepository;
@@ -21,7 +22,10 @@ public class CalenderPresenterImpl implements CalenderPresenter {
     }
     @Override
     public void getCalMeal() {
-        mealRepository.getCalMeals().observeOn(AndroidSchedulers.mainThread())
+        mealRepository.clearAllLocalMeals();
+        mealRepository.getCalMeals()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                 mealList ->calenderView.getMeals(mealList),
                 throwable -> calenderView.onFailure(throwable.getMessage())
@@ -30,7 +34,9 @@ public class CalenderPresenterImpl implements CalenderPresenter {
 
     @Override
     public void deleteMeal(Meal meal) {
-        mealRepository.deleteMealsFromCal(meal).observeOn(AndroidSchedulers.mainThread()).subscribe(
+        mealRepository.deleteMealsFromCal(meal)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(
                 () -> calenderView.onMealDeleted(),
                 throwable -> calenderView.onFailure(throwable.getMessage())
         );

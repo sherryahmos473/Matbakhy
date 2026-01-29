@@ -19,5 +19,6 @@ public interface MealDetailsView {
     void guestDialog();
     void navToLogin();
 
+    void onGuestStatus(boolean isGuest);
     void navigateBack();
 }

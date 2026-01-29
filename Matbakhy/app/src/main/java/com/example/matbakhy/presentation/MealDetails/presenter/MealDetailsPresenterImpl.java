@@ -20,11 +20,14 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class MealDetailsPresenterImpl implements MealDetailsPresenter{
     MealRepository mealRepository;
     MealDetailsView mealDetailsView;
     AuthRepository authRepository;
+    protected final CompositeDisposable disposables = new CompositeDisposable();
     public MealDetailsPresenterImpl(Context context,MealDetailsView mealDetailsView){
         mealRepository = new MealRepository(context);
         authRepository = new AuthRepository(context);
@@ -77,7 +80,7 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
                 );
     }
 
-    public void addMealToCal(Meal meal, String date) {
+    public void addMealToCal(Meal meal, Long date) {
         mealRepository.insertMealInCal(meal,date).observeOn(AndroidSchedulers.mainThread()).subscribe(
                 () -> mealDetailsView.onAddToCal(),
                 throwable -> mealDetailsView.onFailure(throwable.getMessage())
@@ -89,8 +92,24 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
     }
 
     @Override
-    public boolean isGuest() {
-        return authRepository.isGuest();
+    public void isGuest() {
+        disposables.add(
+                authRepository.isGuest()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                isGuest -> {
+                                    if (mealDetailsView != null && isGuest) {
+                                        mealDetailsView.onGuestStatus(isGuest);
+                                    }
+                                },
+                                error -> {
+                                    if (mealDetailsView != null) {
+                                        mealDetailsView.onGuestStatus(false);
+                                    }
+                                }
+                        )
+        );
     }
 
     @Override
@@ -157,8 +176,13 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
         int actualMonth = month + 1;
         Calendar selectedDate = Calendar.getInstance();
         selectedDate.set(year, month, dayOfMonth);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
-        String formattedDate = dateFormat.format(selectedDate.getTime());
-        addMealToCal(meal, formattedDate);
+         selectedDate.set(Calendar.HOUR_OF_DAY, 0);
+        selectedDate.set(Calendar.MINUTE, 0);
+        selectedDate.set(Calendar.SECOND, 0);
+        selectedDate.set(Calendar.MILLISECOND, 0);
+
+        long timestamp = selectedDate.getTimeInMillis();
+
+        addMealToCal(meal, timestamp);
     }
 }

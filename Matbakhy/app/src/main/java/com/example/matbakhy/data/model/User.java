@@ -8,11 +8,27 @@ public class User {
     private String name;
     private Date createdAt;
     private Date updatedAt;
+    private boolean isLoggedIn;
+    private boolean isGuest;
 
-    // REQUIRED: No-argument constructor for Firestore
+    public boolean isLoggedIn() {
+        return isLoggedIn;
+    }
+
+    public void setLoggedIn(boolean loggedIn) {
+        isLoggedIn = loggedIn;
+    }
+
+    public boolean isGuest() {
+        return isGuest;
+    }
+
+    public void setGuest(boolean guest) {
+        isGuest = guest;
+    }
+
     public User() {}
 
-    // Constructor for manual creation
     public User(String uid, String email, String name) {
         this.uid = uid;
         this.email = email;

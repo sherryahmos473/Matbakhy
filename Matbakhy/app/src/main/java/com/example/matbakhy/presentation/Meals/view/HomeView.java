@@ -13,4 +13,5 @@ public interface HomeView {
     void getAllCountries(List<Area> countries);
     void onSuccess(List<Meal> mealList);
     void navigateToLogin();
+    void onGuestStatus(boolean isGuest);
 }

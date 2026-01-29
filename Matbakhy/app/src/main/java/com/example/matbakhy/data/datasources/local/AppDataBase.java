@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase;
 
 import com.example.matbakhy.data.model.Meal;
 
-@Database(entities = {Meal.class}, version = 2)
+@Database(entities = {Meal.class}, version = 3, exportSchema = false)
 public abstract class AppDataBase extends RoomDatabase {
     public abstract MealDAO mealDAO();
     private static AppDataBase instance = null;

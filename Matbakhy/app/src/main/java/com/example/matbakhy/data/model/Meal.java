@@ -80,7 +80,7 @@ public class Meal implements Parcelable {
     private boolean isPlanned;
 
     @ColumnInfo(name = "plan_date")
-    private String planDate;
+    private Long planDate;
 
     @SerializedName("strIngredient1")
     @ColumnInfo(name = "ingredient_1")
@@ -272,7 +272,7 @@ public class Meal implements Parcelable {
         dateModified = in.readString();
         isFavorite = in.readByte() != 0;
         isPlanned = in.readByte() != 0;
-        planDate = in.readString();
+        planDate = in.readLong();
 
         ingredient1 = in.readString();
         ingredient2 = in.readString();
@@ -295,7 +295,6 @@ public class Meal implements Parcelable {
         ingredient19 = in.readString();
         ingredient20 = in.readString();
 
-        // Measures
         measure1 = in.readString();
         measure2 = in.readString();
         measure3 = in.readString();
@@ -318,7 +317,6 @@ public class Meal implements Parcelable {
         measure20 = in.readString();
     }
 
-    // Parcelable Creator
     public static final Creator<Meal> CREATOR = new Creator<Meal>() {
         @Override
         public Meal createFromParcel(Parcel in) {
@@ -353,7 +351,7 @@ public class Meal implements Parcelable {
         dest.writeString(dateModified);
         dest.writeByte((byte) (isFavorite ? 1 : 0));
         dest.writeByte((byte) (isPlanned ? 1 : 0));
-        dest.writeString(planDate);
+        dest.writeLong(planDate);
         dest.writeString(ingredient1);
         dest.writeString(ingredient2);
         dest.writeString(ingredient3);
@@ -518,11 +516,11 @@ public class Meal implements Parcelable {
         isPlanned = planned;
     }
 
-    public String getPlanDate() {
+    public Long getPlanDate() {
         return planDate;
     }
 
-    public void setPlanDate(String planDate) {
+    public void setPlanDate(Long planDate) {
         this.planDate = planDate;
     }
 

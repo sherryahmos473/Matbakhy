@@ -35,22 +35,35 @@ public class FirebaseBackupService {
     }
 
     public void backupAllMeals(List<Meal> meals) {
-        String userId = firebaseAuth.getCurrentUser().getUid();
-        String userEmail = firebaseAuth.getCurrentUser().getEmail();
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user == null) {
+            Log.e(TAG, "User not authenticated");
+            return;
+        }
 
-
-        DatabaseReference userBackupRef = databaseReference
+        DatabaseReference mealsRef = databaseReference
                 .child(BACKUP_PATH)
-                .child(userId)
+                .child(user.getUid())
                 .child("meals");
 
-        userBackupRef.removeValue()
-                .addOnSuccessListener(aVoid -> {
-                    saveNewMeals(meals, userId, userEmail, userBackupRef);
-                })
-                .addOnFailureListener(e -> {
-                });
+        Map<String, Object> batch = new HashMap<>();
+
+        for (Meal meal : meals) {
+            String mealId = meal.getId() != null
+                    ? meal.getId()
+                    : mealsRef.push().getKey();
+
+            batch.put(mealId,
+                    new FirebaseMeal(meal, user.getUid(), user.getEmail()));
+        }
+
+        mealsRef.setValue(batch)
+                .addOnSuccessListener(v ->
+                        Log.d(TAG, "Backup successful"))
+                .addOnFailureListener(e ->
+                        Log.e(TAG, "Backup failed", e));
     }
+
 
     private void saveNewMeals(List<Meal> meals, String userId, String userEmail,
                               DatabaseReference userBackupRef) {
@@ -127,29 +140,29 @@ public class FirebaseBackupService {
             meal.setCategory(snapshot.child("category").getValue(String.class));
             meal.setArea(snapshot.child("area").getValue(String.class));
             meal.setInstructions(snapshot.child("instructions").getValue(String.class));
-            meal.setFavorite(snapshot.child("is_favorite").getValue(Boolean.class));
-            meal.setPlanned(snapshot.child("is_planned").getValue(Boolean.class));
-            meal.setPlanDate(snapshot.child("plan_date").getValue(String.class));
 
+            Boolean fav = snapshot.child("is_favorite").getValue(Boolean.class);
+            meal.setFavorite(fav != null && fav);
+
+            Boolean planned = snapshot.child("is_planned").getValue(Boolean.class);
+            meal.setPlanned(planned != null && planned);
+            meal.setPlanDate(snapshot.child("plan_date").getValue(Long.class));
 
             for (int i = 1; i <= 20; i++) {
-                String ingredient = snapshot.child("ingredient_" + i).getValue(String.class);
-                String measure = snapshot.child("measure_" + i).getValue(String.class);
+                String ing = snapshot.child("ingredient_" + i).getValue(String.class);
+                String meas = snapshot.child("measure_" + i).getValue(String.class);
 
-                if (ingredient != null && !ingredient.isEmpty()) {
-                    setIngredient(meal, i, ingredient);
-                }
-                if (measure != null && !measure.isEmpty()) {
-                    setMeasure(meal, i, measure);
-                }
+                if (ing != null && !ing.isEmpty()) setIngredient(meal, i, ing);
+                if (meas != null && !meas.isEmpty()) setMeasure(meal, i, meas);
             }
 
             return meal;
         } catch (Exception e) {
-            Log.e(TAG, "Error converting snapshot to meal", e);
+            Log.e(TAG, "Meal parse error", e);
             return null;
         }
     }
+
 
     private void setIngredient(Meal meal, int index, String value) {
         try {

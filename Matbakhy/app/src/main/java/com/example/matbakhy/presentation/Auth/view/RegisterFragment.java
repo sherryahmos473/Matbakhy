@@ -199,6 +199,13 @@ public class RegisterFragment extends Fragment implements RegisterView {
     }
 
     @Override
+    public void onGuestStatus(boolean isGuest) {
+        if(isGuest){
+            navigateToHome("none");
+        }
+    }
+
+    @Override
     public void clearAllFields() {
         if (edtName != null) edtName.setText("");
         if (edtEmail != null) edtEmail.setText("");

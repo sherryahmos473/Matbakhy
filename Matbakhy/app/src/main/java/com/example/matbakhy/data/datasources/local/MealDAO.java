@@ -44,8 +44,7 @@ public interface MealDAO {
     Completable deleteIfNotFavoriteAndNotPlanned(String mealId);
 
     @Query("DELETE FROM meals WHERE is_planned = 1 AND plan_date < :todayTimestamp")
-    Completable deletePlannedMealsBeforeToday(String todayTimestamp);
-
+    Completable deletePlannedMealsBeforeToday(long todayTimestamp);
     @Query("SELECT * FROM meals")
     Single<List<Meal>> getAllMeals();
 }

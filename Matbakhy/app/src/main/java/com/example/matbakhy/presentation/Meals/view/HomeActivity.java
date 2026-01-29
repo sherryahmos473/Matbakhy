@@ -10,9 +10,9 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.AuthRepository;
-import com.example.matbakhy.data.MealRepository;
-import com.example.matbakhy.data.datasources.local.SharedPrefServices;
 import com.example.matbakhy.databinding.ActivityHomeBinding;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -30,11 +30,13 @@ public class HomeActivity extends AppCompatActivity {
 
         sharedPrefManager = new AuthRepository(this);
 
-        String userEmail = "";
+        AtomicReference<String> userEmail = new AtomicReference<>("");
         if (getIntent() != null && getIntent().hasExtra("userEmail")) {
-            userEmail = getIntent().getStringExtra("userEmail");
+            userEmail.set(getIntent().getStringExtra("userEmail"));
         } else {
-            userEmail = sharedPrefManager.getCurrentUserEmail();
+             sharedPrefManager.getCurrentUserEmail().subscribe(
+                     email -> userEmail.set(email)
+             );
         }
 
         setupNavigation();

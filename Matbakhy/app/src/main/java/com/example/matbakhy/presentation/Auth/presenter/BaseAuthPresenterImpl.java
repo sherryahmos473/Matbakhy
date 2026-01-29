@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.example.matbakhy.data.AuthRepository;
-import com.example.matbakhy.data.callbacks.AuthCallback;
-import com.example.matbakhy.data.callbacks.SimpleCallback;
 import com.example.matbakhy.data.model.User;
 import com.example.matbakhy.presentation.Auth.view.BaseAuthView;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
     protected static final String TAG = "BaseAuthPresenter";
@@ -16,6 +18,7 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
 
     protected BaseAuthView view;
     protected final AuthRepository authRepository;
+    protected final CompositeDisposable disposables = new CompositeDisposable();
 
     protected BaseAuthPresenterImpl(Context context) {
         this.authRepository = new AuthRepository(context);
@@ -29,39 +32,63 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
     @Override
     public void detachView() {
         this.view = null;
+        disposables.clear();
     }
 
     @Override
     public void onGoogleSignInClicked() {
         if (view == null) return;
-        if (!authRepository.isNetworkAvailable()) {
-            view.showError("No internet connection. Please check your network.");
-            return;
-        }
-        Intent signInIntent = authRepository.getGoogleSignInIntent();
-        if (signInIntent != null) {
-            view.showLoading("Signing in with Google...");
-            view.startGoogleSignInIntent(signInIntent, RC_SIGN_IN);
-        } else {
-            view.showError("Google Sign-In not available. Please try again.");
-        }
+
+        disposables.add(
+                authRepository.isNetworkAvailable()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                isAvailable -> {
+                                    if (isAvailable) {
+                                        startGoogleSignIn();
+                                    } else {
+                                        view.showError("No internet connection. Please check your network.");
+                                    }
+                                },
+                                error -> view.showError("Network check failed: " + error.getMessage())
+                        )
+        );
     }
 
     public void onGoogleSignInClickedWithRestore() {
         if (view == null) return;
 
-        if (!authRepository.isNetworkAvailable()) {
-            view.showError("No internet connection. Please check your network.");
-            return;
-        }
+        disposables.add(
+                authRepository.isNetworkAvailable()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                isAvailable -> {
+                                    if (isAvailable) {
+                                        startGoogleSignIn();
+                                    } else {
+                                        view.showError("No internet connection. Please check your network.");
+                                    }
+                                },
+                                error -> view.showError("Network check failed: " + error.getMessage())
+                        )
+        );
+    }
 
-        Intent signInIntent = authRepository.getGoogleSignInIntent();
-        if (signInIntent != null) {
-            view.showLoading("Signing in with Google...");
-            view.startGoogleSignInIntent(signInIntent, RC_SIGN_IN);
-        } else {
-            view.showError("Google Sign-In not available. Please try again.");
-        }
+    private void startGoogleSignIn() {
+        disposables.add(
+                authRepository.getGoogleSignInIntent()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                intent -> {
+                                    view.showLoading("Signing in with Google...");
+                                    view.startGoogleSignInIntent(intent, RC_SIGN_IN);
+                                },
+                                error -> view.showError("Google Sign-In not available: " + error.getMessage())
+                        )
+        );
     }
 
     @Override
@@ -76,33 +103,34 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
             } else {
                 Log.e(TAG, "Google Sign-In returned null data");
                 if (view != null) {
-                    view.showError("Google Sign-In failed. Please try again.");
+                    view.showError("Google Sign-In cancelled or failed.");
                 }
             }
         }
     }
 
     private void handleGoogleSignInResultWithRestore(Intent data) {
-        authRepository.handleGoogleSignInWithRestore(data, new AuthCallback() {
-            @Override
-            public void onSuccess(User user) {
-                if (view != null) {
-                    Log.d(TAG, "Google Sign-In successful for: " + user.getEmail());
-                    view.showToast("Welcome " + (user.getName() != null ? user.getName() : "User") + "!");
-                    view.navigateToHome(user.getEmail());
-                }
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                if (view != null) {
-                    Log.e(TAG, "Google Sign-In failed: " + errorMessage);
-                    view.showError(errorMessage);
-                }
-            }
-        });
+        disposables.add(
+                authRepository.handleGoogleSignInWithRestore(data)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                user -> {
+                                    if (view != null) {
+                                        Log.d(TAG, "Google Sign-In successful for: " + user.getEmail());
+                                        view.showToast("Welcome " + (user.getName() != null ? user.getName() : "User") + "!");
+                                        view.navigateToHome(user.getEmail());
+                                    }
+                                },
+                                error -> {
+                                    if (view != null) {
+                                        Log.e(TAG, "Google Sign-In failed: " + error.getMessage());
+                                        view.showError(error.getMessage());
+                                    }
+                                }
+                        )
+        );
     }
-
 
     @Override
     public void onViewCreated() {
@@ -114,6 +142,7 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
 
     @Override
     public void onDestroyView() {
+        disposables.clear();
     }
 
     protected boolean isValidEmail(String email) {
@@ -121,31 +150,35 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
     }
 
     protected void handleGoogleSignInResult(Intent data) {
-        authRepository.handleGoogleSignInResult(data, new AuthCallback() {
-            @Override
-            public void onSuccess(User user) {
-                if (view != null) {
-                    Log.d(TAG, "Google Sign-In successful for: " + user.getEmail());
-                    view.showToast("Welcome " + (user.getName() != null ? user.getName() : "User") + "!");
-                    view.navigateToHome(user.getEmail());
-                }
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                if (view != null) {
-                    Log.e(TAG, "Google Sign-Up failed: " + errorMessage);
-                    view.showError(errorMessage);
-                }
-            }
-        });
+        disposables.add(
+                authRepository.handleGoogleSignInResult(data)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                user -> {
+                                    if (view != null) {
+                                        Log.d(TAG, "Google Sign-In successful for: " + user.getEmail());
+                                        view.showToast("Welcome " + (user.getName() != null ? user.getName() : "User") + "!");
+                                        view.navigateToHome(user.getEmail());
+                                    }
+                                },
+                                error -> {
+                                    if (view != null) {
+                                        Log.e(TAG, "Google Sign-Up failed: " + error.getMessage());
+                                        view.showError(error.getMessage());
+                                    }
+                                }
+                        )
+        );
     }
 
     protected boolean validateEmailAndPassword(String email, String password) {
         boolean isValid = true;
 
         if (view == null) return false;
+
         view.clearErrors();
+
         if (email.isEmpty()) {
             view.showEmailError("Email is required");
             isValid = false;
@@ -161,29 +194,56 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
             view.showPasswordError("Password must be at least 6 characters");
             isValid = false;
         }
-        Log.d(TAG, "validateEmailAndPassword: " + isValid);
 
+        Log.d(TAG, "validateEmailAndPassword: " + isValid);
         return isValid;
     }
 
     @Override
     public void loginGuest() {
-        authRepository.loginAsGuest(new SimpleCallback() {
-            @Override
-            public void onSuccess(String message) {
-                view.showToast("Logged in successfully");
-                view.navigateToHome("none");
-            }
+        disposables.add(
+                authRepository.loginAsGuest()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                () -> {
+                                    if (view != null) {
+                                        view.showToast("Logged in successfully");
+                                        view.navigateToHome("none");
+                                    }
+                                },
+                                error -> {
+                                    if (view != null) {
+                                        view.showError("Can't login: " + error.getMessage());
+                                    }
+                                }
+                        )
+        );
+    }
 
-            @Override
-            public void onFailure(String error) {
-                view.showError("Can't login");
-            }
-        });
+    @Override
+    public void checkIfGuest() {
+        disposables.add(
+                authRepository.isGuest()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                isGuest -> {
+                                    if (view != null) {
+                                        view.onGuestStatus(isGuest);
+                                    }
+                                },
+                                error -> {
+                                    if (view != null) {
+                                        view.onGuestStatus(false);
+                                    }
+                                }
+                        )
+        );
     }
 
     @Override
     public boolean isGuest() {
-        return authRepository.isGuest();
+        return false; // This should be handled asynchronously via checkIfGuest()
     }
 }

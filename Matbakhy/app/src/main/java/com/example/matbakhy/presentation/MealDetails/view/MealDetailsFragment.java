@@ -87,18 +87,17 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
 
     private void setUpListeners() {
         favbtn.setOnClickListener(v -> {
-            if (!mealDetailsPresenter.isGuest()) {
+            mealDetailsPresenter.isGuest();
+            if (!isGuest) {
                 mealDetailsPresenter.favOnClick(meal,isFavorite);
-            }else{
-                guestDialog();
             }
         });
         calBtn.setOnClickListener(v -> {
-            if (!mealDetailsPresenter.isGuest()) {
-                mealDetailsPresenter.calenderOnClick(getParentFragmentManager(),meal,isPlanned);
-            }else {
-                guestDialog();
+            mealDetailsPresenter.isGuest();
+            if(!isGuest) {
+                mealDetailsPresenter.calenderOnClick(getParentFragmentManager(), meal, isPlanned);
             }
+
         });
         youtubeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -269,6 +268,14 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
         Intent intent = new Intent(requireContext(), MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
+    }
+
+    @Override
+    public void onGuestStatus(boolean isGuest) {
+        if(isGuest){
+            this.isGuest = isGuest;
+            guestDialog();
+        }
     }
 
     @Override

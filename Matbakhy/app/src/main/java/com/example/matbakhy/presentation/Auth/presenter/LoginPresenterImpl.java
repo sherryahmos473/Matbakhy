@@ -3,10 +3,15 @@ package com.example.matbakhy.presentation.Auth.presenter;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.Pair;
 
 import com.example.matbakhy.data.callbacks.AuthCallback;
 import com.example.matbakhy.data.model.User;
 import com.example.matbakhy.presentation.Auth.view.LoginView;
+
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class LoginPresenterImpl extends BaseAuthPresenterImpl implements LoginPresenter {
     private LoginView loginView;
@@ -56,12 +61,27 @@ public class LoginPresenterImpl extends BaseAuthPresenterImpl implements LoginPr
 
     @Override
     public void checkIfUserLoggedIn() {
-        if (authRepository.isUserLoggedIn()) {
-            String email = authRepository.getCurrentUserEmail();
-            if (loginView != null) {
-                loginView.navigateToHome(email);
-            }
-        }
+        disposables.add(
+                Single.zip(
+                                authRepository.isUserLoggedIn(),
+                                authRepository.getCurrentUserEmail(),
+                                (isLoggedIn, email) -> new Pair<>(isLoggedIn, email)
+                        )
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                result -> {
+                                    if (result.first && loginView != null) {
+                                        loginView.navigateToHome(result.second);
+                                    }
+                                },
+                                error -> {
+                                    if (loginView != null) {
+                                        loginView.showError("Failed to check login status");
+                                    }
+                                }
+                        )
+        );
     }
 
     private void performLogin(String email, String password) {

@@ -2,7 +2,6 @@ package com.example.matbakhy.data.datasources.remote;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
@@ -10,16 +9,11 @@ import android.util.Log;
 import com.example.matbakhy.R;
 import com.example.matbakhy.data.datasources.local.SharedPrefServices;
 import com.example.matbakhy.data.model.User;
-import com.example.matbakhy.data.callbacks.AuthCallback;
-import com.example.matbakhy.data.callbacks.SimpleCallback;
-import com.example.matbakhy.data.datasources.local.AppDataBase;
-import com.example.matbakhy.data.datasources.local.SharedPref;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,247 +25,267 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FirebaseServices implements com.example.matbakhy.data.datasources.remote.FirebaseAuth {
-    private static final String TAG = "FirebaseAuthDataSource";
+import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
-    private Context context;
-    private GoogleSignInClient googleSignInClient;
-    private SharedPref sharedPrefDataSource;
+public class FirebaseServices {
+    private static final String TAG = "FirebaseServices";
 
+    private final FirebaseAuth firebaseAuth;
+    private final FirebaseFirestore firestore;
+    private final GoogleSignInClient googleSignInClient;
+    private final SharedPrefServices sharedPref;
+    private final Context appContext;
 
-    public void initialize(Context context) {
-        this.context = context.getApplicationContext();
-        this.sharedPrefDataSource = SharedPrefServices.getInstance(context);
+    public FirebaseServices(Context context) {
+        this.appContext = context.getApplicationContext();
+        this.firebaseAuth = FirebaseAuth.getInstance();
+        this.firestore = FirebaseFirestore.getInstance();
+        this.sharedPref = SharedPrefServices.getInstance(appContext);
 
-        try {
-            Log.d(TAG, "Initializing Firebase services...");
-
-            mAuth = FirebaseAuth.getInstance();
-            db = FirebaseFirestore.getInstance();
-
-            if (mAuth == null) {
-                Log.e(TAG, "FirebaseAuth is null!");
-                return;
-            }
-
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(context.getString(R.string.default_web_client_id))
-                    .requestEmail()
-                    .build();
-            googleSignInClient = GoogleSignIn.getClient(context, gso);
-            Log.d(TAG, "Google Sign-In initialized successfully");
-
-            FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        } catch (Exception e) {
-            Log.e(TAG, "Firebase initialization failed: " + e.getMessage());
-            e.printStackTrace();
-        }
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(context.getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        this.googleSignInClient = GoogleSignIn.getClient(appContext, gso);
     }
 
-    public void sendPasswordResetEmail(String email, SimpleCallback callback) {
-        if (email == null || email.trim().isEmpty()) {
-            callback.onFailure("Email is required");
-            return;
-        }
+    public Single<User> register(String email, String password, String name) {
+        return Single.fromCallable(() -> {
+                    validateInput(email, password, name);
+                    checkNetworkAvailable();
+                    return true;
+                })
+                .flatMap(valid ->
+                        Single.<FirebaseUser>create(emitter -> {
+                            firebaseAuth.createUserWithEmailAndPassword(email, password)
+                                    .addOnCompleteListener(task -> {
+                                        if (task.isSuccessful()) {
+                                            FirebaseUser user = firebaseAuth.getCurrentUser();
+                                            if (user != null) {
+                                                emitter.onSuccess(user);
+                                            } else {
+                                                emitter.onError(new Exception("User creation failed"));
+                                            }
+                                        } else {
+                                            emitter.onError(task.getException());
+                                        }
+                                    });
+                        })
+                )
+                .flatMap(firebaseUser ->
+                        updateUserProfile(firebaseUser, name)
+                                .flatMap(updatedUser -> createOrFetchUserRx(updatedUser, "email"))
+                )
+                .subscribeOn(Schedulers.io());
+    }
 
-        if (!isValidEmail(email)) {
-            callback.onFailure("Please enter a valid email address");
-            return;
-        }
-
-        if (!isNetworkAvailable()) {
-            callback.onFailure("No internet connection");
-            return;
-        }
-
-        if (mAuth == null) {
-            initialize(context);
-            if (mAuth == null) {
-                callback.onFailure("Authentication service not available");
-                return;
-            }
-        }
-        mAuth.sendPasswordResetEmail(email.trim())
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        callback.onSuccess("Password reset email sent to " + email);
-                    } else {
-                        String error = getErrorMessage(task.getException());
-                        callback.onFailure("Failed to send reset email: " + error);
+    public Single<User> login(String email, String password) {
+        return Single.fromCallable(() -> {
+                    if (email.isEmpty() || password.isEmpty()) {
+                        throw new Exception("Please enter email and password");
                     }
+                    checkNetworkAvailable();
+                    return true;
+                })
+                .flatMap(valid ->
+                        Single.<FirebaseUser>create(emitter -> {
+                            firebaseAuth.signInWithEmailAndPassword(email, password)
+                                    .addOnCompleteListener(task -> {
+                                        if (task.isSuccessful()) {
+                                            FirebaseUser user = firebaseAuth.getCurrentUser();
+                                            if (user != null) {
+                                                emitter.onSuccess(user);
+                                            } else {
+                                                emitter.onError(new Exception("Login failed"));
+                                            }
+                                        } else {
+                                            emitter.onError(task.getException());
+                                        }
+                                    });
+                        })
+                )
+                .flatMap(firebaseUser -> createOrFetchUserRx(firebaseUser, "email"))
+                .subscribeOn(Schedulers.io());
+    }
+
+    public Single<Intent> getGoogleSignInIntent() {
+        return Single.fromCallable(() -> googleSignInClient.getSignInIntent())
+                .subscribeOn(Schedulers.io());
+    }
+
+    public Single<User> loginWithGoogle(Intent data) {
+        return Single.fromCallable(() -> Tasks.await(GoogleSignIn.getSignedInAccountFromIntent(data)))
+                .subscribeOn(Schedulers.io())
+                .flatMap(account -> {
+                    if (account == null || account.getIdToken() == null) {
+                        return Single.error(new Exception("Invalid Google sign-in data"));
+                    }
+                    return firebaseAuthWithGoogleRx(account)
+                            .flatMap(firebaseUser -> createOrFetchUserRx(firebaseUser, "google"));
                 });
     }
 
-
-    public Intent getGoogleSignInIntent() {
-        if (googleSignInClient == null && context != null) {
-            initialize(context);
-        }
-        return googleSignInClient != null ? googleSignInClient.getSignInIntent() : null;
+    public Single<User> loginWithGoogleAccount(GoogleSignInAccount account) {
+        return Single.fromCallable(() -> {
+                    if (account == null || account.getIdToken() == null) {
+                        throw new Exception("Invalid Google account");
+                    }
+                    return account;
+                })
+                .subscribeOn(Schedulers.io())
+                .flatMap(this::firebaseAuthWithGoogleRx)
+                .flatMap(firebaseUser -> createOrFetchUserRx(firebaseUser, "google"));
     }
 
-
-    public void handleGoogleSignInResult(Intent data, AuthCallback callback) {
-        if (data == null) {
-            callback.onFailure("Google sign in failed - no data returned");
-            return;
-        }
-
-        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-        try {
-            GoogleSignInAccount account = task.getResult(ApiException.class);
-            if (account != null && account.getIdToken() != null) {
-                firebaseAuthWithGoogle(account.getIdToken(), callback);
-            } else {
-                callback.onFailure("Google sign in failed - invalid account");
-            }
-        } catch (ApiException e) {
-            callback.onFailure("Google sign in failed: " + e.getMessage());
-        }
+    public Completable sendPasswordResetEmail(String email) {
+        return Single.fromCallable(() -> {
+                    if (!isValidEmail(email)) {
+                        throw new Exception("Please enter a valid email address");
+                    }
+                    checkNetworkAvailable();
+                    return email.trim();
+                })
+                .flatMapCompletable(validEmail ->
+                        Completable.create(emitter -> {
+                            firebaseAuth.sendPasswordResetEmail(validEmail)
+                                    .addOnCompleteListener(task -> {
+                                        if (task.isSuccessful()) {
+                                            emitter.onComplete();
+                                        } else {
+                                            emitter.onError(task.getException());
+                                        }
+                                    });
+                        })
+                )
+                .subscribeOn(Schedulers.io());
     }
 
-    private void firebaseAuthWithGoogle(String idToken, AuthCallback callback) {
-        if (mAuth == null && context != null) {
-            initialize(context);
-            if (mAuth == null) {
-                callback.onFailure("Authentication service not available");
-                return;
-            }
-        }
+    public Completable logout() {
+        return Completable.fromAction(() -> {
+                    googleSignInClient.signOut();
+                    firebaseAuth.signOut();
+                    sharedPref.clearUserDataSync();
+                })
+                .subscribeOn(Schedulers.io());
+    }
 
-        try {
-            AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-            mAuth.signInWithCredential(credential)
+    public Single<Boolean> isUserLoggedIn() {
+        return Single.fromCallable(() -> {
+                    boolean firebaseLoggedIn = firebaseAuth.getCurrentUser() != null;
+                    boolean sharedPrefLoggedIn = sharedPref.isLoggedInSync();
+                    return firebaseLoggedIn && sharedPrefLoggedIn;
+                })
+                .subscribeOn(Schedulers.io());
+    }
+
+    public Single<String> getCurrentUserEmail() {
+        return Single.fromCallable(() -> {
+                    String email = sharedPref.getUserEmailSync();
+                    if (email.isEmpty() && firebaseAuth.getCurrentUser() != null) {
+                        email = firebaseAuth.getCurrentUser().getEmail();
+                    }
+                    return email != null ? email : "";
+                })
+                .subscribeOn(Schedulers.io());
+    }
+
+    public Single<String> getCurrentUserName() {
+        return Single.fromCallable(() -> {
+                    String name = sharedPref.getUserNameSync();
+                    if (name.isEmpty() && firebaseAuth.getCurrentUser() != null) {
+                        name = firebaseAuth.getCurrentUser().getDisplayName();
+                    }
+                    return name != null ? name : "";
+                })
+                .subscribeOn(Schedulers.io());
+    }
+
+    public Single<Boolean> isNetworkAvailable() {
+        return Single.fromCallable(() -> {
+                    ConnectivityManager cm = (ConnectivityManager) appContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                    return activeNetwork != null && activeNetwork.isConnected();
+                })
+                .subscribeOn(Schedulers.io());
+    }
+
+    private Single<FirebaseUser> firebaseAuthWithGoogleRx(GoogleSignInAccount account) {
+        return Single.create(emitter -> {
+            AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+            firebaseAuth.signInWithCredential(credential)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                            if (firebaseUser != null) {
-                                Log.d(TAG, "Google auth successful for: " + firebaseUser.getEmail());
-                                createOrFetchUser(firebaseUser, "google", callback);
+                            FirebaseUser user = firebaseAuth.getCurrentUser();
+                            if (user != null) {
+                                emitter.onSuccess(user);
                             } else {
-                                callback.onFailure("User not found after Google sign in");
+                                emitter.onError(new Exception("User not found after Google sign in"));
                             }
                         } else {
-                            String error = getErrorMessage(task.getException());
-                            callback.onFailure("Google authentication failed: " + error);
+                            emitter.onError(task.getException());
                         }
                     });
-        } catch (Exception e) {
-            Log.e(TAG, "Error in firebaseAuthWithGoogle: " + e.getMessage());
-            callback.onFailure("Google authentication error");
-        }
+        });
     }
 
+    private Single<FirebaseUser> updateUserProfile(FirebaseUser firebaseUser, String name) {
+        return Single.create(emitter -> {
+            com.google.firebase.auth.UserProfileChangeRequest profileUpdates =
+                    new com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                            .setDisplayName(name)
+                            .build();
 
-    public void register(String email, String password, String name, AuthCallback callback) {
-        if (!validateInput(email, password, name)) {
-            callback.onFailure("Invalid input");
-            return;
-        }
-
-        if (!isNetworkAvailable()) {
-            callback.onFailure("No internet connection");
-            return;
-        }
-
-        if (mAuth == null && context != null) {
-            initialize(context);
-            if (mAuth == null) {
-                callback.onFailure("Auth service not available");
-                return;
-            }
-        }
-
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                        if (firebaseUser != null) {
-                            createOrFetchUser(firebaseUser, "email", callback);
+            firebaseUser.updateProfile(profileUpdates)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            emitter.onSuccess(firebaseUser);
                         } else {
-                            callback.onFailure("User creation failed");
+                            emitter.onError(task.getException());
                         }
-                    } else {
-                        callback.onFailure(getErrorMessage(task.getException()));
-                    }
-                });
+                    });
+        });
     }
 
-    public void login(String email, String password, AuthCallback callback) {
-        if (email.isEmpty() || password.isEmpty()) {
-            callback.onFailure("Please enter email and password");
-            return;
-        }
-
-        if (!isNetworkAvailable()) {
-            callback.onFailure("No internet connection");
-            return;
-        }
-
-        if (mAuth == null && context != null) {
-            initialize(context);
-            if (mAuth == null) {
-                callback.onFailure("Auth service not available");
-                return;
-            }
-        }
-
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                        if (firebaseUser != null) {
-                            createOrFetchUser(firebaseUser, "email", callback);
-                        } else {
-                            callback.onFailure("Login failed");
-                        }
-                    } else {
-                        callback.onFailure(getErrorMessage(task.getException()));
-                    }
-                });
-    }
-
-    private void createOrFetchUser(FirebaseUser firebaseUser, String authProvider, AuthCallback callback) {
+    private Single<User> createOrFetchUserRx(FirebaseUser firebaseUser, String authProvider) {
         String userId = firebaseUser.getUid();
 
-        if (db == null) {
-            User user = new User(userId, firebaseUser.getEmail(),
-                    firebaseUser.getDisplayName() != null ? firebaseUser.getDisplayName() : "User");
-
-            sharedPrefDataSource.saveUserLogin(
-                    user.getEmail(),
-                    user.getName() != null ? user.getName() : "User",
-                    user.getUid(),
-                    new SimpleCallback() {
-                        @Override
-                        public void onSuccess(String message) {
-                            Log.d(TAG, message);
-                            callback.onSuccess(user);
-                        }
-
-                        @Override
-                        public void onFailure(String error) {
-                            callback.onFailure("Failed to save user: " + error);
-                        }
-                    }
-            );
-            return;
+        if (firestore == null) {
+            return createBasicUser(firebaseUser);
         }
 
-        db.collection("users").document(userId).get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
-                        fetchUserFromFirestore(userId, callback);
+        return Single.<DocumentSnapshot>create(emitter -> {
+                    firestore.collection("users").document(userId).get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    emitter.onSuccess(task.getResult());
+                                } else {
+                                    emitter.onError(task.getException());
+                                }
+                            });
+                })
+                .flatMap(documentSnapshot -> {
+                    if (documentSnapshot != null && documentSnapshot.exists()) {
+                        return fetchUserFromFirestoreRx(documentSnapshot);
                     } else {
-                        createUserInFirestore(firebaseUser, authProvider, callback);
+                        return createUserInFirestoreRx(firebaseUser, authProvider);
                     }
-                });
+                })
+                .subscribeOn(Schedulers.io());
     }
 
-    private void createUserInFirestore(FirebaseUser firebaseUser, String authProvider, AuthCallback callback) {
+    private Single<User> createBasicUser(FirebaseUser firebaseUser) {
+        User user = new User(
+                firebaseUser.getUid(),
+                firebaseUser.getEmail(),
+                firebaseUser.getDisplayName() != null ? firebaseUser.getDisplayName() : "User"
+        );
+
+        return saveUserToSharedPrefRx(user).andThen(Single.just(user));
+    }
+
+    private Single<User> createUserInFirestoreRx(FirebaseUser firebaseUser, String authProvider) {
         Map<String, Object> userData = new HashMap<>();
         userData.put("uid", firebaseUser.getUid());
         userData.put("email", firebaseUser.getEmail());
@@ -280,109 +294,67 @@ public class FirebaseServices implements com.example.matbakhy.data.datasources.r
         userData.put("createdAt", new Date());
         userData.put("updatedAt", new Date());
 
-        db.collection("users").document(firebaseUser.getUid())
-                .set(userData)
-                .addOnCompleteListener(task -> {
-                    User user = new User(firebaseUser.getUid(), firebaseUser.getEmail(),
-                            firebaseUser.getDisplayName() != null ? firebaseUser.getDisplayName() : "User");
-
-                    sharedPrefDataSource.saveUserLogin(
-                            user.getEmail(),
-                            user.getName() != null ? user.getName() : "User",
-                            user.getUid(),
-                            new SimpleCallback() {
-                                @Override
-                                public void onSuccess(String message) {
-                                    Log.d(TAG, message);
-                                    callback.onSuccess(user);
+        return Single.<Void>create(emitter -> {
+                    firestore.collection("users").document(firebaseUser.getUid())
+                            .set(userData)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    emitter.onSuccess(null);
+                                } else {
+                                    emitter.onError(task.getException());
                                 }
-
-                                @Override
-                                public void onFailure(String error) {
-                                    callback.onFailure("Failed to save user: " + error);
-                                }
-                            }
+                            });
+                })
+                .flatMap(voidValue -> {
+                    User user = new User(
+                            firebaseUser.getUid(),
+                            firebaseUser.getEmail(),
+                            firebaseUser.getDisplayName() != null ? firebaseUser.getDisplayName() : "User"
                     );
+                    return saveUserToSharedPrefRx(user).andThen(Single.just(user));
                 });
     }
 
-    private void fetchUserFromFirestore(String userId, AuthCallback callback) {
-        db.collection("users").document(userId).get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            User user = document.toObject(User.class);
-                            if (user != null) {
-                                sharedPrefDataSource.saveUserLogin(
-                                        user.getEmail(),
-                                        user.getName() != null ? user.getName() : "User",
-                                        user.getUid(),
-                                        new SimpleCallback() {
-                                            @Override
-                                            public void onSuccess(String message) {
-                                                Log.d(TAG, message);
-                                                callback.onSuccess(user);
-                                            }
+    private Single<User> fetchUserFromFirestoreRx(DocumentSnapshot document) {
+        User user = document.toObject(User.class);
+        if (user == null) {
+            return Single.error(new Exception("Failed to read user data from Firestore"));
+        }
 
-                                            @Override
-                                            public void onFailure(String error) {
-                                                callback.onFailure("Failed to save user: " + error);
-                                            }
-                                        }
-                                );
-                            } else {
-                                callback.onFailure("Failed to read user data");
-                            }
-                        } else {
-                            callback.onFailure("User not found in Firestore");
-                        }
-                    } else {
-                        callback.onFailure("Failed to fetch user from Firestore");
-                    }
-                });
+        return saveUserToSharedPrefRx(user).andThen(Single.just(user));
     }
 
-    public void logout() {
-        if (googleSignInClient != null) {
-            googleSignInClient.signOut();
-        }
-        if (mAuth != null) {
-            mAuth.signOut();
-        }
-        sharedPrefDataSource.clearUserData(new SimpleCallback() {
-            @Override
-            public void onSuccess(String message) {
-                Log.d(TAG, message);
-            }
-
-            @Override
-            public void onFailure(String error) {
-                Log.e(TAG, "Failed to clear user data: " + error);
-            }
+    private Completable saveUserToSharedPrefRx(User user) {
+        return Completable.fromAction(() -> {
+            sharedPref.saveUserLoginSync(
+                    user.getEmail(),
+                    user.getName() != null ? user.getName() : "User",
+                    user.getUid()
+            );
         });
-        Log.d(TAG, "User logged out");
     }
 
-    public boolean isUserLoggedIn() {
-        boolean firebaseLoggedIn = mAuth != null && mAuth.getCurrentUser() != null;
-        boolean sharedPrefLoggedIn = sharedPrefDataSource.isLoggedIn();
-        Log.d(TAG, "isUserLoggedIn - Firebase: " + firebaseLoggedIn + ", SharedPref: " + sharedPrefLoggedIn);
-        return firebaseLoggedIn && sharedPrefLoggedIn;
+    private void validateInput(String email, String password, String name) throws Exception {
+        if (email.isEmpty() || password.isEmpty() || name.isEmpty()) {
+            throw new Exception("All fields are required");
+        }
+        if (!isValidEmail(email)) {
+            throw new Exception("Please enter a valid email address");
+        }
+        if (!isValidPassword(password)) {
+            throw new Exception("Password must be at least 6 characters");
+        }
     }
 
-    public String getCurrentUserEmail() {
-        return sharedPrefDataSource.getUserEmail();
+    private void checkNetworkAvailable() throws Exception {
+        if (!isNetworkAvailableSync()) {
+            throw new Exception("No internet connection");
+        }
     }
 
-    public String getCurrentUserName() {
-        return sharedPrefDataSource.getUserName();
-    }
-
-    public boolean isNetworkAvailable() {
-        if (context == null) return false;
+    private boolean isNetworkAvailableSync() {
         try {
-            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            ConnectivityManager cm = (ConnectivityManager) appContext.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
             return activeNetwork != null && activeNetwork.isConnected();
         } catch (Exception e) {
@@ -390,35 +362,44 @@ public class FirebaseServices implements com.example.matbakhy.data.datasources.r
         }
     }
 
-    public boolean isValidEmail(String email) {
+    private boolean isValidEmail(String email) {
         return email != null && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
-    public boolean isValidPassword(String password) {
+    private boolean isValidPassword(String password) {
         return password != null && password.length() >= 6;
     }
 
-    private boolean validateInput(String email, String password, String name) {
-        if (email.isEmpty() || password.isEmpty() || name.isEmpty()) {
-            return false;
-        }
-        return isValidEmail(email) && password.length() >= 6;
+    // Callback methods for backward compatibility
+    public void register(String email, String password, String name, com.example.matbakhy.data.callbacks.AuthCallback callback) {
+        register(email, password, name)
+                .subscribe(
+                        callback::onSuccess,
+                        error -> callback.onFailure(error.getMessage())
+                );
     }
 
-    private String getErrorMessage(Exception exception) {
-        if (exception == null) return "Unknown error";
+    public void login(String email, String password, com.example.matbakhy.data.callbacks.AuthCallback callback) {
+        login(email, password)
+                .subscribe(
+                        callback::onSuccess,
+                        error -> callback.onFailure(error.getMessage())
+                );
+    }
 
-        String error = exception.getMessage();
-        if (error == null) return "Unknown error";
+    public void handleGoogleSignInResult(Intent data, com.example.matbakhy.data.callbacks.AuthCallback callback) {
+        loginWithGoogle(data)
+                .subscribe(
+                        callback::onSuccess,
+                        error -> callback.onFailure(error.getMessage())
+                );
+    }
 
-        if (error.contains("invalid-email")) return "Invalid email";
-        if (error.contains("user-not-found")) return "User not found";
-        if (error.contains("wrong-password")) return "Wrong password";
-        if (error.contains("email-already-in-use")) return "Email already registered";
-        if (error.contains("weak-password")) return "Password too weak (min 6 characters)";
-        if (error.contains("network")) return "Network error";
-        if (error.contains("invalid-credential")) return "Invalid email or password";
-
-        return "Authentication failed: " + error;
+    public void sendPasswordResetEmail(String email, com.example.matbakhy.data.callbacks.SimpleCallback callback) {
+        sendPasswordResetEmail(email)
+                .subscribe(
+                        () -> callback.onSuccess("Password reset email sent"),
+                        error -> callback.onFailure(error.getMessage())
+                );
     }
 }

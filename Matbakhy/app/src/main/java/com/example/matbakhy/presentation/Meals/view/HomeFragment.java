@@ -96,7 +96,7 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
             }
         });
 
-        isGuest = homePresenter.isGuest();
+        homePresenter.isGuest();
         if (isGuest) {
             btn.setText("Login");
         }
@@ -181,6 +181,12 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
+
+    @Override
+    public void onGuestStatus(boolean isGuest) {
+        this.isGuest = isGuest;
+    }
+
     @Override public void onDestroy() {
         super.onDestroy();
         homePresenter.detachView();

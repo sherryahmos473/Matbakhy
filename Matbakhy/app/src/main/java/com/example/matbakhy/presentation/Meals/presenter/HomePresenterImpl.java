@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.os.Build;
+import android.util.Log;
 
 import com.example.matbakhy.data.AuthRepository;
 import com.example.matbakhy.data.MealRepository;
@@ -12,12 +13,15 @@ import com.example.matbakhy.data.callbacks.LogoutCallback;
 import com.example.matbakhy.presentation.Meals.view.HomeView;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class HomePresenterImpl implements HomePresenter{
     private MealRepository mealRepository;
     private final AuthRepository authRepository;
     private HomeView homeView;
+    protected final CompositeDisposable disposables = new CompositeDisposable();
 
     public HomePresenterImpl(Context context){
 
@@ -94,8 +98,10 @@ public class HomePresenterImpl implements HomePresenter{
         authRepository.logoutWithBackup(new LogoutCallback() {
             @Override
             public void onLogoutComplete(boolean backupSuccess, String message) {
+                Log.d("AuthRepository", "onLogoutComplete: ");
                 homeView.navigateToLogin();
             }
+
         });
     }
 
@@ -115,8 +121,24 @@ public class HomePresenterImpl implements HomePresenter{
     }
 
     @Override
-    public boolean isGuest() {
-        return authRepository.isGuest();
+    public void isGuest() {
+        disposables.add(
+                authRepository.isGuest()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                isGuest -> {
+                                    if (homeView != null && isGuest) {
+                                        homeView.onGuestStatus(isGuest);
+                                    }
+                                },
+                                error -> {
+                                    if (homeView != null) {
+                                        homeView.onGuestStatus(false);
+                                    }
+                                }
+                        )
+        );
     }
 
 

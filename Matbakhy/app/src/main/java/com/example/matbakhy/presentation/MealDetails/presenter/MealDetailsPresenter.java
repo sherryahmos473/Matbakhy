@@ -9,7 +9,7 @@ public interface MealDetailsPresenter {
     public  void isCal(String mealId);
     void getMealOfIngredient(String ingredient);
     String extractYouTubeVideoId(String url);
-    boolean isGuest();
+    void isGuest();
     void onBackClicked();
     void calenderOnClick(FragmentManager fragmentManager,Meal meal,boolean is_planned);
     void favOnClick(Meal meal,boolean is_fav);

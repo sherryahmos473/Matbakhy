@@ -14,5 +14,5 @@ public interface HomePresenter {
     public void getMealOfCountry(String countryName);
     void logout();
     boolean isNetworkAvailable(Context context);
-    boolean isGuest();
+    void isGuest();
 }

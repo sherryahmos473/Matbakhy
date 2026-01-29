@@ -31,6 +31,7 @@ import java.util.List;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class MealRepository {
@@ -40,10 +41,9 @@ public class MealRepository {
 
 
     public MealRepository(Context context){
-        mealServices = new MealDataSource();
+        mealServices = new MealDataSource(context);
         mealsLocalDataSource = new MealsLocalDataSource(context);
-        this.firebaseServices = Network.getInstance().firebaseServices;
-        this.firebaseServices.initialize(context);
+        this.firebaseServices = Network.getInstance(context).firebaseServices;
     }
     public Single<List<Meal>> getMealOfTheDay(){
         return mealServices.getMealOfTheDay();
@@ -76,6 +76,8 @@ public class MealRepository {
         return mealsLocalDataSource.getFavMeals();
     }
     public Single<List<Meal>> getCalMeals() {
+        clearAllLocalMeals();
+
         return mealsLocalDataSource.getCalMeals();
     }
     public Completable insertMealInFav(Meal meal){
@@ -88,11 +90,19 @@ public class MealRepository {
         return mealsLocalDataSource.insertMeal(meal);
 
     }
-    public Completable insertMealInCal(Meal meal,String cal){
+    public Completable insertMealInCal(Meal meal,Long cal){
         meal.setPlanned(true);
         meal.setPlanDate(cal);
-        return mealsLocalDataSource.insertMeal(meal);
+        Log.d("insertMealInCal", "insertMealInCal: ");
 
+        return mealsLocalDataSource.insertMeal(meal)
+                .subscribeOn(Schedulers.io())
+                .doOnComplete(() -> Log.d("DEBUG", "Insert successful!"))
+                .doOnError(error -> Log.e("DEBUG", "Insert failed: " + error.getMessage()));
+
+    }
+    public Completable CleanOldPlannedMeals(){
+        return mealsLocalDataSource.cleanOldPlannedMeals();
     }
     public Completable deleteMealsFromFav(Meal meal){
         return mealsLocalDataSource.deleteFavMeal(meal);

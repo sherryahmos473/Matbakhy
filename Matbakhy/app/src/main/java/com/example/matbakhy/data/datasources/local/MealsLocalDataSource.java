@@ -14,6 +14,7 @@ import java.util.Locale;
 
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 
@@ -45,13 +46,17 @@ public class MealsLocalDataSource {
                 .subscribeOn(Schedulers.io());
     }
 
-    public Single<List<Meal>> getCalMeals(){
-        String today = new SimpleDateFormat("dd-MM-yyyy", Locale.US).format(new Date());
-
+    public Completable cleanOldPlannedMeals() {
+        long today = System.currentTimeMillis();
         return mealsDAO.deletePlannedMealsBeforeToday(today)
-                .andThen(mealsDAO.getCalMeals())
                 .subscribeOn(Schedulers.io());
     }
+
+    public Single<List<Meal>> getCalMeals(){
+        return mealsDAO.getCalMeals()
+                .subscribeOn(Schedulers.io());
+    }
+
 
     public Single<List<Meal>> getAllMeals(){
         return mealsDAO.getAllMeals()

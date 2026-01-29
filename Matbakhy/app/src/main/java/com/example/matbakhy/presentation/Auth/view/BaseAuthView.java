@@ -19,4 +19,5 @@ public interface BaseAuthView {
     void focusPasswordField();
     void startGoogleSignInIntent(Intent intent, int rcSignIn);
     void clearEmailField();
+    void onGuestStatus(boolean isGuest);
 }

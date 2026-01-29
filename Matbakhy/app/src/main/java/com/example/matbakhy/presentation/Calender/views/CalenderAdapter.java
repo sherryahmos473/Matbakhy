@@ -14,8 +14,11 @@ import com.example.matbakhy.R;
 import com.example.matbakhy.data.model.Meal;
 import com.example.matbakhy.presentation.MealsList.views.MealClickListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class CalenderAdapter extends RecyclerView.Adapter<CalenderAdapter.CalenderListHolder> {
     private List<Meal> mealList;
@@ -84,8 +87,15 @@ public class CalenderAdapter extends RecyclerView.Adapter<CalenderAdapter.Calend
         }
 
         public void bind(Meal meal) {
+            long timestamp = meal.getPlanDate();
+            if (timestamp > 0) {
+                SimpleDateFormat format = new SimpleDateFormat("d MMMM yyyy", Locale.getDefault());
+                String formattedDate = format.format(new Date(timestamp));
+                mealdateTextView.setText(formattedDate);
+            } else {
+                mealdateTextView.setText("No date set");
+            }
             mealTitleTextView.setText(meal.getName());
-            mealdateTextView.setText(meal.getPlanDate());
             Glide.with(itemView)
                     .load(meal.getThumbnail())
                     .into(mealImageView);

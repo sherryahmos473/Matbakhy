@@ -170,6 +170,13 @@ public class LoginFragment extends Fragment implements LoginView {
         }
     }
 
+    @Override
+    public void onGuestStatus(boolean isGuest) {
+        if(isGuest){
+            navigateToHome("none");
+        }
+    }
+
 
     private void initializeViews(View view) {
         edtEmail = view.findViewById(R.id.emailEditText);
