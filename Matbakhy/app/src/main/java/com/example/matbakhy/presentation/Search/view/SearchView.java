@@ -11,8 +11,6 @@ public interface SearchView {
     void getCountries(List<Area> countries);
     void getIngredients(List<String> ingredients);
     void getMealByName(Meal meal);
-    void getMealByFLetter(List<Meal> mealList);
-
     void onFailure(String errorMessage);
     void onSuccess(List<Meal> mealList);
 }

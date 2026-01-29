@@ -76,7 +76,7 @@ public class MealListFragment extends Fragment implements MealListView{
 
 
     private void setupRecyclerView() {
-        mealListAdapter = new MealListAdapter(new MealListAdapter.MealClickListener() {
+        mealListAdapter = new MealListAdapter(new MealClickListener() {
             @Override
             public void onMealClick(Meal meal) {
                 Log.d("MealListFragment", "Meal clicked: " + meal.getName());

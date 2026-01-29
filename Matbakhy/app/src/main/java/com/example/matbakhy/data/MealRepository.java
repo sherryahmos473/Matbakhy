@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.matbakhy.data.datasources.local.MealsLocalDataSource;
+import com.example.matbakhy.data.datasources.remote.FirebaseBackupService;
 import com.example.matbakhy.data.datasources.remote.FirebaseServices;
 import com.example.matbakhy.data.datasources.remote.MealDataSource;
 import com.example.matbakhy.data.datasources.remote.Network;
@@ -23,11 +24,12 @@ import io.reactivex.schedulers.Schedulers;
 public class MealRepository {
     private MealDataSource mealServices;
     private MealsLocalDataSource mealsLocalDataSource;
-
+    private FirebaseBackupService firebaseBackupService;
 
     public MealRepository(Context context){
         mealServices = new MealDataSource(context);
         mealsLocalDataSource = new MealsLocalDataSource(context);
+        firebaseBackupService = new FirebaseBackupService();
     }
     public Single<List<Meal>> getMealOfTheDay(){
         return mealServices.getMealOfTheDay();
@@ -36,7 +38,7 @@ public class MealRepository {
         return mealServices.getMealByName(name);
     }
     public Single<List<Meal>> getMealByFLetter(String FLetter){
-        return mealServices.getMealByName(FLetter);
+        return mealServices.getMealByFLetter(FLetter);
     }
     public Single<List<Meal>> getMealOfCategory(String category){
         return mealServices.getMealOfCategory(category);
@@ -64,12 +66,10 @@ public class MealRepository {
     }
     public Completable insertMealInFav(Meal meal){
         meal.setFavorite(true);
-        return mealsLocalDataSource.insertMeal(meal);
-
-
+        return mealsLocalDataSource.insertMeal(meal).andThen(syncSingleMealToFirebase(meal));
     }
     public Completable insertMeal(Meal meal){
-        return mealsLocalDataSource.insertMeal(meal);
+        return mealsLocalDataSource.insertMeal(meal).andThen(syncSingleMealToFirebase(meal));
 
     }
     public Completable insertMealInCal(Meal meal,Long cal){
@@ -77,6 +77,7 @@ public class MealRepository {
         meal.setPlanDate(cal);
 
         return mealsLocalDataSource.insertMeal(meal)
+                .andThen(syncSingleMealToFirebase(meal))
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> Log.d("DEBUG", "Insert successful!"))
                 .doOnError(error -> Log.e("DEBUG", "Insert failed: " + error.getMessage()));
@@ -86,10 +87,12 @@ public class MealRepository {
         return mealsLocalDataSource.cleanOldPlannedMeals();
     }
     public Completable deleteMealsFromFav(Meal meal){
-        return mealsLocalDataSource.deleteFavMeal(meal);
+        return mealsLocalDataSource.deleteFavMeal(meal)
+                .andThen(syncSingleMealToFirebase(meal));
     }
     public Completable deleteMealsFromCal(Meal meal){
-        return mealsLocalDataSource.deleteCalMeal(meal);
+        return mealsLocalDataSource.deleteCalMeal(meal)
+                .andThen(syncSingleMealToFirebase(meal));
     }
     public Maybe<Boolean> isFavorite(String mealId){
         return mealsLocalDataSource.isFavorite(mealId);
@@ -102,5 +105,11 @@ public class MealRepository {
     }
     public Completable clearAllLocalMeals() {
         return mealsLocalDataSource.deleteAllMeals();
+    }
+    private Completable syncSingleMealToFirebase(Meal meal) {
+        return Completable.create(emitter -> {
+            firebaseBackupService.syncSingleMeal(meal);
+            emitter.onComplete();
+        }).subscribeOn(Schedulers.io());
     }
 }

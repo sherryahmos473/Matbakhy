@@ -79,11 +79,7 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
         presenter = new SearchPresenterImpl(requireContext());
         presenter.attachView(this);
 
-        mealListAdapter = new MealListAdapter(new MealListAdapter.MealClickListener() {
-            @Override
-            public void onMealClick(Meal meal) {
-                getMealByName(meal);
-            } });
+        mealListAdapter = new MealListAdapter(this);
         categoryAdapter = new CategoryListAdapter(this);
         countryAdapter = new CountryListAdapter(this);
         ingredientAdapter = new IngredientListAdapter(this);
@@ -108,29 +104,27 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
             if (checkedId == View.NO_ID) {
                 resetSearch();
                 isFilterMode = false;
+                Log.d(TAG, "setupChips: " +isFilterMode);
                 filterList.setVisibility(View.GONE);
-                return;
+            }else{
+                filterList.setVisibility(View.VISIBLE);
+                resetSearch();
+                isFilterMode = true;
+
+                if (checkedId == R.id.category) {
+                    presenter.getAllCategories();
+
+                } else if (checkedId == R.id.country) {
+                    presenter.getAllCountries();
+
+                } else if (checkedId == R.id.ingredient) {
+                    presenter.getAllIngredients();
+                }
             }
-            filterList.setVisibility(View.VISIBLE);
-
-            resetSearch();
-            isFilterMode = true;
-
-            if (checkedId == R.id.category) {
-                presenter.getAllCategories();
-
-            } else if (checkedId == R.id.country) {
-                presenter.getAllCountries();
-
-            } else if (checkedId == R.id.ingredient) {
-                presenter.getAllIngredients();
-            }
-            Log.d(TAG, "setupChips: " + fullMealList.size());
         });
     }
-
-
     private void setupSearch() {
+
         searchEditText.addTextChangedListener(new TextWatcher() {
 
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -140,19 +134,21 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-                if (s.toString().trim().isEmpty()) {
+                String query = s.toString().trim().toLowerCase();
+
+                if (query.isEmpty()) {
                     mealListAdapter.setMealList(fullMealList);
                     return;
-                }else if(s.toString().length() == 1 && !isFilterMode){
-
-                    presenter.getMealByFLetter(s.toString());
-
-                    filterList.setVisibility(View.GONE);
                 }
 
-                if (fullMealList == null || fullMealList.isEmpty()) return;
+                if (query.length() == 1 && !isFilterMode) {
+                    presenter.getMealByFLetter(query);
+                    return;
+                }
 
-                String query = s.toString().toLowerCase();
+                if (fullMealList == null || fullMealList.isEmpty()) {
+                    return;
+                }
 
                 Observable.fromIterable(fullMealList)
                         .filter(meal ->
@@ -161,7 +157,13 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
                         )
                         .toList()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(mealListAdapter::setMealList);
+                        .subscribe(
+                               meals ->   {
+                                   mealListAdapter.setMealList(meals);
+                                   Log.d(TAG, "onTextChanged: " + meals.size());
+                                },
+                                throwable -> Log.e(TAG, "Search error", throwable)
+                        );
             }
         });
     }
@@ -198,6 +200,14 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
     }
 
     @Override
+    public void getMealByName(Meal meal) {
+        Log.d(TAG, "onMealClick: " + meal);
+        SearchFragmentDirections.ActionSearchFragmentToMealDetailsFragment action =
+                SearchFragmentDirections.actionSearchFragmentToMealDetailsFragment(meal);
+        Navigation.findNavController(root).navigate(action);
+    }
+
+    @Override
     public void getMealOfCategory(String category) {
         presenter.getMealOfCategory(category);
     }
@@ -212,12 +222,6 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
         presenter.getMealOfIngredient(ingredient);
     }
 
-    @Override
-    public void getMealByFLetter(List<Meal> mealList) {
-        fullMealList = mealList;
-        mealListAdapter.setMealList(mealList);
-        Log.d(TAG, "onTextChanged: " + fullMealList.size());
-    }
 
     @Override
     public void onSuccess(List<Meal> mealList) {
@@ -231,14 +235,8 @@ public class SearchFragment extends Fragment implements CategoryListener, Countr
     }
 
     @Override
-    public void getMealByName(Meal meal) {
-        SearchFragmentDirections.ActionSearchFragmentToMealDetailsFragment action =
-                SearchFragmentDirections.actionSearchFragmentToMealDetailsFragment(meal);
-        Navigation.findNavController(root).navigate(action);
-    }
-
-    @Override
     public void onMealClick(Meal meal) {
-        getMealByName(meal);
+        Log.d(TAG, "onMealClick: " + meal);
+        presenter.getMealByName(meal.getName());
     }
 }

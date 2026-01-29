@@ -26,7 +26,8 @@ public class MealListAdapter extends RecyclerView.Adapter<MealListAdapter.MealVi
     }
 
     public void setMealList(List<Meal> mealList) {
-        this.mealList = mealList;
+        this.mealList.clear();
+        this.mealList.addAll(mealList);
         notifyDataSetChanged();
     }
 
@@ -71,7 +72,4 @@ public class MealListAdapter extends RecyclerView.Adapter<MealListAdapter.MealVi
         }
     }
 
-    public interface MealClickListener {
-        void onMealClick(Meal meal);
-    }
 }

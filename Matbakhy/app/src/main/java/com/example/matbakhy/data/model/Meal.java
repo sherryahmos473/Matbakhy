@@ -162,7 +162,6 @@ public class Meal implements Parcelable {
     @ColumnInfo(name = "ingredient_20")
     private String ingredient20;
 
-    // Measures
     @SerializedName("strMeasure1")
     @ColumnInfo(name = "measure_1")
     private String measure1;

@@ -148,7 +148,26 @@ public class FirebaseBackupService {
         }
     }
 
+    public void syncSingleMeal(Meal meal) {
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user == null) {
+            Log.e(TAG, "User not authenticated");
+            return;
+        }
 
+        DatabaseReference mealsRef = databaseReference
+                .child(BACKUP_PATH)
+                .child(user.getUid())
+                .child("meals");
+
+        String mealId = meal.getId() != null ? meal.getId() : "meal_" + System.currentTimeMillis();
+
+        FirebaseMeal firebaseMeal = new FirebaseMeal(meal, user.getUid(), user.getEmail());
+
+        mealsRef.child(mealId).setValue(firebaseMeal)
+                .addOnSuccessListener(v -> Log.d(TAG, "Meal synced to Firebase"))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to sync meal to Firebase", e));
+    }
     private void setIngredient(Meal meal, int index, String value) {
         try {
             Method method = meal.getClass().getMethod("setIngredient" + index, String.class);

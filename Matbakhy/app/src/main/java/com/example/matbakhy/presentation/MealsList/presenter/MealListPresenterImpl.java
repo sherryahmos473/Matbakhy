@@ -2,6 +2,7 @@ package com.example.matbakhy.presentation.MealsList.presenter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 
 import com.example.matbakhy.data.MealRepository; // Make sure import is correct
 import com.example.matbakhy.presentation.MealsList.views.MealListView;
@@ -34,6 +35,7 @@ public class MealListPresenterImpl implements MealListPresenter {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         mealList -> {
+                            Log.d("TAG", "getMealByName: " +mealList.get(0));
                             if (mealList != null && !mealList.isEmpty() && mealList.get(0) != null && mealList.get(0).getArea() != null && mealList.get(0).getCategory() != null && mealList.get(0).getInstructions() != null) {
                                 view.onClickMeal(mealList.get(0));
                             } else {

@@ -25,9 +25,8 @@ public class CalenderPresenterImpl implements CalenderPresenter {
     @SuppressLint("CheckResult")
     @Override
     public void getCalMeal() {
-        mealRepository.CleanOldPlannedMeals()
+        mealRepository.CleanOldPlannedMeals().subscribeOn(Schedulers.io())
                 .andThen(mealRepository.getCalMeals())
-                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         mealList -> {

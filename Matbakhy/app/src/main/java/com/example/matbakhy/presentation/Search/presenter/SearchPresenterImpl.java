@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.os.Build;
+import android.util.Log;
 
 import com.example.matbakhy.data.MealRepository;
 import com.example.matbakhy.data.model.Ingredient;

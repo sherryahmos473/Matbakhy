@@ -7,6 +7,7 @@ import android.net.NetworkInfo;
 import android.util.Log;
 
 import com.example.matbakhy.R;
+import com.example.matbakhy.data.callbacks.AuthCallback;
 import com.example.matbakhy.data.datasources.local.SharedPrefServices;
 import com.example.matbakhy.data.model.User;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -365,14 +366,5 @@ public class FirebaseServices {
 
     private boolean isValidPassword(String password) {
         return password != null && password.length() >= 6;
-    }
-
-
-    public void login(String email, String password, com.example.matbakhy.data.callbacks.AuthCallback callback) {
-        login(email, password)
-                .subscribe(
-                        callback::onSuccess,
-                        error -> callback.onFailure(error.getMessage())
-                );
     }
 }
