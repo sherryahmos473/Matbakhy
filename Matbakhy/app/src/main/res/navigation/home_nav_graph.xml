@@ -17,12 +17,11 @@
         <action
             android:id="@+id/action_homeFragment_to_mealListFragment"
             app:destination="@+id/mealListFragment" />
-        <action
-            android:id="@+id/action_homeFragment_to_favoriteFragment"
-            app:destination="@+id/favoriteFragment" />
-        <action
-            android:id="@+id/action_homeFragment_to_searchFragment"
-            app:destination="@id/searchFragment" />
+        <fragment
+            android:id="@+id/searchFragment"
+            android:name="com.example.matbakhy.presentation.Search.view.SearchFragment"
+            android:label="Search" />
+
     </fragment>
 
     <fragment
@@ -30,12 +29,6 @@
         android:name="com.example.matbakhy.presentation.MealDetails.view.MealDetailsFragment"
         android:label="Meal Details"
         tools:layout="@layout/fragment_meal_details">
-
-        <action
-            android:id="@+id/action_mealDetailsFragment_to_favoriteFragment"
-            app:destination="@+id/favoriteFragment"
-            app:popUpTo="@+id/favoriteFragment"
-            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_mealDetailsFragment_to_mealListFragment"
             app:destination="@id/mealListFragment" />
@@ -53,9 +46,6 @@
         <action
             android:id="@+id/action_mealListFragment_to_mealDetailsFragment"
             app:destination="@+id/mealDetailsFragment" />
-        <action
-            android:id="@+id/action_mealListFragment_to_favoriteFragment"
-            app:destination="@+id/favoriteFragment" />
         <argument
             android:name="mealList"
             app:argType="com.example.matbakhy.data.model.MealList"/>
@@ -76,9 +66,6 @@
         android:name="com.example.matbakhy.presentation.Search.view.SearchFragment"
         android:label="fragment_search"
         tools:layout="@layout/fragment_search" >
-        <action
-            android:id="@+id/action_searchFragment_to_mealListFragment"
-            app:destination="@id/mealListFragment" />
         <action
             android:id="@+id/action_searchFragment_to_mealDetailsFragment"
             app:destination="@id/mealDetailsFragment" />

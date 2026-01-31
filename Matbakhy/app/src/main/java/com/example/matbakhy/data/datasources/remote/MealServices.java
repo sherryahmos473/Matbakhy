@@ -27,5 +27,5 @@ public interface MealServices {
     @GET("list.php?a=list")
     Single<AreaResponse> getAllCountries();
     @GET("list.php?i=list")
-    Single<IngredientsListResponse> getAllingredients();
+    Single<IngredientsListResponse> getAllIngredients();
 }

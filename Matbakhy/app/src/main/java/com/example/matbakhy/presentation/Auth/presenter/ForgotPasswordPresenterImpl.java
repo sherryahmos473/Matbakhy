@@ -5,8 +5,10 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.matbakhy.data.AuthRepository;
-import com.example.matbakhy.data.callbacks.SimpleCallback;
 import com.example.matbakhy.presentation.Auth.view.ForgotPasswordView;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class ForgotPasswordPresenterImpl implements ForgotPasswordPresenter {
     private static final String TAG = "ForgotPasswordPresenter";
@@ -92,25 +94,22 @@ public class ForgotPasswordPresenterImpl implements ForgotPasswordPresenter {
 
         Log.d(TAG, "Sending password reset email to: " + email);
 
-        authRepository.sendPasswordResetEmail(email, new SimpleCallback() {
-            @Override
-            public void onSuccess(String message) {
-                if (view != null) {
-                    view.hideLoading();
-                    Log.d(TAG, "Reset email sent successfully");
-                    view.showSuccessScreen(email);
-                    view.showToast("Reset email sent to " + email);
-                }
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                if (view != null) {
-                    view.hideLoading();
-                    Log.e(TAG, "Failed to send reset email: " + errorMessage);
-                    view.showError(errorMessage);
-                }
-            }
-        });
+        authRepository.sendPasswordResetEmail(email)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        () -> {
+                            Log.d(TAG, "Reset email sent successfully");
+                            view.showSuccessScreen(email);
+                            view.showToast("Reset email sent to " + email);
+                        }
+                        , throwable -> {
+                            if (view != null) {
+                                view.hideLoading();
+                                Log.e(TAG, "Failed to send reset email: " + throwable.getMessage());
+                                view.showError(throwable.getMessage());
+                            }
+                        }
+                );
     }
 }

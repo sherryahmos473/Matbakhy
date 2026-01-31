@@ -6,8 +6,8 @@ import android.view.View;
 import com.google.android.material.snackbar.Snackbar;
 
 public class ErrorSnackBar {
-    public ErrorSnackBar(View view, String messsage){
-        Snackbar.make(view, messsage, Snackbar.LENGTH_SHORT).setTextColor(Color.WHITE).setBackgroundTint(Color.RED)
+    public ErrorSnackBar(View view, String message){
+        Snackbar.make(view, message, Snackbar.LENGTH_SHORT).setTextColor(Color.WHITE).setBackgroundTint(Color.RED)
                 .show();
     }
 }

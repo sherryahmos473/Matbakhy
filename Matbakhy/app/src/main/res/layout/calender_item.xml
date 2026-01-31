@@ -20,13 +20,12 @@
             android:id="@+id/image"
             android:layout_width="match_parent"
             android:layout_height="180dp"
-            android:layout_marginBottom="20dp"
             android:scaleType="centerCrop"
             android:src="@drawable/place_holder"
+            app:layout_constraintBottom_toTopOf="@+id/name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/name"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
@@ -40,39 +39,47 @@
             android:focusable="true"
             android:padding="8dp"
             android:src="@drawable/ic_calender"
-            android:tint="@color/light_orange"
+            app:tint="@color/light_orange"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/name"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:layout_margin="20dp"
+            android:ellipsize="middle"
             android:gravity="center"
-            android:text="Spaghetti Carbonara"
+            android:maxLines="2"
+            android:text="Spaghetti Carbonara Spaghetti Carbonara"
+            android:textAlignment="center"
             android:textColor="@android:color/black"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/date"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/date"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/date" />
+            app:layout_constraintTop_toBottomOf="@id/image" />
+
         <TextView
             android:id="@+id/date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="12dp"
             android:background="@drawable/category_chip"
             android:backgroundTint="@color/green"
-            android:paddingHorizontal="15dp"
-            android:paddingVertical="10dp"
-            android:layout_marginBottom="20dp"
             android:gravity="start"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="10dp"
             android:text="Spaghetti Carbonara"
             android:textColor="@color/black"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/name"/>
+            app:layout_constraintStart_toEndOf="@+id/name"
+            app:layout_constraintTop_toBottomOf="@+id/image" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

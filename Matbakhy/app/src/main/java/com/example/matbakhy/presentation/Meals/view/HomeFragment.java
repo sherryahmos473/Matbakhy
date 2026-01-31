@@ -5,7 +5,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -89,11 +91,10 @@ public class HomeFragment extends Fragment implements HomeView , CategoryListene
         super.onViewCreated(view, savedInstanceState);
         homePresenter.attachView(this);
         checkNetworkAndLoad();
-        searchCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Navigation.findNavController(requireView()).navigate(R.id.action_homeFragment_to_searchFragment);
-            }
+        searchCard.setOnClickListener(v -> {
+            NavController navController =
+                    NavHostFragment.findNavController(this);
+            navController.navigate(R.id.searchFragment);
         });
 
         homePresenter.isGuest();

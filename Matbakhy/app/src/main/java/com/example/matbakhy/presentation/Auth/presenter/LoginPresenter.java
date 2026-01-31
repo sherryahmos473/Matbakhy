@@ -1,7 +1,6 @@
 package com.example.matbakhy.presentation.Auth.presenter;
 
 
-import com.example.matbakhy.data.callbacks.SimpleCallback;
 import com.example.matbakhy.presentation.Auth.view.LoginView;
 
 public interface LoginPresenter {

@@ -9,7 +9,6 @@ import android.util.Log;
 
 import com.example.matbakhy.data.AuthRepository;
 import com.example.matbakhy.data.MealRepository;
-import com.example.matbakhy.data.callbacks.LogoutCallback;
 import com.example.matbakhy.presentation.Meals.view.HomeView;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -42,6 +41,7 @@ public class HomePresenterImpl implements HomePresenter{
     @Override
     public void getMealOfCategory(String categoryName) {
         mealRepository.getMealOfCategory(categoryName)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         meals -> homeView.onSuccess(meals),
@@ -55,6 +55,7 @@ public class HomePresenterImpl implements HomePresenter{
         if (mealRepository == null) return;
 
         mealRepository.getMealOfCountry(countryName)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         meals -> homeView.onSuccess(meals),
@@ -66,6 +67,7 @@ public class HomePresenterImpl implements HomePresenter{
     @Override
     public void getMealOfTheDay() {
         mealRepository.getMealOfTheDay()
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         meals -> homeView.getMealOfTheDay(meals.get(0)),
@@ -77,6 +79,7 @@ public class HomePresenterImpl implements HomePresenter{
     @Override
     public void getAllCategories() {
         mealRepository.getAllCategories()
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         categories -> homeView.getAllCategories(categories),
@@ -87,6 +90,7 @@ public class HomePresenterImpl implements HomePresenter{
     @Override
     public void getAllCountries() {
         mealRepository.getAllCountries()
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         countries -> homeView.getAllCountries(countries),
@@ -95,14 +99,12 @@ public class HomePresenterImpl implements HomePresenter{
     }
 
     public void logout() {
-        authRepository.logoutWithBackup(new LogoutCallback() {
-            @Override
-            public void onLogoutComplete(boolean backupSuccess, String message) {
-                Log.d("AuthRepository", "onLogoutComplete: ");
-                homeView.navigateToLogin();
-            }
-
-        });
+        authRepository.logoutWithBackup().subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        () -> homeView.navigateToLogin(),
+                        throwable -> homeView.onFailure(throwable.getMessage())
+                );
     }
 
 

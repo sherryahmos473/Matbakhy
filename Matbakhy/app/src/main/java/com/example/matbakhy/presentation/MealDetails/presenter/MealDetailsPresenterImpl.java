@@ -8,7 +8,6 @@ import com.example.matbakhy.R;
 import com.example.matbakhy.data.AuthRepository;
 import com.example.matbakhy.data.MealRepository;
 import com.example.matbakhy.data.model.Meal;
-import com.example.matbakhy.data.callbacks.LogoutCallback;
 import com.example.matbakhy.presentation.MealDetails.view.MealDetailsView;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointForward;
@@ -30,21 +29,27 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
         this.mealDetailsView = mealDetailsView;
     }
     public void addMealToFav(Meal meal) {
-        mealRepository.insertMealInFav(meal).observeOn(AndroidSchedulers.mainThread()).subscribe(
+        mealRepository.insertMealInFav(meal)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(
                 () -> mealDetailsView.onAddToFav(),
                 throwable -> mealDetailsView.onFailure(throwable.getMessage())
         );
     }
 
     public void removeMealFromFav(Meal meal) {
-        mealRepository.deleteMealsFromFav(meal).observeOn(AndroidSchedulers.mainThread()).subscribe(
+        mealRepository.deleteMealsFromFav(meal)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(
                 () -> mealDetailsView.removeMealFromFav(),
                 throwable -> mealDetailsView.onFailure(throwable.getMessage())
         );
     }
 
     public void removeMealFromCal(Meal meal) {
-        mealRepository.deleteMealsFromCal(meal).observeOn(AndroidSchedulers.mainThread()).subscribe(
+        mealRepository.deleteMealsFromCal(meal)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(
                 () -> mealDetailsView.removeMealFromCal(),
                 throwable -> mealDetailsView.onFailure(throwable.getMessage())
         );
@@ -52,7 +57,9 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
 
     @Override
     public void isFavorite(String mealId) {
-        mealRepository.isFavorite(mealId).observeOn(AndroidSchedulers.mainThread())
+        mealRepository.isFavorite(mealId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         isFavorite -> mealDetailsView.isFav(isFavorite != null && isFavorite),
                         throwable -> mealDetailsView.onFailure(throwable.getMessage())
@@ -60,7 +67,9 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
     }
     @Override
     public void isCal(String mealId) {
-        mealRepository.isCal(mealId).observeOn(AndroidSchedulers.mainThread())
+        mealRepository.isCal(mealId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         isFavorite -> mealDetailsView.isCal(isFavorite != null && isFavorite),
                         throwable -> mealDetailsView.onFailure(throwable.getMessage())
@@ -69,6 +78,7 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
     @Override
     public void getMealOfIngredient(String ingredient) {
         mealRepository.getMealOfIngredient(ingredient)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         meals -> mealDetailsView.onSuccess(meals),
@@ -77,13 +87,38 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
     }
 
     public void addMealToCal(Meal meal, Long date) {
-        mealRepository.insertMealInCal(meal,date).observeOn(AndroidSchedulers.mainThread()).subscribe(
+        mealRepository.insertMealInCal(meal,date)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(
                 () -> mealDetailsView.onAddToCal(),
                 throwable -> mealDetailsView.onFailure(throwable.getMessage())
         );
     }
     public String extractYouTubeVideoId(String url) {
-        if (url.contains("v=")) return url.split("v=")[1].split("&")[0];
+        if (url == null || url.isEmpty()) {
+            return null;
+        }
+
+        if (url.contains("v=")) {
+            String[] parts = url.split("v=");
+            if (parts.length > 1) {
+                String videoId = parts[1].split("&")[0];
+                if (!videoId.isEmpty()) {
+                    return videoId;
+                }
+            }
+        }
+
+        if (url.contains("youtu.be/")) {
+            String[] parts = url.split("youtu.be/");
+            if (parts.length > 1) {
+                String videoId = parts[1].split("\\?")[0];
+                if (!videoId.isEmpty()) {
+                    return videoId;
+                }
+            }
+        }
+
         return null;
     }
 
@@ -110,12 +145,12 @@ public class MealDetailsPresenterImpl implements MealDetailsPresenter{
 
     @Override
     public void login() {
-        authRepository.logoutWithBackup(new LogoutCallback() {
-            @Override
-            public void onLogoutComplete(boolean backupSuccess, String message) {
-                mealDetailsView.navToLogin();
-            }
-        });
+        authRepository.logoutWithBackup().subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        () -> mealDetailsView.navToLogin(),
+                        throwable -> mealDetailsView.onFailure(throwable.getMessage())
+                );
 
     }
     public void onBackClicked() {

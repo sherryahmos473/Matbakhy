@@ -45,7 +45,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
 
     private Meal meal;
     private ImageView mealImage;
-    private TextView mealName, mealCategory, mealArea, mealInstructions;
+    private TextView mealName, mealCategory, mealArea, mealInstructions, ingredientsTitle;
     private FloatingActionButton favbtn, calBtn;
     private MealDetailsPresenter mealDetailsPresenter;
     IngredientListAdapter ingredientListAdapter;
@@ -60,8 +60,21 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-         view = inflater.inflate(R.layout.fragment_meal_details, container, false);
+        view = inflater.inflate(R.layout.fragment_meal_details, container, false);
+        Initialization();
 
+        ingredientListAdapter = new IngredientListAdapter(this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setAdapter(ingredientListAdapter);
+        recyclerView.setLayoutManager(layoutManager);
+        mealDetailsPresenter = new MealDetailsPresenterImpl(getContext(), this);
+        mealDetailsPresenter.isGuest();
+        getLifecycle().addObserver(youTubePlayerView);
+        setUpListeners();
+        return view;
+    }
+
+    private void Initialization() {
         mealImage = view.findViewById(R.id.mealOfTheDayImage);
         mealName = view.findViewById(R.id.mealofTheDayName);
         mealCategory = view.findViewById(R.id.mealCategory);
@@ -70,19 +83,11 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
         recyclerView = view.findViewById(R.id.ingredientsList);
         calBtn = view.findViewById(R.id.fabCalendar);
         youtubeFrame = view.findViewById(R.id.youtubeFrame);
-        ingredientListAdapter = new IngredientListAdapter(this);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
-        recyclerView.setAdapter(ingredientListAdapter);
-        recyclerView.setLayoutManager(layoutManager);
+        ingredientsTitle = view.findViewById(R.id.ingredientsLabel);
         favbtn = view.findViewById(R.id.fabFavorite);
         youtubeBtn = view.findViewById(R.id.videoBtn);
         youTubePlayerView = view.findViewById(R.id.youtubeVideo);
         btnBack = view.findViewById(R.id.btnBack);
-        getLifecycle().addObserver(youTubePlayerView);
-        mealDetailsPresenter = new MealDetailsPresenterImpl(getContext(), this);
-        mealDetailsPresenter.isGuest();
-       setUpListeners();
-        return view;
     }
 
     private void setUpListeners() {
@@ -128,11 +133,16 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
                 super.onReady(youTubePlayer);
                 MealDetailsFragment.this.youTubePlayer = youTubePlayer;
                 isPlayerReady = true;
+
                 if(meal.getYoutubeUrl() != null){
                     String videoId = mealDetailsPresenter.extractYouTubeVideoId(meal.getYoutubeUrl());
-                    youTubePlayer.cueVideo(videoId, 0);
-                    youTubePlayer.setVolume(100);
-                }else{
+                    if (videoId != null && !videoId.isEmpty()) {
+                        youTubePlayer.cueVideo(videoId, 0);
+                        youTubePlayer.setVolume(100);
+                    } else {
+                        youtubeFrame.setVisibility(View.GONE);
+                    }
+                } else {
                     youtubeFrame.setVisibility(View.GONE);
                 }
             }
@@ -151,7 +161,9 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView , I
         String areaText = meal.getArea() != null ? meal.getArea() : "";
         int ingredientCount = meal.getIngredients() != null ? meal.getIngredients().size() : 0;
         mealArea.setText(areaText + " • " + ingredientCount + " ingredients");
-
+        if(ingredientCount == 0){
+            ingredientsTitle.setText("No Ingredients Available");
+        }
         ingredientListAdapter.setIngredients(meal.getIngredients());
         mealInstructions.setText(meal.getInstructions() != null ?
                 meal.getInstructions() : "No instructions available");

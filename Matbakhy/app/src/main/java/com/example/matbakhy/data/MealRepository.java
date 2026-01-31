@@ -22,9 +22,9 @@ import io.reactivex.schedulers.Schedulers;
 
 
 public class MealRepository {
-    private MealDataSource mealServices;
-    private MealsLocalDataSource mealsLocalDataSource;
-    private FirebaseBackupService firebaseBackupService;
+    private final MealDataSource mealServices;
+    private final MealsLocalDataSource mealsLocalDataSource;
+    private final FirebaseBackupService firebaseBackupService;
 
     public MealRepository(Context context){
         mealServices = new MealDataSource(context);
@@ -78,7 +78,6 @@ public class MealRepository {
 
         return mealsLocalDataSource.insertMeal(meal)
                 .andThen(syncSingleMealToFirebase(meal))
-                .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> Log.d("DEBUG", "Insert successful!"))
                 .doOnError(error -> Log.e("DEBUG", "Insert failed: " + error.getMessage()));
 
@@ -87,10 +86,13 @@ public class MealRepository {
         return mealsLocalDataSource.cleanOldPlannedMeals();
     }
     public Completable deleteMealsFromFav(Meal meal){
+        meal.setFavorite(false);
         return mealsLocalDataSource.deleteFavMeal(meal)
                 .andThen(syncSingleMealToFirebase(meal));
     }
     public Completable deleteMealsFromCal(Meal meal){
+        meal.setPlanned(false);
+        meal.setPlanDate(null);
         return mealsLocalDataSource.deleteCalMeal(meal)
                 .andThen(syncSingleMealToFirebase(meal));
     }

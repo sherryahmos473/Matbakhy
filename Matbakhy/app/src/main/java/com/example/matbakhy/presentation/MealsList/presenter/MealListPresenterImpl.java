@@ -8,6 +8,7 @@ import com.example.matbakhy.data.MealRepository; // Make sure import is correct
 import com.example.matbakhy.presentation.MealsList.views.MealListView;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class MealListPresenterImpl implements MealListPresenter {
     private MealListView view;
@@ -32,6 +33,7 @@ public class MealListPresenterImpl implements MealListPresenter {
     @Override
     public void getMealByName(String name) {
         repository.getMealByName(name)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         mealList -> {

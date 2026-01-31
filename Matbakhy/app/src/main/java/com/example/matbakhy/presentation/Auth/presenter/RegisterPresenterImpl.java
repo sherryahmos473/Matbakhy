@@ -2,10 +2,10 @@ package com.example.matbakhy.presentation.Auth.presenter;
 
 import android.content.Context;
 import android.util.Log;
-
-import com.example.matbakhy.data.callbacks.AuthCallback;
-import com.example.matbakhy.data.model.User;
 import com.example.matbakhy.presentation.Auth.view.RegisterView;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class RegisterPresenterImpl extends BaseAuthPresenterImpl implements RegisterPresenter {
     private RegisterView registerView;
@@ -89,23 +89,23 @@ public class RegisterPresenterImpl extends BaseAuthPresenterImpl implements Regi
 
         registerView.showLoading("Creating account...");
 
-        authRepository.register(email, password, name, new AuthCallback() {
-            @Override
-            public void onSuccess(User user) {
-                if (registerView != null) {
-                    registerView.hideLoading();
-                    registerView.showToast("Registration successful!");
-                    registerView.navigateToHome(email);
-                }
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                if (registerView != null) {
-                    registerView.hideLoading();
-                    registerView.showError(errorMessage);
-                }
-            }
-        });
+        authRepository.register(email, password, name)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        user -> {
+                            if (registerView != null) {
+                                registerView.hideLoading();
+                                registerView.showToast("Registration successful!");
+                                registerView.navigateToHome(email);
+                            }
+                        },
+                        throwable -> {
+                            if (registerView != null) {
+                                registerView.hideLoading();
+                                registerView.showError(throwable.getMessage());
+                            }
+                        }
+                );
     }
 }

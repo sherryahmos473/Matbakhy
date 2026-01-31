@@ -7,7 +7,6 @@ import android.net.NetworkInfo;
 import android.util.Log;
 
 import com.example.matbakhy.R;
-import com.example.matbakhy.data.callbacks.AuthCallback;
 import com.example.matbakhy.data.datasources.local.SharedPrefServices;
 import com.example.matbakhy.data.model.User;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;

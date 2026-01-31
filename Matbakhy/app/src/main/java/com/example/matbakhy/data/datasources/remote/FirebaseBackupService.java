@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 
 import com.example.matbakhy.data.model.FirebaseMeal;
 import com.example.matbakhy.data.model.Meal;
-import com.example.matbakhy.data.callbacks.RestoreCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -20,6 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import io.reactivex.Single;
 
 public class FirebaseBackupService {
     private static final String TAG = "FirebaseBackupService";
@@ -63,57 +64,63 @@ public class FirebaseBackupService {
                         Log.e(TAG, "Backup failed", e));
     }
 
-    public void restoreMealsFromFirebase(RestoreCallback callback) {
-        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-        if (currentUser == null) {
-            callback.onError("User not authenticated");
-            return;
-        }
+    public Single<List<Meal>> restoreMealsFromFirebase() {
+        return Single.create(emitter -> {
 
-        String userId = currentUser.getUid();
-        Log.d(TAG, "restoreMealsFromFirebase: "+ userId);
+            FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+            if (currentUser == null) {
+                emitter.onError(new Exception("User not authenticated"));
+                return;
+            }
 
-        DatabaseReference userBackupRef = databaseReference
-                .child(BACKUP_PATH)
-                .child(userId)
-                .child("meals");
+            String userId = currentUser.getUid();
+            Log.d(TAG, "restoreMealsFromFirebase: " + userId);
 
-        userBackupRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!snapshot.exists()) {
-                    Log.d(TAG, "No backup found for user");
-                    callback.onSuccess(0,new ArrayList<>(),"No backup found");
-                    return;
-                }
+            DatabaseReference userBackupRef = databaseReference
+                    .child(BACKUP_PATH)
+                    .child(userId)
+                    .child("meals");
 
-                List<Meal> restoredMeals = new ArrayList<>();
-                int count = 0;
+            userBackupRef.addListenerForSingleValueEvent(new ValueEventListener() {
 
-                for (DataSnapshot mealSnapshot : snapshot.getChildren()) {
-                    try {
-                        Meal meal = convertSnapshotToMeal(mealSnapshot);
-                        if (meal != null) {
-                            restoredMeals.add(meal);
-                            count++;
-                            Log.d(TAG, "Restored meal: " + meal.getName() + "is favorite "+ meal.isFavorite());
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error parsing meal: " + e.getMessage());
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    if (!snapshot.exists()) {
+                        Log.d(TAG, "No backup found for user");
+                        emitter.onSuccess(new ArrayList<>());
+                        return;
                     }
+
+                    List<Meal> restoredMeals = new ArrayList<>();
+
+                    for (DataSnapshot mealSnapshot : snapshot.getChildren()) {
+                        try {
+                            Meal meal = convertSnapshotToMeal(mealSnapshot);
+                            if (meal != null) {
+                                restoredMeals.add(meal);
+                                Log.d(TAG,
+                                        "Restored meal: " + meal.getName() +
+                                                " is favorite " + meal.isFavorite()
+                                );
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error parsing meal", e);
+                        }
+                    }
+
+                    Log.d(TAG, "Successfully restored " + restoredMeals.size() + " meals");
+                    emitter.onSuccess(restoredMeals);
                 }
 
-                Log.d(TAG, "Successfully restored " + count + " meals");
-                callback.onSuccess(count, restoredMeals, "Restored " + count + " meals");
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Restore cancelled: " + error.getMessage());
-                callback.onError("Restore failed: " + error.getMessage());
-            }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    emitter.onError(error.toException());
+                }
+            });
         });
     }
+
 
     private Meal convertSnapshotToMeal(DataSnapshot snapshot) {
         try {
@@ -154,20 +161,42 @@ public class FirebaseBackupService {
             Log.e(TAG, "User not authenticated");
             return;
         }
+        Log.d(TAG, "Syncing meal - ID: " + meal.getId() +
+                ", Name: " + meal.getName() +
+                ", Favorite: " + meal.isFavorite() +
+                ", Planned: " + meal.isPlanned());
 
-        DatabaseReference mealsRef = databaseReference
+        DatabaseReference mealRef = databaseReference
                 .child(BACKUP_PATH)
                 .child(user.getUid())
-                .child("meals");
+                .child("meals")
+                .child(meal.getId());
 
-        String mealId = meal.getId() != null ? meal.getId() : "meal_" + System.currentTimeMillis();
+        if (!meal.isFavorite() && !meal.isPlanned()) {
+            Log.d(TAG, "Deleting meal from Firebase (not favorite or planned)");
+
+            mealRef.removeValue()
+                    .addOnSuccessListener(v ->
+                            Log.d(TAG, "Meal removed from Firebase"))
+                    .addOnFailureListener(e ->
+                            Log.e(TAG, "Failed to remove meal from Firebase", e));
+
+            return;
+        }
 
         FirebaseMeal firebaseMeal = new FirebaseMeal(meal, user.getUid(), user.getEmail());
 
-        mealsRef.child(mealId).setValue(firebaseMeal)
-                .addOnSuccessListener(v -> Log.d(TAG, "Meal synced to Firebase"))
-                .addOnFailureListener(e -> Log.e(TAG, "Failed to sync meal to Firebase", e));
+        Log.d(TAG, "FirebaseMeal created - Favorite: " + firebaseMeal.isFavorite() +
+                ", Planned: " + firebaseMeal.isPlanned());
+
+        mealRef.setValue(firebaseMeal)
+                .addOnSuccessListener(v ->
+                        Log.d(TAG, "Meal synced to Firebase successfully"))
+                .addOnFailureListener(e ->
+                        Log.e(TAG, "Failed to sync meal to Firebase", e));
     }
+
+
     private void setIngredient(Meal meal, int index, String value) {
         try {
             Method method = meal.getClass().getMethod("setIngredient" + index, String.class);

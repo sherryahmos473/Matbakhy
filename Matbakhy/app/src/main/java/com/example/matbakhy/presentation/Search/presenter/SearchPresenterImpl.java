@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class SearchPresenterImpl implements SearchPresenter {
     private MealRepository mealRepository;
@@ -34,6 +35,7 @@ public class SearchPresenterImpl implements SearchPresenter {
     }
     public void getAllCategories() {
         mealRepository.getAllCategories()
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         categories -> searchView.getCategories(categories),
@@ -43,6 +45,7 @@ public class SearchPresenterImpl implements SearchPresenter {
     @Override
     public void getAllCountries() {
         mealRepository.getAllCountries()
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         countries -> searchView.getCountries(countries),
@@ -53,6 +56,7 @@ public class SearchPresenterImpl implements SearchPresenter {
     @Override
     public void getAllIngredients() {
         mealRepository.getAllIngredients()
+                .subscribeOn(Schedulers.io())
                 .map(ingredients -> {
                     List<String> ingredientNames = new ArrayList<>();
                     for (Ingredient ingredient : ingredients) {
@@ -69,6 +73,7 @@ public class SearchPresenterImpl implements SearchPresenter {
 
     public void getMealOfCategory(String categoryName) {
         mealRepository.getMealOfCategory(categoryName)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         meals -> searchView.onSuccess(meals),
@@ -79,6 +84,7 @@ public class SearchPresenterImpl implements SearchPresenter {
     @Override
     public void getMealOfCountry(String countryName) {
         mealRepository.getMealOfCountry(countryName)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         meals -> searchView.onSuccess(meals),
@@ -89,6 +95,7 @@ public class SearchPresenterImpl implements SearchPresenter {
     @Override
     public void getMealOfIngredient(String ingredient) {
         mealRepository.getMealOfIngredient(ingredient)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         meals -> searchView.onSuccess(meals),
@@ -100,6 +107,7 @@ public class SearchPresenterImpl implements SearchPresenter {
     @Override
     public void getMealByName(String name) {
         mealRepository.getMealByName(name)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         mealList -> {
@@ -123,6 +131,7 @@ public class SearchPresenterImpl implements SearchPresenter {
     @Override
     public void getMealByFLetter(String FLetter) {
         mealRepository.getMealByFLetter(FLetter)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         meals -> searchView.onSuccess(meals),

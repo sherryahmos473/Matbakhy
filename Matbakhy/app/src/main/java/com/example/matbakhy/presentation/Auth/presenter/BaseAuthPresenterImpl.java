@@ -149,29 +149,6 @@ public abstract class BaseAuthPresenterImpl implements BaseAuthPresenter {
         return email != null && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
-    protected void handleGoogleSignInResult(Intent data) {
-        disposables.add(
-                authRepository.handleGoogleSignInResult(data)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                user -> {
-                                    if (view != null) {
-                                        Log.d(TAG, "Google Sign-In successful for: " + user.getEmail());
-                                        view.showToast("Welcome " + (user.getName() != null ? user.getName() : "User") + "!");
-                                        view.navigateToHome(user.getEmail());
-                                    }
-                                },
-                                error -> {
-                                    if (view != null) {
-                                        Log.e(TAG, "Google Sign-Up failed: " + error.getMessage());
-                                        view.showError(error.getMessage());
-                                    }
-                                }
-                        )
-        );
-    }
-
     protected boolean validateEmailAndPassword(String email, String password) {
         boolean isValid = true;
 
